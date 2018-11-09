@@ -7,6 +7,7 @@ from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from materials import forms
 from advpublish import settings
+from collections import OrderedDict
 
 
 def register(request):
@@ -117,11 +118,22 @@ def welcome(request):
 
 
 def material(request):
+    tags = models.Tag.objects.all()
+    materials = []
     if request.user.is_superuser:
-        images = models.Material.objects.all().order_by("-create_time")
+        for tag in tags:
+            file = models.Material.objects.filter(tag=tag).order_by("-create_time")
+            materials.append(file)
     else:
-        images = models.Material.objects.filter(user=request.user).order_by("-create_time")
-    return render(request, 'material.html', {"images": images})
+        for tag in tags:
+            file = models.Material.objects.filter(tag=tag, user=request.user).order_by("-create_time")
+            materials.append(file)
+
+    ret = {
+        "tags": tags,
+        "materials": materials
+    }
+    return render(request, 'material.html', ret)
 
 
 def programme(request):

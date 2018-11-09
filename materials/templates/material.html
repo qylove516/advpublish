@@ -15,49 +15,26 @@
     </div>
     <div class="layui-tab layui-tab-card">
         <ul class="layui-tab-title" style="text-align: center">
-            <li class="layui-this">图片</li>
-            <li>视频</li>
+            {% for tag in tags %}
+                {% if forloop.first %}
+                    <li class="layui-this">{{ tag.title }}</li>
+                {% else %}
+                    <li>{{ tag.title }}</li>
+                {% endif %}
+            {% endfor %}
         </ul>
         <div class="layui-tab-content" style="height: 100px;">
-            <div class="layui-tab-item layui-show">
-                <xblock>
-                    <button class="layui-btn" onclick="x_admin_show('添加图片','image/upload_img/')"><i
-                            class="layui-icon"></i>添加
-                    </button>
-                    <span class="x-right" style="line-height:40px">共有数据：{{ images.count }}条</span>
-                </xblock>
-                <table class="layui-table">
-                    <thead>
-                    <tr>
-
-                        <th>缩略图</th>
-                        <th>标签</th>
-                        <th>名称</th>
-                        <th>最后修改时间</th>
-                        <th>操作</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {% for image in images %}
-                        <tr>
-
-                            <td style="display: none;" id="img-id">{{ image.nid }}</td>
-                            <td><img src="{{ image.image.url }}" width="100px" height="100px"></td>
-                            <td>{{ image.tag.title }}</td>
-                            <td>{{ image.title }}</td>
-                            <td>{{ image.create_time|date:"Y-m-d H:i:s" }}</td>
-                            <td class="td-manage">
-                                <a title="删除" onclick="member_del(this,{{ image.nid }})" href="javascript:;">
-                                    <i class="layui-icon">&#xe640;</i>
-                                </a>
-                            </td>
-                        </tr>
-                    {% endfor %}
-
-                    </tbody>
-                </table>
-            </div>
-            <div class="layui-tab-item">视频</div>
+            {% for file in materials %}
+                {% if forloop.first %}
+                    <div class="layui-tab-item layui-show">
+                        {% include 'include/material_list.html' with file=file %}
+                    </div>
+                {% else %}
+                    <div class="layui-tab-item">
+                        {% include 'include/material_list.html' with file=file %}
+                    </div>
+                {% endif %}
+            {% endfor %}
         </div>
     </div>
 
@@ -68,8 +45,9 @@
         function member_del(obj, id) {
             layer.confirm('确认要删除吗？', function (index) {
                 //发异步删除数据
+
                 $.ajax({
-                    url: "{% url 'delete_img' %}",
+                    url: "{% url 'delete' 123 %}",
                     type: "get",
                     data: {
                         all: false,
