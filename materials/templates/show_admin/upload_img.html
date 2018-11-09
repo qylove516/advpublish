@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+{% load static staticfiles %}
+{% block title %}
+    添加图片
+{% endblock %}
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/bootstrap.css' %}">
+
+{% endblock %}
+{% block content %}
+    <form class="form-horizontal" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="form-group">
+            <div class="col-sm-offset-2 col-sm-10">
+                <label for="id_avatar" class="layui-btn">选择图片</label>
+                <input type="file" id="id_avatar" accept="image/*" name="avatar" style="display: none;">
+                <img src="" id="avatar-img">
+                <span class="help-block"></span>
+            </div>
+            <hr>
+            <div style="margin-left: 180px;margin-bottom: 10px; width: 100px;">
+                <select style="width: 100px;" id="tag-id">
+                    {% for s in select %}
+                        <option value="volvo">{{ s.title }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-sm-offset-2 col-sm-10">
+                <button type="button" class="layui-btn" id="upload-img">
+                    <i class="layui-icon">&#xe67c;</i>上传图片
+                </button>
+            </div>
+            <div>
+                <span id="has-error"></span>
+            </div>
+        </div>
+    </form>
+{% endblock %}
+{% block extra_js %}
+    <script>
+        $("#id_avatar").change(function () {
+            var fileReader = new FileReader();
+            fileReader.readAsDataURL(this.files[0]);
+            fileReader.onload = function () {
+                $("#avatar-img").attr('src', fileReader.result);
+            }
+        });
+
+        $("#upload-img").click(function () {
+            var form_data = new FormData();
+            var tag = $("#tag-id option:selected").text();
+            var img = $("#id_avatar")[0].files[0];
+            form_data.append("img", img);
+            form_data.append("tag", tag);
+            form_data.append("csrfmiddlewaretoken", $("[name='csrfmiddlewaretoken']").val());
+            $.ajax({
+                url: "{% url 'upload_img' %}",
+                type: "post",
+                processData: false,
+                contentType: false,
+                data: form_data,
+                success: function (data) {
+                    if (data.status) {
+                        $("#has-error").text(data.msg);
+                    }else{
+                        parent.location.reload(); // 刷新父页面，同时会关闭当前页面
+                    }
+                }
+            })
+        })
+    </script>
+{% endblock %}

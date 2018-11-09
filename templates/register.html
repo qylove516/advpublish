@@ -1,0 +1,140 @@
+{% load static staticfiles %}
+<!DOCTYPE html>
+<html class="no-js">
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>
+        注册用户
+    </title>
+    <meta name="description" content=""/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+    <link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap.css' %}">
+    <link rel="stylesheet" type="text/x-scss" href="{% static "css/public.css" %}"/>
+    <link rel="stylesheet" type="text/css" href="{% static 'fonts/font-awesome.min.css' %}">
+    <script type="text/javascript" src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+    <script type="text/javascript" src="{% static 'js/bootstrap.js' %}"></script>
+</head>
+
+<body>
+<div>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-8 col-md-offset-2" style="text-align: center; padding: 30px">
+                <span>注册 &nbsp;| <a href="{% url 'login' %}">登录</a> </span>
+            </div>
+            <div class="col-md-8 col-md-offset-2">
+                <form class="form-horizontal" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="inputEmail3" class="col-sm-2 control-label">{{ form_obj.username.label }}</label>
+                        <div class="col-sm-10">
+                            {{ form_obj.username }}
+                            <span class="help-block">{{ form_obj.username.errors.0 }}</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="inputPassword3" class="col-sm-2 control-label">{{ form_obj.password.label }}</label>
+                        <div class="col-sm-10">
+                            {{ form_obj.password }}
+                            <span class="help-block">{{ form_obj.password.errors.0 }}</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="inputPassword3"
+                               class="col-sm-2 control-label">{{ form_obj.re_password.label }}</label>
+                        <div class="col-sm-10">
+                            {{ form_obj.re_password }}
+                            <span class="help-block">{{ form_obj.re_password.errors.0 }}</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="inputEmail3" class="col-sm-2 control-label">{{ form_obj.email.label }}</label>
+                        <div class="col-sm-10">
+                            {{ form_obj.email }}
+                            <span class="help-block">{{ form_obj.email.errors.0 }}</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="inputEmail3" class="col-sm-2 control-label">{{ form_obj.company.label }}</label>
+                        <div class="col-sm-10">
+                            {{ form_obj.company }}
+                            <span class="help-block">{{ form_obj.company.errors.0 }}</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="inputEmail3" class="col-sm-2 control-label">{{ form_obj.tel.label }}</label>
+                        <div class="col-sm-10">
+                            {{ form_obj.tel }}
+                            <span class="help-block">{{ form_obj.tel.errors.0 }}</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="inputEmail3" class="col-sm-2 control-label">{{ form_obj.address.label }}</label>
+                        <div class="col-sm-10">
+                            {{ form_obj.address }}
+                            <span class="help-block">{{ form_obj.address.errors.0 }}</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="col-sm-offset-2 col-sm-10">
+                            <button type="button" class="btn btn-default" id="reg-submit">注册</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
+</body>
+<script>
+
+    $("#reg-submit").click(function () {
+        var formData = new FormData();
+        formData.append("username", $("#id_username").val());
+        formData.append("password", $("#id_password").val());
+        formData.append("re_password", $("#id_re_password").val());
+        formData.append("email", $("#id_email").val());
+        formData.append("company", $("#id_company").val());
+        formData.append("tel", $("#id_tel").val());
+        formData.append("address", $("#id_address").val());
+        formData.append("csrfmiddlewaretoken", $("[name='csrfmiddlewaretoken']").val());
+        $.ajax({
+            url: "{% url 'register' %}",
+            type: "post",
+            processData: false,
+            contentType: false,
+            data: formData,
+            success: function (data) {
+                if (data.status) {
+                    $.each(data.msg, function (k, v) {
+                        $("#id_" + k).next("span").text(v[0]).parent().parent().addClass("has-error");
+                    })
+                }
+                else {
+                    location.href = data.msg;
+                }
+            }
+        });
+        $("form input").focus(function () {
+            $(this).next().text("").parent().parent().removeClass("has-error");
+        })
+    });
+    $("#id_username").on("input", function () {
+        var username = $(this).val();
+        $.ajax({
+            url: "{% url 'check_username_exist' %}",
+            type: 'get',
+            data: {"username": username},
+            success: function (data) {
+                $("#id_username").next().text(data.msg).parent().parent().addClass("has-error");
+            }
+        })
+    })
+</script>
+</html>

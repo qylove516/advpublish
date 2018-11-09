@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}
+    用户信息
+{% endblock %}
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/bootstrap.css' %}">
+    <style>
+        .user-group{
+            padding: 40px 20px 0 20px;
+        }
+        .user-group > li{
+            border: 0;
+        }
+    </style>
+{% endblock %}
+{% block content %}
+    <ul class="list-group user-group">
+        <li class="list-group-item">姓名：
+            <span>{{ request.user.username }}</span>
+        </li>
+        <li class="list-group-item">公司：
+            <span>{{ request.user.company }}</span>
+        </li>
+        <li class="list-group-item">电话：
+            <span>{{ request.user.tel }}</span>
+        </li>
+        <li class="list-group-item">地址：
+            <span>{{ request.user.address }}</span>
+        </li>
+    </ul>
+{% endblock %}
