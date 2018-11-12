@@ -30,7 +30,8 @@
                     <i class="layui-icon">&#xe67c;</i>上传图片
                 </button>
             </div>
-            <div>
+            <hr>
+            <div class="layui-btn layui-btn-primary col-sm-offset-2 col-sm-3">
                 <span id="has-error"></span>
             </div>
         </div>
@@ -62,6 +63,10 @@
             form_data.append("img", img);
             form_data.append("tag", tag);
             form_data.append("csrfmiddlewaretoken", $("[name='csrfmiddlewaretoken']").val());
+            if(img==undefined){
+                $("#has-error").text("请选择上传文件！");
+                return false;
+            }
             $.ajax({
                 url: "{% url 'material_add' %}",
                 type: "post",
