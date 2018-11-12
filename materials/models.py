@@ -47,7 +47,7 @@ class Tag(models.Model):
         verbose_name_plural = "标签"
 
 
-class Material(models.Model):
+class MaterialFather(models.Model):
     nid = models.AutoField(primary_key=True)
     title = models.CharField("标题", max_length=32, blank=True, null=True)
     tag = models.ForeignKey(
@@ -56,7 +56,6 @@ class Material(models.Model):
         null=True,
         on_delete=models.SET_NULL,
     )
-    files = models.FileField("文件", upload_to="")
     create_time = models.DateTimeField(auto_now=True)
     user = models.ForeignKey(
         to="UserInfo",
@@ -68,6 +67,21 @@ class Material(models.Model):
 
     def __str__(self):
         return self.title
+
+    class Meta:
+        abstract = True
+
+
+class Material(MaterialFather):
+    files = models.ImageField("图片", upload_to="")
+
+    class Meta:
+        verbose_name = "图片"
+        verbose_name_plural = "图片"
+
+
+class MaterialFiles(MaterialFather):
+    files = models.FileField("文件", upload_to="documents/")
 
     class Meta:
         verbose_name = "文件"
