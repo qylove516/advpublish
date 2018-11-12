@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div style="padding: 50px;">
+        <input type="file" name="file" id="file_upload">
+        <hr>
+        <input type="button" value="上传" onclick="FileUpload()">
+        <div id="son"></div>
+    </div>
+    {% csrf_token %}
+{% endblock %}
+
+{% block extra_js %}
+    <script>
+        function FileUpload() {
+            var form_data = new FormData();
+            var file_info = $('#file_upload')[0].files[0];
+            form_data.append("csrfmiddlewaretoken", $("[name='csrfmiddlewaretoken']").val());
+            form_data.append('file', file_info);
+            if (file_info == undefined) {
+                alert('你没有选择任何文件');
+                return false;
+            }//暂且不许要判断是否有附件
+            $.ajax({
+                url: "{% url 'material_file_add' %}",
+                type: 'POST',
+                data: form_data,
+                processData: false,  // tell jquery not to process the data
+                contentType: false, // tell jquery not to set contentType
+                xhr: function () {
+                    myXhr = $.ajaxSettings.xhr();
+                    if (myXhr.upload) { // check if upload property exists
+                        myXhr.upload.addEventListener('progress', function (e) {
+                            var loaded = e.loaded;//已经上传大小情况
+                            var tot = e.total;//附件总大小
+                            var per = Math.floor(100 * loaded / tot);  //已经上传的百分比
+                            $("#son").html(per + "%");
+                            $("#son").css("width", per + "%");
+                            //console.log('附件总大小 = ' + loaded);
+                            //console.log('已经上传大小 = ' + tot);
+                        }, false); // for handling the progress of the upload
+                    }
+                    return myXhr;
+                },
+                success: function (callback) {
+                    console.log('ok')
+                }
+            });
+        }
+    </script>
+{% endblock %}
+
+

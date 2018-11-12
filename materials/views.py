@@ -146,6 +146,48 @@ def material(request):
     return render(request, 'material.html', ret)
 
 
+def material_file(request):
+    if request.user.is_superuser:
+        file_list = models.MaterialFiles.objects.all().order_by("-create_time")
+    else:
+        file_list = models.MaterialFiles.objects.filter(user=request.user).order_by("-create_time")
+    paginator = Paginator(file_list, 6)
+    page = request.GET.get('page')
+    try:
+        current_page = paginator.page(page)
+        files = current_page.object_list
+    except PageNotAnInteger:
+        current_page = paginator.page(1)
+        files = current_page.object_list
+    except EmptyPage:
+        current_page = paginator.page(paginator.num_pages)
+        files = current_page.object_list
+
+    ret = {
+        "counts": paginator.count,
+        "pages": current_page,
+        "files": files
+    }
+    return render(request, 'material_file.html', ret)
+
+
+def material_file_add(request):
+    if request.method == 'POST':
+        time = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+        file_obj = request.FILES.get('file')
+        title = file_obj.name
+        file_path = os.path.join(settings.MEDIA_ROOT, "uploads", time + file_obj.name)
+        f = open(file_path, "wb")
+        print(file_obj, type(file_obj))
+        for chunk in file_obj.chunks():
+            f.write(chunk)
+        f.close()
+        print('11111')
+        models.MaterialFiles.objects.create(title=title, files=file_path, user=request.user)
+        return HttpResponse('OK')
+    return render(request, 'show_admin/material_file_add.html')
+
+
 def programme(request):
     return render(request, 'programme.html')
 

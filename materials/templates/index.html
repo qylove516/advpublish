@@ -66,9 +66,23 @@
                     </a>
                     <ul class="sub-menu">
                         <li>
-                            <a _href="{% url 'material' %}">
+                            <a href="javascript:;">
+                                <i class="iconfont">&#xe6ab;</i>
                                 <cite>素材管理</cite>
+                                <i class="iconfont nav_right">&#xe697;</i>
                             </a>
+                            <ul class="sub-menu">
+                                <li>
+                                    <a _href="{% url 'material' %}">
+                                        <cite>图片上传</cite>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a _href="{% url 'material_file' %}">
+                                        <cite>文件上传</cite>
+                                    </a>
+                                </li>
+                            </ul>
                         </li>
                         <li>
                             <a _href="{% url 'programme' %}">

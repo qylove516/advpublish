@@ -22,7 +22,7 @@
                 <!--
                 <button class="layui-btn layui-btn-danger" onclick="delAll()"><i class="layui-icon"></i>批量删除</button>
                 -->
-                <button class="layui-btn" onclick="x_admin_show('添加图片','{% url 'material_add' %}')"><i
+                <button class="layui-btn" onclick="x_admin_show('添加文件','{% url 'material_file_add' %}')"><i
                         class="layui-icon"></i>添加
                 </button>
                 <span class="x-right" style="line-height:40px">共有数据：{{ counts }} 条</span>
@@ -32,9 +32,6 @@
                 {% for file in files %}
                     <div class="col-xs-2">
                         <div class="thumbnail">
-                            <div class="panel-primary" style="height: 100px; line-height: 100px; text-align: center">
-                                <img src="{{ file.files.url }}" alt="...">
-                            </div>
                             <div class="panel-primary" style="text-align: center">
                                 {{ file.title }}
                                 <a title="删除" onclick="member_del(this,'{{ file.nid }}')" href="javascript:;">
