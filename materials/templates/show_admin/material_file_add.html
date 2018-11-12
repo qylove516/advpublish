@@ -3,6 +3,14 @@
 {% block content %}
     <div style="padding: 50px;">
         <input type="file" name="file" id="file_upload">
+        <div style="margin-left: 180px;margin-bottom: 10px; width: 100px;">
+            <select style="width: 100px;" id="tag-id">
+                <option selected="selected">------</option>
+                {% for s in tags %}
+                    <option value="volvo">{{ s.title }}</option>
+                {% endfor %}
+            </select>
+        </div>
         <hr>
         <input type="button" value="上传" onclick="FileUpload()">
         <div id="son"></div>
@@ -14,9 +22,11 @@
     <script>
         function FileUpload() {
             var form_data = new FormData();
+            var tag = $("#tag-id option:selected").text();
             var file_info = $('#file_upload')[0].files[0];
             form_data.append("csrfmiddlewaretoken", $("[name='csrfmiddlewaretoken']").val());
             form_data.append('file', file_info);
+            form_data.append('tag', tag);
             if (file_info == undefined) {
                 alert('你没有选择任何文件');
                 return false;
@@ -43,7 +53,8 @@
                     return myXhr;
                 },
                 success: function (callback) {
-                    console.log('ok')
+                    console.log('ok');
+                    parent.location.reload();
                 }
             });
         }

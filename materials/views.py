@@ -84,11 +84,11 @@ def material_add(request):
         title = files.name
         models.Material.objects.create(title=title, tag=tag, files=files, user=request.user)
         return HttpResponse(json.dumps(ret))
-    select = models.Tag.objects.all()
-    select = {
-        "select": select
+    tags = models.Tag.objects.all()
+    ret = {
+        "tags": tags
     }
-    return render(request, "show_admin/material_add.html", select)
+    return render(request, "show_admin/material_add.html", ret)
 
 
 def material_delete(request):
@@ -175,17 +175,21 @@ def material_file_add(request):
     if request.method == 'POST':
         time = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
         file_obj = request.FILES.get('file')
+        tag = request.POST.get('tag')
         title = file_obj.name
         file_path = os.path.join(settings.MEDIA_ROOT, "uploads", time + file_obj.name)
         f = open(file_path, "wb")
-        print(file_obj, type(file_obj))
         for chunk in file_obj.chunks():
             f.write(chunk)
         f.close()
-        print('11111')
-        models.MaterialFiles.objects.create(title=title, files=file_path, user=request.user)
+        tag = models.FileTag.objects.filter(title=tag).first()
+        models.MaterialFiles.objects.create(title=title, tag=tag, files=file_path, user=request.user)
         return HttpResponse('OK')
-    return render(request, 'show_admin/material_file_add.html')
+    tags = models.FileTag.objects.all()
+    ret = {
+        "tags": tags
+    }
+    return render(request, 'show_admin/material_file_add.html', ret)
 
 
 def programme(request):
