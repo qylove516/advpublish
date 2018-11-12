@@ -38,12 +38,21 @@
 {% endblock %}
 {% block extra_js %}
     <script>
+        /*
+        $(function () {
+            if ($("#avatar-img").attr("src")) {
+
+            } else {
+                $("#upload-img").attr({"disabled": "disabled"}).css({"background-color": "#40d0c3"})
+            }
+        });
+        */
         $("#id_avatar").change(function () {
             var fileReader = new FileReader();
             fileReader.readAsDataURL(this.files[0]);
             fileReader.onload = function () {
                 $("#avatar-img").attr('src', fileReader.result);
-            }
+            };
         });
 
         $("#upload-img").click(function () {
@@ -54,7 +63,7 @@
             form_data.append("tag", tag);
             form_data.append("csrfmiddlewaretoken", $("[name='csrfmiddlewaretoken']").val());
             $.ajax({
-                url: "{% url 'upload_img' %}",
+                url: "{% url 'material_add' %}",
                 type: "post",
                 processData: false,
                 contentType: false,
@@ -62,7 +71,7 @@
                 success: function (data) {
                     if (data.status) {
                         $("#has-error").text(data.msg);
-                    }else{
+                    } else {
                         parent.location.reload(); // 刷新父页面，同时会关闭当前页面
                     }
                 }

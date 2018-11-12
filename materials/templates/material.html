@@ -1,40 +1,68 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block title %}
-    素材管理
+    {{ tag }}
+{% endblock %}
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/bootstrap.css' %}">
 {% endblock %}
 {% block content %}
     <div class="x-nav">
       <span class="layui-breadcrumb">
-        <span style="font-size: 22px">素材列表</span>
+        <span style="font-size: 22px">{{ tag }}</span>
       </span>
         <a class="layui-btn layui-btn-small" style="line-height:1.6em;margin-top:3px;float:right"
            href="javascript:location.replace(location.href);" title="刷新">
             <i class="layui-icon" style="line-height:30px">ဂ</i>
         </a>
     </div>
-    <div class="layui-tab layui-tab-card">
-        <ul class="layui-tab-title" style="text-align: center">
-            {% for tag in tags %}
-                {% if forloop.first %}
-                    <li class="layui-this">{{ tag.title }}</li>
-                {% else %}
-                    <li>{{ tag.title }}</li>
-                {% endif %}
-            {% endfor %}
-        </ul>
-        <div class="layui-tab-content" style="height: 100px;">
-            {% for file in materials %}
-                {% if forloop.first %}
-                    <div class="layui-tab-item layui-show">
-                        {% include 'include/material_list.html' with file=file %}
+    <div class="x-body">
+        <div class="layui-row">
+            <xblock>
+                <!--
+                <button class="layui-btn layui-btn-danger" onclick="delAll()"><i class="layui-icon"></i>批量删除</button>
+                -->
+                <button class="layui-btn" onclick="x_admin_show('添加用户','{% url 'material_add' %}')"><i
+                        class="layui-icon"></i>添加
+                </button>
+                <span class="x-right" style="line-height:40px">共有数据：{{ counts }} 条</span>
+            </xblock>
+
+            <div class="row">
+                {% for file in files %}
+                    <div class="col-xs-2">
+                        <div class="thumbnail">
+                            <div class="panel-primary" style="height: 100px; line-height: 100px; text-align: center">
+                                <img src="{{ file.files.url }}" alt="...">
+                            </div>
+                            <div class="panel-primary" style="text-align: center">
+                                {{ file.title }}
+                                <a title="删除" onclick="member_del(this,'{{ file.nid }}')" href="javascript:;">
+                                    <i class="layui-icon">&#xe640;</i>
+                                </a>
+                            </div>
+                        </div>
                     </div>
-                {% else %}
-                    <div class="layui-tab-item">
-                        {% include 'include/material_list.html' with file=file %}
-                    </div>
-                {% endif %}
-            {% endfor %}
+                {% endfor %}
+            </div>
+
+            <div class="pagination">
+                <span class="step-links">
+                    <a href="?page=1">&laquo; 首页</a>
+                    {% if pages.has_previous %}
+                        <a href="?page={{ pages.previous_page_number }}">前一页</a>
+                    {% endif %}
+
+                    <span class="current">
+                        共 {{ pages.number }}页 &nbsp; 第 {{ pages.paginator.num_pages }}页 &nbsp;
+                    </span>
+
+                    {% if pages.has_next %}
+                        <a href="?page={{ pages.next_page_number }}">下一页</a>
+                    {% endif %}
+                    <a href="?page={{ pages.paginator.num_pages }}">最后一页 &raquo;</a>
+                </span>
+            </div>
         </div>
     </div>
 
@@ -47,7 +75,7 @@
                 //发异步删除数据
 
                 $.ajax({
-                    url: "{% url 'delete' 123 %}",
+                    url: "{% url 'material_delete' %}",
                     type: "get",
                     data: {
                         all: false,
@@ -57,24 +85,12 @@
                         if (data.status) {
                             $(obj).parents("tr").remove();
                             layer.msg('已删除!', {icon: 1, time: 1000});
+                            window.location.reload();
                         } else {
                             layer.msg('删除失败啦!', {icon: 1, time: 1000});
                         }
                     }
                 });
-
-            });
-        }
-
-
-        function delAll(argument) {
-
-            var data = tableCheck.getData();
-            layer.confirm('确认要删除吗？' + data, function (index) {
-                //捉到所有被选中的，发异步进行删除
-                layer.msg('删除成功', {icon: 1});
-
-                $(".layui-form-checked").not('.header').parents('tr').remove();
             });
         }
     </script>

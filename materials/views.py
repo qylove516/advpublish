@@ -8,6 +8,7 @@ from django.contrib.auth.decorators import login_required
 from materials import forms
 from advpublish import settings
 from collections import OrderedDict
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 
 def register(request):
@@ -65,29 +66,32 @@ def logout(request):
 
 @login_required
 def index(request):
-    return render(request, 'index.html')
+    ret = {}
+    tags = models.Tag.objects.all()
+    ret["tags"] = tags
+    return render(request, 'index.html', ret)
 
 
-def upload(request, tag):
+def material_add(request):
     if request.method == "POST":
         ret = {"status": 0, "msg": ""}
-        img = request.FILES.get("img")
-        if not img:
+        files = request.FILES.get("img")
+        if not files:
             ret["msg"] = "上传文件为空，请重新选择文件！"
             return HttpResponse(json.dumps(ret))
         tag = request.POST.get("tag")
         tag = models.Tag.objects.filter(title=tag).first()
-        title = img.name
-        models.Material.objects.create(title=title, tag=tag, image=img, user=request.user)
+        title = files.name
+        models.Material.objects.create(title=title, tag=tag, files=files, user=request.user)
         return HttpResponse(json.dumps(ret))
     select = models.Tag.objects.all()
     select = {
         "select": select
     }
-    return render(request, "show_admin/upload_img.html", select)
+    return render(request, "show_admin/material_add.html", select)
 
 
-def delete(request, tag):
+def material_delete(request):
     all_img = request.GET.get("all")
     all_img = json.loads(all_img)
     nid = request.GET.get("nid")
@@ -118,20 +122,26 @@ def welcome(request):
 
 
 def material(request):
-    tags = models.Tag.objects.all()
-    materials = []
     if request.user.is_superuser:
-        for tag in tags:
-            file = models.Material.objects.filter(tag=tag).order_by("-create_time")
-            materials.append(file)
+        file_list = models.Material.objects.all().order_by("-create_time")
     else:
-        for tag in tags:
-            file = models.Material.objects.filter(tag=tag, user=request.user).order_by("-create_time")
-            materials.append(file)
+        file_list = models.Material.objects.filter(user=request.user).order_by("-create_time")
+    paginator = Paginator(file_list, 6)
+    page = request.GET.get('page')
+    try:
+        current_page = paginator.page(page)
+        files = current_page.object_list
+    except PageNotAnInteger:
+        current_page = paginator.page(1)
+        files = current_page.object_list
+    except EmptyPage:
+        current_page = paginator.page(paginator.num_pages)
+        files = current_page.object_list
 
     ret = {
-        "tags": tags,
-        "materials": materials
+        "counts": paginator.count,
+        "pages": current_page,
+        "files": files
     }
     return render(request, 'material.html', ret)
 
