@@ -46,16 +46,13 @@
                         <li>
                             <a _href="member-list.html">
                                 <cite>终端列表</cite>
-
                             </a>
                         </li>
                         <li>
                             <a _href="member-del.html">
                                 <cite>终端监控</cite>
-
                             </a>
                         </li>
-
                     </ul>
                 </li>
                 <li>
@@ -81,20 +78,11 @@
                             </ul>
                         </li>
                         <li>
-                            <a href="javascript:;">
+                            <a _href="{% url 'programme' %}">
                                 <i class="iconfont">&#xe6b4;</i>
                                 <cite>节目单</cite>
-                                <i class="iconfont nav_right">&#xe697;</i>
                             </a>
-                            <ul class="sub-menu">
-                                {% for programme in programmes %}
-                                    <li>
-                                        <a _href="{% url 'programme' programme.nid %}">
-                                            <cite>{{ programme.title }}</cite>
-                                        </a>
-                                    </li>
-                                {% endfor %}
-                            </ul>
+
 
                         </li>
                     </ul>

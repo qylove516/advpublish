@@ -31,28 +31,43 @@
         </a>
     </div>
     <hr>
-    <div class="panel panel-primary col-sm-4 col-sm-offset-1">
-        <div style="margin-top: 5px; text-align: center">
-            <button class="layui-btn layui-btn layui-btn-xs" onclick="x_admin_show('编辑','admin-edit.html')"><i
-                    class="layui-icon">&#xe642;</i>添加图片
-            </button>
-            <button class="layui-btn layui-btn layui-btn-xs" onclick="x_admin_show('编辑','admin-edit.html')"><i
-                    class="layui-icon">&#xe642;</i>添加视频
-            </button>
-            <button class="layui-btn layui-btn layui-btn-xs" onclick="x_admin_show('编辑','admin-edit.html')"><i
-                    class="layui-icon">&#xe642;</i>修改时间
-            </button>
+    <xblock>
+        <!--
+        <button class="layui-btn layui-btn-danger" onclick="delAll()"><i class="layui-icon"></i>批量删除</button>
+        -->
+        <button class="layui-btn" onclick="x_admin_show('添加节目单','{% url 'programme_add' %}', 600, 300)"><i
+                class="layui-icon"></i>添加节目单
+        </button>
+        <span class="x-right" style="line-height:40px">共有数据：{{ programmes.count }} 条</span>
+    </xblock>
+    {% for programme in programmes %}
+        <div class="col-sm-4">
+            <div class="panel panel-primary">
+                <div style="margin-top: 5px; text-align: center">
+                    <button class="layui-btn layui-btn layui-btn-xs" onclick="x_admin_show('编辑','admin-edit.html')"><i
+                            class="layui-icon">&#xe642;</i>添加图片
+                    </button>
+                    <button class="layui-btn layui-btn layui-btn-xs" onclick="x_admin_show('编辑','admin-edit.html')"><i
+                            class="layui-icon">&#xe642;</i>添加视频
+                    </button>
+                    <button class="layui-btn layui-btn layui-btn-xs" onclick="x_admin_show('编辑','admin-edit.html')"><i
+                            class="layui-icon">&#xe642;</i>修改时间
+                    </button>
+                </div>
+                <ul id="sortable" class="list-group">
+                    <li class="ui-state-default"><a href="">Item 1</a></li>
+                    <li class="ui-state-default"><a href="">Item 2</a></li>
+                    <li class="ui-state-default"><a href="">Item 3</a></li>
+                    <li class="ui-state-default"><a href="">Item 4</a></li>
+                    <li class="ui-state-default"><a href="">Item 5</a></li>
+                    <li class="ui-state-default"><a href="">Item 6</a></li>
+                    <li class="ui-state-default"><a href="">Item 7</a></li>
+                </ul>
+            </div>
         </div>
-        <ul id="sortable" class="list-group">
-            <li class="ui-state-default"><a href="">Item 1</a></li>
-            <li class="ui-state-default"><a href="">Item 2</a></li>
-            <li class="ui-state-default"><a href="">Item 3</a></li>
-            <li class="ui-state-default"><a href="">Item 4</a></li>
-            <li class="ui-state-default"><a href="">Item 5</a></li>
-            <li class="ui-state-default"><a href="">Item 6</a></li>
-            <li class="ui-state-default"><a href="">Item 7</a></li>
-        </ul>
-    </div>
+
+    {% endfor %}
+
 
 {% endblock %}
 {% block extra_js %}
@@ -63,7 +78,7 @@
             $("#sortable").disableSelection();
         });
         $("#sortable").sortable({
-            stop: function(event, ui) {
+            stop: function (event, ui) {
                 console.log(event);
                 console.log(ui)
             }

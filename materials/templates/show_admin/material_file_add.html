@@ -1,18 +1,24 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <div style="padding: 50px;">
-        <input type="file" name="file" id="file_upload">
-        <div style="margin-left: 180px;margin-bottom: 10px; width: 100px;">
-            <select style="width: 100px;" id="tag-id">
-                <option selected="selected">------</option>
+    <div style="padding: 20px; padding-left: 50px">
+        <div>
+            <input type="file" name="file" id="file_upload">
+        </div>
+        <hr>
+        <div>
+            <p>请选择文件标签</p>
+            <select style="width: 100px;height: 30px; margin-top: 5px" id="tag-id">
+
+                <option selected="selected">-----</option>
                 {% for s in tags %}
                     <option value="volvo">{{ s.title }}</option>
                 {% endfor %}
             </select>
         </div>
         <hr>
-        <input type="button" value="上传" onclick="FileUpload()">
+        <input type="button" value="上传" onclick="FileUpload()" class="layui-btn">
+        <span id="has-error" style="color: orange;"></span>
         <div id="son"></div>
     </div>
     {% csrf_token %}
@@ -28,7 +34,10 @@
             form_data.append('file', file_info);
             form_data.append('tag', tag);
             if (file_info == undefined) {
-                alert('你没有选择任何文件');
+                $("#has-error").text("请选择上传文件！");
+                setTimeout(function () {
+                    $("#has-error").text("");
+                }, 1000);
                 return false;
             }//暂且不许要判断是否有附件
             $.ajax({

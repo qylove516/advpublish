@@ -7,7 +7,8 @@ urlpatterns = [
 
     path('material/material_file_add/', views.material_file_add, name='material_file_add'),
     path('material/material_file_delete/', views.material_file_delete, name='material_file_delete'),
-    path('programme/<int:nid>', views.programme, name='programme'),
+    path('programme/', views.programme, name='programme'),
+    path('programme/programme_add/', views.programme_add, name='programme_add'),
     path('user/', views.user, name='user'),
 
     # path('material/material_add/', views.material_add, name='material_add'),

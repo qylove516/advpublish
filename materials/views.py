@@ -67,10 +67,8 @@ def logout(request):
 @login_required
 def index(request):
     tags = models.FileTag.objects.all()
-    programmes = models.Programme.objects.all().order_by("-create_time")
     ret = {
         "tags": tags,
-        "programmes": programmes
     }
     return render(request, 'index.html', ret)
 
@@ -84,7 +82,7 @@ def material_file(request):
         file_list = models.MaterialFiles.objects.all().order_by("-create_time")
     else:
         file_list = models.MaterialFiles.objects.filter(user=request.user).order_by("-create_time")
-    paginator = Paginator(file_list, 6)
+    paginator = Paginator(file_list, 12)
     page = request.GET.get('page')
     try:
         current_page = paginator.page(page)
@@ -97,7 +95,6 @@ def material_file(request):
         files = current_page.object_list
 
     ret = {
-        "counts": paginator.count,
         "pages": current_page,
         "files": files
     }
@@ -151,14 +148,39 @@ def material_file_delete(request):
     return JsonResponse(ret)
 
 
-def programme(request, nid):
-    programme_obj = models.Programme.objects.filter(nid=nid).first()
-    machines = programme_obj.machine.all()
+def programme(request):
+    programmes = models.Programme.objects.all()
 
     ret = {
-        "machines": machines,
+        "programmes": programmes,
     }
+    # 取每个节目单的 programme material
+
     return render(request, 'programme.html', ret)
+
+
+def programme_add(request):
+    if request.method == "POST":
+        title = request.POST.get("title")
+        intervals = request.POST.get("intervals")
+        if title and intervals:
+            models.Programme.objects.create(title=title, )
+    # 取属于该用户的所有时间段
+    user = request.user
+    user_intervals = user.intervaltime_set.all()
+    k = []
+    for p in models.Programme.objects.filter(user=user):
+        intervals = p.interval.all()
+        for i in intervals:
+            k.append(i)
+    intervals = []
+    for m in user_intervals:
+        if m not in k:
+            intervals.append(m)
+    ret = {
+        "intervals": intervals
+    }
+    return render(request, 'show_admin/programme_add.html', ret)
 
 
 def user(request):

@@ -104,10 +104,6 @@ class Programme(models.Model):
     title = models.CharField('标题', max_length=64)
     is_publish = models.BooleanField("是否发布", default=False)
     create_time = models.DateTimeField(auto_now=True)
-    material_files = models.ManyToManyField(
-        to="MaterialFiles",
-        blank=True
-    )
     user = models.ForeignKey(
         to="UserInfo",
         to_field="nid",
@@ -151,7 +147,7 @@ class ProgrammeMaterial(models.Model):
 
     def __str__(self):
         if self.material:
-            return self.material.title
+            return self.programme.title
         return self.nid
 
     class Meta:
