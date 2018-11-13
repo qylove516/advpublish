@@ -66,84 +66,17 @@ def logout(request):
 
 @login_required
 def index(request):
-    ret = {}
-    tags = models.Tag.objects.all()
-    ret["tags"] = tags
-    return render(request, 'index.html', ret)
-
-
-def material_add(request):
-    if request.method == "POST":
-        ret = {"status": 0, "msg": ""}
-        files = request.FILES.get("img")
-        if not files:
-            ret["msg"] = "上传文件为空，请重新选择文件！"
-            return HttpResponse(json.dumps(ret))
-        tag = request.POST.get("tag")
-        tag = models.Tag.objects.filter(title=tag).first()
-        title = files.name
-        models.Material.objects.create(title=title, tag=tag, files=files, user=request.user)
-        return HttpResponse(json.dumps(ret))
-    tags = models.Tag.objects.all()
+    tags = models.FileTag.objects.all()
+    programmes = models.Programme.objects.all().order_by("-create_time")
     ret = {
-        "tags": tags
+        "tags": tags,
+        "programmes": programmes
     }
-    return render(request, "show_admin/material_add.html", ret)
-
-
-def material_delete(request):
-    all_img = request.GET.get("all")
-    all_img = json.loads(all_img)
-    nid = request.GET.get("nid")
-    ret = {"status": True}
-    if nid:
-        nid = json.loads(nid)
-    if all_img:
-        if request.user.is_superuser:
-            try:
-                models.Material.objects.all().delete()
-            except Exception as e:
-                ret["status"] = False
-        else:
-            try:
-                models.Material.objects.filter(user=request.user).delete()
-            except Exception as e:
-                ret["status"] = False
-    else:
-        try:
-            models.Material.objects.filter(nid=nid).delete()
-        except Exception as e:
-            ret["status"] = False
-    return JsonResponse(ret)
+    return render(request, 'index.html', ret)
 
 
 def welcome(request):
     return render(request, 'home.html')
-
-
-def material(request):
-    if request.user.is_superuser:
-        file_list = models.Material.objects.all().order_by("-create_time")
-    else:
-        file_list = models.Material.objects.filter(user=request.user).order_by("-create_time")
-    paginator = Paginator(file_list, 6)
-    page = request.GET.get('page')
-    try:
-        current_page = paginator.page(page)
-        files = current_page.object_list
-    except PageNotAnInteger:
-        current_page = paginator.page(1)
-        files = current_page.object_list
-    except EmptyPage:
-        current_page = paginator.page(paginator.num_pages)
-        files = current_page.object_list
-
-    ret = {
-        "counts": paginator.count,
-        "pages": current_page,
-        "files": files
-    }
-    return render(request, 'material.html', ret)
 
 
 def material_file(request):
@@ -192,8 +125,40 @@ def material_file_add(request):
     return render(request, 'show_admin/material_file_add.html', ret)
 
 
-def programme(request):
-    return render(request, 'programme.html')
+def material_file_delete(request):
+    all_img = request.GET.get("all")
+    all_img = json.loads(all_img)
+    nid = request.GET.get("nid")
+    ret = {"status": True}
+    if nid:
+        nid = json.loads(nid)
+    if all_img:
+        if request.user.is_superuser:
+            try:
+                models.MaterialFiles.objects.all().delete()
+            except Exception as e:
+                ret["status"] = False
+        else:
+            try:
+                models.MaterialFiles.objects.filter(user=request.user).delete()
+            except Exception as e:
+                ret["status"] = False
+    else:
+        try:
+            models.MaterialFiles.objects.filter(nid=nid).delete()
+        except Exception as e:
+            ret["status"] = False
+    return JsonResponse(ret)
+
+
+def programme(request, nid):
+    programme_obj = models.Programme.objects.filter(nid=nid).first()
+    machines = programme_obj.machine.all()
+
+    ret = {
+        "machines": machines,
+    }
+    return render(request, 'programme.html', ret)
 
 
 def user(request):

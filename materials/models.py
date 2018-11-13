@@ -35,18 +35,6 @@ class Machine(models.Model):
         verbose_name_plural = "设备"
 
 
-class Tag(models.Model):
-    nid = models.AutoField(primary_key=True)
-    title = models.CharField("标签", max_length=32)
-
-    def __str__(self):
-        return self.title
-
-    class Meta:
-        verbose_name = "图片标签"
-        verbose_name_plural = "图片标签"
-
-
 class FileTag(models.Model):
     nid = models.AutoField(primary_key=True)
     title = models.CharField("标签", max_length=32)
@@ -76,20 +64,6 @@ class MaterialFather(models.Model):
 
     class Meta:
         abstract = True
-
-
-class Material(MaterialFather):
-    files = models.ImageField("图片", upload_to="")
-    tag = models.ForeignKey(
-        Tag,
-        blank=True,
-        null=True,
-        on_delete=models.SET_NULL,
-    )
-
-    class Meta:
-        verbose_name = "图片"
-        verbose_name_plural = "图片"
 
 
 class MaterialFiles(MaterialFather):
@@ -130,13 +104,12 @@ class Programme(models.Model):
     title = models.CharField('标题', max_length=64)
     is_publish = models.BooleanField("是否发布", default=False)
     create_time = models.DateTimeField(auto_now=True)
-    files = models.ManyToManyField(
-        to="Material",
-        blank=True,
+    material_files = models.ManyToManyField(
+        to="MaterialFiles",
+        blank=True
     )
-
-    interval = models.ForeignKey(
-        to="IntervalTime",
+    user = models.ForeignKey(
+        to="UserInfo",
         to_field="nid",
         blank=True,
         null=True,
@@ -146,6 +119,10 @@ class Programme(models.Model):
         to="Machine",
         blank=True,
     )
+    interval = models.ManyToManyField(
+        to="IntervalTime",
+        blank=True
+    )
 
     def __str__(self):
         return self.title
@@ -153,3 +130,30 @@ class Programme(models.Model):
     class Meta:
         verbose_name = "节目单"
         verbose_name_plural = "节目单"
+
+
+class ProgrammeMaterial(models.Model):
+    nid = models.PositiveIntegerField("序号")
+    programme = models.ForeignKey(
+        to="Programme",
+        to_field="nid",
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL
+    )
+    material = models.ForeignKey(
+        to="MaterialFiles",
+        to_field="nid",
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL
+    )
+
+    def __str__(self):
+        if self.material:
+            return self.material.title
+        return self.nid
+
+    class Meta:
+        verbose_name = "节目单素材"
+        verbose_name_plural = "节目单素材"

@@ -67,16 +67,12 @@
                     <ul class="sub-menu">
                         <li>
                             <a href="javascript:;">
-                                <i class="iconfont">&#xe6ab;</i>
+                                <i class="iconfont">&#xe744;</i>
                                 <cite>素材管理</cite>
                                 <i class="iconfont nav_right">&#xe697;</i>
                             </a>
                             <ul class="sub-menu">
-                                <li>
-                                    <a _href="{% url 'material' %}">
-                                        <cite>图片上传</cite>
-                                    </a>
-                                </li>
+
                                 <li>
                                     <a _href="{% url 'material_file' %}">
                                         <cite>文件上传</cite>
@@ -85,9 +81,21 @@
                             </ul>
                         </li>
                         <li>
-                            <a _href="{% url 'programme' %}">
-                                <cite>广告节目</cite>
+                            <a href="javascript:;">
+                                <i class="iconfont">&#xe6b4;</i>
+                                <cite>节目单</cite>
+                                <i class="iconfont nav_right">&#xe697;</i>
                             </a>
+                            <ul class="sub-menu">
+                                {% for programme in programmes %}
+                                    <li>
+                                        <a _href="{% url 'programme' programme.nid %}">
+                                            <cite>{{ programme.title }}</cite>
+                                        </a>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+
                         </li>
                     </ul>
                 </li>

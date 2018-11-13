@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load static %}
+{% load static mytag %}
 {% block title %}
     {{ tag }}
 {% endblock %}
@@ -30,10 +30,14 @@
 
             <div class="row">
                 {% for file in files %}
-                    <div class="col-xs-2" style="height: ">
+                    <div style="height: 50px; width: 100px">
                         <div class="thumbnail">
                             <div class="panel-primary" style="text-align: center">
-                                {{ file.title }}
+                                {% if file.files.url|image_video %}
+                                    <img src="{{ file.files.url }}" alt="" width="100%" height="100%">
+                                {% else %}
+                                    {{ file.title }}
+                                {% endif %}
                                 <a title="删除" onclick="member_del(this,'{{ file.nid }}')" href="javascript:;">
                                     <i class="layui-icon">&#xe640;</i>
                                 </a>
@@ -42,7 +46,7 @@
                     </div>
                 {% endfor %}
             </div>
-
+            <hr>
             <div class="pagination">
                 <span class="step-links">
                     <a href="?page=1">&laquo; 首页</a>
@@ -72,7 +76,7 @@
                 //发异步删除数据
 
                 $.ajax({
-                    url: "{% url 'material_delete' %}",
+                    url: "{% url 'material_file_delete' %}",
                     type: "get",
                     data: {
                         all: false,

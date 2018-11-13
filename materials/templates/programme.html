@@ -1,10 +1,73 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block title %}
     节目单管理
 
 {% endblock %}
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/bootstrap.css' %}">
+    <link rel="stylesheet" href="//apps.bdimg.com/libs/jqueryui/1.10.4/css/jquery-ui.min.css">
+    <style>
+        #sortable {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            width: 100%;
+        }
 
+        #sortable li {
+            margin-bottom: 10px;
+            margin-top: 10px;
+            text-align: center;
+        }
+
+    </style>
+{% endblock %}
 {% block content %}
-    {{ request.user.username }}
+    <div class="x-nav">
+        <a class="layui-btn layui-btn-small" style="line-height:1.6em;margin-top:3px;float:right"
+           href="javascript:location.replace(location.href);" title="刷新">
+            <i class="layui-icon" style="line-height:30px">ဂ</i>
+        </a>
+    </div>
+    <hr>
+    <div class="panel panel-primary col-sm-4 col-sm-offset-1">
+        <div style="margin-top: 5px; text-align: center">
+            <button class="layui-btn layui-btn layui-btn-xs" onclick="x_admin_show('编辑','admin-edit.html')"><i
+                    class="layui-icon">&#xe642;</i>添加图片
+            </button>
+            <button class="layui-btn layui-btn layui-btn-xs" onclick="x_admin_show('编辑','admin-edit.html')"><i
+                    class="layui-icon">&#xe642;</i>添加视频
+            </button>
+            <button class="layui-btn layui-btn layui-btn-xs" onclick="x_admin_show('编辑','admin-edit.html')"><i
+                    class="layui-icon">&#xe642;</i>修改时间
+            </button>
+        </div>
+        <ul id="sortable" class="list-group">
+            <li class="ui-state-default"><a href="">Item 1</a></li>
+            <li class="ui-state-default"><a href="">Item 2</a></li>
+            <li class="ui-state-default"><a href="">Item 3</a></li>
+            <li class="ui-state-default"><a href="">Item 4</a></li>
+            <li class="ui-state-default"><a href="">Item 5</a></li>
+            <li class="ui-state-default"><a href="">Item 6</a></li>
+            <li class="ui-state-default"><a href="">Item 7</a></li>
+        </ul>
+    </div>
+
+{% endblock %}
+{% block extra_js %}
+    <script src="//apps.bdimg.com/libs/jqueryui/1.10.4/jquery-ui.min.js"></script>
+    <script>
+        $(function () {
+            $("#sortable").sortable();
+            $("#sortable").disableSelection();
+        });
+        $("#sortable").sortable({
+            stop: function(event, ui) {
+                console.log(event);
+                console.log(ui)
+            }
+        })
+    </script>
 
 {% endblock %}
