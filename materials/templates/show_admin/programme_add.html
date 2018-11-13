@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+{% block extra_css %}
+    <style>
+        .programme-body {
+            margin-top: 10px;
+        }
+
+        .programme-title {
+            width: 80%;
+        }
+    </style>
+
+{% endblock %}
+{% block content %}
+    <form class="layui-form programme-body">
+        <!-- 标题 -->
+        {% csrf_token %}
+        <div class="layui-form-item">
+            <label class="layui-form-label">标题</label>
+            <div class="layui-input-block">
+                <input type="text" name="title" required lay-verify="required" placeholder="请输入标题" autocomplete="off"
+                       class="layui-input programme-title" id="programme-title">
+            </div>
+        </div>
+        <!-- 时间复选框 -->
+        <div class="layui-form-item">
+            <label class="layui-form-label">复选框</label>
+            <div class="layui-input-block">
+                {% for interval in intervals %}
+                    <input type="checkbox" name="programme_interval" title="{{ interval.interval }}">
+                {% endfor %}
+            </div>
+        </div>
+        <!-- 提交 -->
+        <div class="layui-form-item">
+            <div class="layui-input-block">
+                <button class="layui-btn" lay-submit lay-filter="formDemo" onclick="NewProgramme()">立即提交</button>
+                <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+            </div>
+        </div>
+    </form>
+{% endblock %}
+{% block extra_js %}
+    <script>
+        function NewProgramme() {
+            var form_data = new FormData();
+            var title = $("#programme-title").val();
+            var obj = $("[name='programme_interval']");
+            var intervals = [];
+            for (var i = 0; i < obj.length; i++) {
+                if (obj[i].checked) {
+                    intervals.push(obj[i].title);
+                }
+            }
+            form_data.append("intervals", intervals);
+            form_data.append("title", title);
+            form_data.append("csrfmiddlewaretoken", $("[name='csrfmiddlewaretoken']").val());
+            console.log(intervals);
+            $.ajax({
+                url: "{% url 'programme_add' %}",
+                type: "post",
+                data: form_data,
+                processData: false,  // tell jquery not to process the data
+                contentType: false, // tell jquery not to set contentType
+                success: function (status) {
+                    {#console.log(status);#}
+                }
+            })
+        }
+    </script>
+
+{% endblock %}
