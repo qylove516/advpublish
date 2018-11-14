@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/bootstrap.css' %}">
+    <link rel="stylesheet" href="//apps.bdimg.com/libs/jqueryui/1.10.4/css/jquery-ui.min.css">
+    <style>
+        #sortable {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            width: 100%;
+        }
+
+        #sortable li {
+            margin-bottom: 10px;
+            margin-top: 10px;
+            text-align: center;
+        }
+
+    </style>
+{% endblock %}
+{% block content %}
+    <div class="col-sm-4">
+            <div class="panel panel-primary">
+                <div style="margin-top: 5px; text-align: center">
+                    <button class="layui-btn layui-btn layui-btn-xs" onclick="x_admin_show('编辑','admin-edit.html')"><i
+                            class="layui-icon">&#xe642;</i>添加图片
+                    </button>
+                    <button class="layui-btn layui-btn layui-btn-xs" onclick="x_admin_show('编辑','admin-edit.html')"><i
+                            class="layui-icon">&#xe642;</i>添加视频
+                    </button>
+                    <button class="layui-btn layui-btn layui-btn-xs" onclick="x_admin_show('编辑','admin-edit.html')"><i
+                            class="layui-icon">&#xe642;</i>修改时间
+                    </button>
+                </div>
+                <ul id="sortable" class="list-group">
+                    <li class="ui-state-default" id="1"><a href="">Item 1</a></li>
+                    <li class="ui-state-default" id="2"><a href="">Item 2</a></li>
+                    <li class="ui-state-default" id="3"><a href="">Item 3</a></li>
+                    <li class="ui-state-default" id="4"><a href="">Item 4</a></li>
+                    <li class="ui-state-default" id="5"><a href="">Item 5</a></li>
+                    <li class="ui-state-default" id="6"><a href="">Item 6</a></li>
+                    <li class="ui-state-default" id="7"><a href="">Item 7</a></li>
+                </ul>
+            </div>
+        </div>
+
+{% endblock %}
+{% block extra_js %}
+    <script src="//apps.bdimg.com/libs/jqueryui/1.10.4/jquery-ui.min.js"></script>
+    <script>
+        $(function () {
+            $("#sortable").sortable();
+            $("#sortable").disableSelection();
+        });
+        /*  获取排序后的 li 中的内容
+        $("#sortable").sortable({
+            stop : function (event, ui) {
+                var result = [];
+                var text = $("#sortable li").text();
+                var id = $("#sortable").target.class;
+                $("#sortable li").each(function () {
+                    result.push($(this).text());
+                });
+                console.log(text);
+        }
+        });
+        */
+        $("#sortable").sortable({
+            stop: function () {
+                var k = $("#sortable").sortable("toArray");
+                console.log(k);
+            }
+        });
+        $("#sortable").sortable("refresh");
+
+
+    </script>
+
+{% endblock %}

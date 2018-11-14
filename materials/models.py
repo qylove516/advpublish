@@ -38,6 +38,12 @@ class Machine(models.Model):
 class FileTag(models.Model):
     nid = models.AutoField(primary_key=True)
     title = models.CharField("标签", max_length=32)
+    user = models.ForeignKey(
+        to='UserInfo',
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL
+    )
 
     def __str__(self):
         return self.title

@@ -34,18 +34,15 @@
             <i class="layui-icon" style="line-height:30px">ဂ</i>
         </a>
     </div>
-    <div class="x-body">
-        <div class="layui-row">
+
             <xblock>
-                <!--
-                <button class="layui-btn layui-btn-danger" onclick="delAll()"><i class="layui-icon"></i>批量删除</button>
-                -->
-                <button class="layui-btn" onclick="x_admin_show('添加文件','{% url 'material_file_add' %}', 500, 300)"><i
+                <button class="layui-btn" onclick="x_admin_show('添加文件','{% url 'materials_add' %}', 500, 300)"><i
                         class="layui-icon"></i>添加文件
                 </button>
                 <span class="x-right" style="line-height:40px">共有数据：{{ files.count }} 条</span>
             </xblock>
-
+    <div class="x-body">
+        <div class="layui-row">
             <div class="row">
                 {% for file in files %}
                     <div class="col-sm-2 material-body">
@@ -92,9 +89,8 @@
         function member_del(obj, id) {
             layer.confirm('确认要删除吗？', function (index) {
                 //发异步删除数据
-
                 $.ajax({
-                    url: "{% url 'material_file_delete' %}",
+                    url: "{% url 'materials_delete' %}",
                     type: "get",
                     data: {
                         all: false,
@@ -102,7 +98,6 @@
                     },
                     success: function (data) {
                         if (data.status) {
-                            $(obj).parents("tr").remove();
                             layer.msg('已删除!', {icon: 1, time: 1000});
                             window.location.reload();
                         } else {

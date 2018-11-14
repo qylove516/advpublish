@@ -9,6 +9,7 @@ from materials import forms
 from advpublish import settings
 from collections import OrderedDict
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from materials.programme import programme_add
 
 
 def register(request):
@@ -77,7 +78,7 @@ def welcome(request):
     return render(request, 'home.html')
 
 
-def material_file(request):
+def materials(request):
     if request.user.is_superuser:
         file_list = models.MaterialFiles.objects.all().order_by("-create_time")
     else:
@@ -98,10 +99,10 @@ def material_file(request):
         "pages": current_page,
         "files": files
     }
-    return render(request, 'material_file.html', ret)
+    return render(request, 'materials.html', ret)
 
 
-def material_file_add(request):
+def materials_add(request):
     if request.method == 'POST':
         time = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
         file_obj = request.FILES.get('file')
@@ -115,14 +116,17 @@ def material_file_add(request):
         tag = models.FileTag.objects.filter(title=tag).first()
         models.MaterialFiles.objects.create(title=title, tag=tag, files=file_path, user=request.user)
         return HttpResponse('OK')
-    tags = models.FileTag.objects.all()
+    if request.user.is_superuser:
+        tags = models.FileTag.objects.all()
+    else:
+        tags = models.FileTag.objects.filter(user=request.user)
     ret = {
         "tags": tags
     }
-    return render(request, 'show_admin/material_file_add.html', ret)
+    return render(request, 'show_admin/materials_add.html', ret)
 
 
-def material_file_delete(request):
+def materials_delete(request):
     all_img = request.GET.get("all")
     all_img = json.loads(all_img)
     nid = request.GET.get("nid")
@@ -148,8 +152,56 @@ def material_file_delete(request):
     return JsonResponse(ret)
 
 
+def tags(request):
+    if request.user.is_superuser:
+        tags = models.FileTag.objects.all()
+    else:
+        tags = models.FileTag.objects.filter(user=request.user)
+
+    ret = {
+        "tags": tags
+    }
+    return render(request, "tags.html", ret)
+
+
+def tags_add(request):
+    if request.method == 'POST':
+        title = request.POST.get("title")
+        user = request.user
+        ret = {"status": True, "msg": ""}
+        try:
+            models.FileTag.objects.create(title=title, user=user)
+        except Exception as e:
+            ret["msg"] = "添加标签失败！"
+        return JsonResponse(ret)
+
+    if request.user.is_superuser:
+        tags = models.FileTag.objects.all()
+    else:
+        tags = models.FileTag.objects.filter(user=request.user)
+    ret = {
+        "tags": tags
+    }
+    return render(request, 'show_admin/tags_add.html', ret)
+
+
+def tags_delete(request):
+    if request.method == "GET":
+        nid = request.GET.get("nid")
+        ret = {"status": True, "msg": "删除成功！"}
+        try:
+            models.FileTag.objects.filter(nid=nid).delete()
+        except Exception as e:
+            ret["status"] = False
+            ret["msg"] = "删除失败！"
+        return JsonResponse(ret)
+
+
 def programme(request):
-    programmes = models.Programme.objects.all()
+    if request.user.is_superuser:
+        programmes = models.Programme.objects.all()
+    else:
+        programmes = models.Programme.objects.filter(user=request.user)
 
     ret = {
         "programmes": programmes,
@@ -157,46 +209,6 @@ def programme(request):
     # 取每个节目单的 programme material
 
     return render(request, 'programme.html', ret)
-
-
-def programme_add(request):
-    if request.method == "POST":
-        ret = {"status": False, "msg": ""}
-        title = request.POST.get("title")
-        intervals = request.POST.getlist("intervals")[0]
-        intervals = intervals.split(",")
-        try:
-            programme_obj = None
-            if title:
-                programme_obj = models.Programme.objects.create(title=title, user=request.user)
-            if programme_obj:
-                for i in intervals:
-                    print(type(i), i)
-                    k = models.IntervalTime.objects.filter(interval=i).first()
-                    print(k)
-                    programme_obj.interval.add(k)
-            ret["status"] = True
-            ret["msg"] = "成功新建节目！"
-        except Exception as e:
-            ret["msg"] = "新建节目单失败！"
-        return JsonResponse(ret)
-
-    # 取属于该用户的所有时间段
-    user = request.user
-    user_intervals = user.intervaltime_set.all()
-    k = []
-    for p in models.Programme.objects.filter(user=user):
-        intervals = p.interval.all()
-        for i in intervals:
-            k.append(i)
-    intervals = []
-    for m in user_intervals:
-        if m not in k:
-            intervals.append(m)
-    ret = {
-        "intervals": intervals
-    }
-    return render(request, 'show_admin/programme_add.html', ret)
 
 
 def user(request):

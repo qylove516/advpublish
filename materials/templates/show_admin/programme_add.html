@@ -1,26 +1,26 @@
 {% extends 'base.html' %}
 {% block extra_css %}
     <style>
-        .programme-body {
+        .programme-add-body {
             margin-top: 10px;
         }
 
-        .programme-title {
+        .programme-add-title {
             width: 80%;
         }
     </style>
 
 {% endblock %}
 {% block content %}
-    <form class="layui-form programme-body">
+    <form class="layui-form programme-add-body">
         <!-- 标题 -->
         {% csrf_token %}
         <div class="layui-form-item">
             <label class="layui-form-label">标题</label>
             <div class="layui-input-block">
                 <input type="text" name="title" required lay-verify="required" placeholder="请输入标题" autocomplete="off"
-                       class="layui-input programme-title" id="programme-title">
-            </div>
+                       class="layui-input programme-add-title" id="programme-add-title">
+            </div>`
         </div>
         <!-- 时间复选框 -->
         <div class="layui-form-item">
@@ -37,6 +37,7 @@
                 <button class="layui-btn" lay-submit lay-filter="formDemo" onclick="NewProgramme()">立即提交</button>
                 <button type="reset" class="layui-btn layui-btn-primary">重置</button>
             </div>
+            <span id="programme-add-has-error"></span>
         </div>
     </form>
 {% endblock %}
@@ -44,7 +45,7 @@
     <script>
         function NewProgramme() {
             var form_data = new FormData();
-            var title = $("#programme-title").val();
+            var title = $("#programme-add-title").val();
             var obj = $("[name='programme_interval']");
             var intervals = [];
             for (var i = 0; i < obj.length; i++) {
@@ -62,11 +63,17 @@
                 data: form_data,
                 processData: false,  // tell jquery not to process the data
                 contentType: false, // tell jquery not to set contentType
-                success: function (status) {
-                    {#console.log(status);#}
+                success: function (data) {
+                    if (data.status){
+                        parent.location.reload();
+                    }else{
+                        $("#programme-add-has-error").text(data.msg);
+                        setTimeout(function () {
+                            $("#programme-add-has-error").text("");
+                        }, 2000)
+                    }
                 }
             })
         }
     </script>
-
 {% endblock %}

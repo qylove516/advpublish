@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-
+{% load static %}
 {% block content %}
     <div style="padding: 20px; padding-left: 50px">
         <div>
@@ -9,16 +9,15 @@
         <div>
             <p>请选择文件标签</p>
             <select style="width: 100px;height: 30px; margin-top: 5px" id="tag-id">
-
-                <option selected="selected">-----</option>
+                <option selected="selected"></option>
                 {% for s in tags %}
-                    <option value="volvo">{{ s.title }}</option>
+                    <option value="volvo" id="material-add-option">{{ s.title }}</option>
                 {% endfor %}
             </select>
         </div>
         <hr>
         <input type="button" value="上传" onclick="FileUpload()" class="layui-btn">
-        <span id="has-error" style="color: orange;"></span>
+        <span id="has-error" style="color: orange;margin-left: 10px"></span>
         <div id="son"></div>
     </div>
     {% csrf_token %}
@@ -37,9 +36,16 @@
                 $("#has-error").text("请选择上传文件！");
                 setTimeout(function () {
                     $("#has-error").text("");
-                }, 1000);
+                }, 1500);
                 return false;
             }//暂且不许要判断是否有附件
+            if (tag == ""){
+                $("#has-error").text("请选择标签，或在文件上传页面中添加标签！");
+                setTimeout(function () {
+                    $("#has-error").text("");
+                }, 2000);
+                return false;
+            }
             $.ajax({
                 url: "{% url 'material_file_add' %}",
                 type: 'POST',
