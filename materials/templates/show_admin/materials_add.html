@@ -8,10 +8,13 @@
         <hr>
         <div>
             <p>请选择文件标签</p>
-            <select style="width: 100px;height: 30px; margin-top: 5px" id="tag-id">
-                <option selected="selected"></option>
+            <select style="width: auto;height: 30px; margin-top: 5px" id="tag-id">
                 {% for s in tags %}
-                    <option value="volvo" id="material-add-option">{{ s.title }}</option>
+                    {% if forloop.first %}
+                        <option selected="selected" id="material-add-option">{{ s.title }}</option>
+                    {% else %}
+                        <option value="volvo" id="material-add-option">{{ s.title }}</option>
+                    {% endif %}
                 {% endfor %}
             </select>
         </div>
@@ -39,7 +42,7 @@
                 }, 1500);
                 return false;
             }//暂且不许要判断是否有附件
-            if (tag == ""){
+            if (tag == "") {
                 $("#has-error").text("请选择标签，或在文件上传页面中添加标签！");
                 setTimeout(function () {
                     $("#has-error").text("");
@@ -68,7 +71,6 @@
                     return myXhr;
                 },
                 success: function (callback) {
-                    console.log('ok');
                     parent.location.reload();
                 }
             });

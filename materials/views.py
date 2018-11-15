@@ -1,3 +1,4 @@
+from django.db.models import Count
 from django.shortcuts import render, HttpResponse, redirect
 from materials import models
 from django.contrib.auth.models import auth
@@ -10,6 +11,7 @@ from advpublish import settings
 from collections import OrderedDict
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from materials.programme import programme_add
+from materials.intervals import intervals, intervals_add, intervals_del
 
 
 def register(request):
@@ -153,18 +155,32 @@ def materials_delete(request):
 
 
 def tags(request):
+    if request.method == "POST":
+        title = request.POST.get("title")
+        nid = request.POST.get("nid")
+        ret = {"status": True, "msg": ""}
+        try:
+            tag = models.FileTag.objects.filter(nid=nid).first()
+            tag.title = title
+            tag.save()
+            ret["msg"] = "更新成功！"
+        except Exception as e:
+            ret["status"] = False
+            ret["msg"] = "更新失败"
+        return JsonResponse(ret)
+
     if request.user.is_superuser:
         tags = models.FileTag.objects.all()
+        # num_count = models.FileTag.objects.annotate(num_article=Count("materialfiles")).values("materialfiles__title")
     else:
         tags = models.FileTag.objects.filter(user=request.user)
-
     ret = {
-        "tags": tags
+        "tags": tags,
     }
     return render(request, "tags.html", ret)
 
 
-def tags_add(request):
+def tag_add(request):
     if request.method == 'POST':
         title = request.POST.get("title")
         user = request.user

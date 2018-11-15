@@ -15,16 +15,13 @@ def programme_add(request):
                 programme_obj = models.Programme.objects.create(title=title, user=request.user)
             if programme_obj:
                 for i in intervals:
-                    print(type(i), i)
                     k = models.IntervalTime.objects.filter(interval=i).first()
-                    print(k)
                     programme_obj.interval.add(k)
             ret["status"] = True
             ret["msg"] = "成功新建节目！"
         except Exception as e:
             ret["msg"] = "新建节目单失败！"
         return JsonResponse(ret)
-
     # 取属于该用户的所有时间段
     user = request.user
     user_intervals = user.intervaltime_set.all()

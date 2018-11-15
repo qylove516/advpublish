@@ -5,6 +5,9 @@
         .tags-head tr > th {
             text-align: center;
         }
+        .tags-body tr > td{
+            text-align: center;
+        }
     </style>
 
 {% endblock %}
@@ -16,7 +19,7 @@
         </a>
     </div>
     <xblock>
-        <button class="layui-btn" onclick="x_admin_show('添加标签','{% url 'tags_add' %}', 500, 300)"><i
+        <button class="layui-btn" onclick="x_admin_show('添加标签','{% url 'material_tag_add' %}', 500, 300)"><i
                 class="layui-icon"></i>添加标签
         </button>
         <span class="x-right" style="line-height:40px">共有数据：{{ tags.count }} 条</span>
@@ -25,15 +28,13 @@
         <thead class="tags-head">
         <tr>
             <th width="70">标题</th>
-            <th width="70">文件数量</th>
             <th width="300">操作</th>
         </tr>
         </thead>
-        <tbody class="material-tags-body">
+        <tbody class="tags-body">
         {% for tag in tags %}
             <tr>
-                <td>{{ tag.title }}</td>
-                <td>{{ tag.title }}</td>
+                <td><span onclick="edit(this)" id="{{ tag.nid }}">{{ tag.title }}</span></td>
                 <td>
                     <button class="layui-btn-danger layui-btn layui-btn-xs" onclick="material_tag_del(this,'{{ tag.nid }}')"
                             href="javascript:;"><i class="layui-icon">&#xe640;</i>删除
@@ -43,9 +44,45 @@
         {% endfor %}
         </tbody>
     </table>
+    {% csrf_token %}
 {% endblock %}
 {% block extra_js %}
     <script>
+        function edit(element) {
+            var oldhtml = element.innerHTML;
+            var newobj = document.createElement("input");
+            newobj.type = "text";
+            newobj.value = oldhtml;
+            element.innerHTML = "";
+            element.appendChild(newobj);
+            newobj.focus();
+            newobj.onblur = function () {
+                var title = $(this).val();
+                var nid = $(this).parent();
+                if (nid.length > 0){
+                    nid=nid.attr("id");
+                }
+                $.ajax({
+                    url: "{% url 'tags' %}",
+                    type: "post",
+                    dataType: "json",
+                    data: {
+                        title: title,
+                        nid: nid,
+                        csrfmiddlewaretoken: $("[name='csrfmiddlewaretoken']").val()
+                    },
+                    success: function (data) {
+                        if (data.status){
+                            layer.msg(data.msg, {icon: 1, time: 2000});
+                            window.location.reload();
+                        }else{
+                            layer.msg(data.msg);
+                        }
+                    }
+                })
+            }
+        }
+
         function material_tag_del(obj, id) {
             layer.confirm('确认要删除吗？', function (index) {
                 //发异步删除数据

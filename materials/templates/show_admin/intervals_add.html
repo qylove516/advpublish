@@ -1,14 +1,7 @@
 {% extends 'base.html' %}
 {% block extra_css %}
     <style>
-        .programme-add-body {
-            margin-top: 10px;
-        }
-
-        .programme-add-title {
-            width: 80%;
-        }
-        .programme-add-error{
+        .interval-add-error {
             display: inline-block;
             color: orange;
             margin-left: 100px;
@@ -21,39 +14,42 @@
     <form class="layui-form programme-add-body">
         <!-- 标题 -->
         {% csrf_token %}
-        <div class="layui-form-item">
-            <label class="layui-form-label">标题</label>
-            <div class="layui-input-block">
-                <input type="text" name="title" placeholder="请输入标题" autocomplete="off"
-                       class="layui-input programme-add-title" id="programme-add-title">
+        <div class="layui-inline">
+            <label class="layui-form-label">搜索选择框</label>
+            <div class="layui-input-inline">
+                <select name="modules" lay-verify="required" lay-search="">
+                    {% for user in users %}
+                        <option value="{{ user.nid }}">{{ user.username }}</option>
+                    {% endfor %}
+                </select>
             </div>
-
         </div>
         <!-- 时间复选框 -->
         <div class="layui-form-item">
             <label class="layui-form-label">复选框</label>
             <div class="layui-input-block">
                 {% for interval in intervals %}
-                    <input type="checkbox" name="programme_interval" title="{{ interval.interval }}">
+                    <input type="checkbox" name="interval_user" title="{{ interval.interval }}">
                 {% endfor %}
             </div>
         </div>
         <!-- 提交 -->
         <div class="layui-form-item">
             <div class="layui-input-block">
-                <input type="button" value="提交" onclick="NewProgramme()" class="layui-btn">
+                <input type="button" value="提交" onclick="NewIntervalWithUser()" class="layui-btn">
                 <button type="reset" class="layui-btn layui-btn-primary">重置</button>
             </div>
-            <span id="programme-add-has-error" class="programme-add-error"></span>
+            <span id="interval-add-has-error" class="interval-add-error"></span>
         </div>
     </form>
+
 {% endblock %}
 {% block extra_js %}
     <script>
-        function NewProgramme() {
+        function NewIntervalWithUser() {
             var form_data = new FormData();
-            var title = $("#programme-add-title").val();
-            var obj = $("[name='programme_interval']");
+            var user = $(".layui-this").text();
+            var obj = $("[name='interval_user']");
             var intervals = [];
             for (var i = 0; i < obj.length; i++) {
                 if (obj[i].checked) {
@@ -61,17 +57,10 @@
                 }
             }
             form_data.append("intervals", intervals);
-            form_data.append("title", title);
+            form_data.append("user", user);
             form_data.append("csrfmiddlewaretoken", $("[name='csrfmiddlewaretoken']").val());
-            if (intervals.length == 0) {
-                $("#programme-add-has-error").text("暂无时间段，不可添加节目单！");
-                setTimeout(function () {
-                    $("#programme-add-has-error").text("");
-                }, 2000);
-                return false;
-            }
             $.ajax({
-                url: "{% url 'programme_add' %}",
+                url: "{% url 'intervals_add' %}",
                 type: "post",
                 data: form_data,
                 processData: false,  // tell jquery not to process the data
@@ -80,9 +69,9 @@
                     if (data.status) {
                         parent.location.reload();
                     } else {
-                        $("#programme-add-has-error").text(data.msg);
+                        $("#interval-add-has-error").text(data.msg);
                         setTimeout(function () {
-                            $("#programme-add-has-error").text("");
+                            $("#interval-add-has-error").text("");
                         }, 2000);
                         return false
                     }
@@ -90,4 +79,5 @@
             })
         }
     </script>
+
 {% endblock %}
