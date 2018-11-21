@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+{% load mytag static %}
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/bootstrap.css' %}">
+    <style>
+        .machine-nav {
+            padding-left: 5px;
+        }
+        .machine-nav button{
+            display: inline-block;
+        }
+        .machine-button {
+            display: block;
+        }
+
+        .machine-panel {
+            display: inline-block;
+            width: 12%;
+            height: 70px;
+            margin-top: 10px;
+        }
+
+        .machine-panel-title, .machine-panel-nid {
+            text-align: center;
+            margin-top: 5px;
+            font-size: 10px;
+        }
+
+        .machine-panel-handle {
+            text-align: center;
+        }
+
+        .machine-panel-handle-detail, .machine-panel-handle-editor, .machine-panel-handle-del {
+            display: inline-block;
+            margin-left: 10px;
+        }
+
+        .machine-panel-handle-detail span, .machine-panel-handle-editor span, .machine-panel-handle-del span {
+            cursor: pointer;
+        }
+
+        .machine-panel-handle-detail span:hover, .machine-panel-handle-editor span:hover, .machine-panel-handle-del span:hover {
+            color: blue;
+        }
+    </style>
+{% endblock %}
+{% block content %}
+
+    <div class="x-nav">
+        <a class="layui-btn layui-btn-small" style="line-height:1.6em;margin-top:3px;float:right"
+           href="javascript:location.replace(location.href);" title="刷新">
+            <i class="layui-icon" style="line-height:30px">ဂ</i>
+        </a>
+    </div>
+
+    <div class="machine-nav">
+        {% csrf_token %}
+        {% for users, machines in manage.items %}
+            <div class="machine-nav-but">
+                {% with m=machines|list_length %}
+                    <button class="layui-btn machine-button"
+                            onclick="x_admin_show('添加设备','{% url 'machines_add' %}', 700, 500)">
+                        {{ users.username }}<span
+                            class="layui-badge layui-bg-gray">{{ m }}</span></button>
+                {% endwith %}
+                <button class="layui-btn">分组添加</button>
+                <button class="layui-btn">选择添加</button>
+            </div>
+            {% for machine in machines %}
+                <div class="panel panel-primary machine-panel">
+                    <div class="machine-panel-title">
+                        <span>{{ machine.title }}</span>
+                    </div>
+                    <div class="machine-panel-nid">
+                        <span>{{ machine.nid }}</span>
+                    </div>
+                    <div class="machine-panel-handle">
+                        <div class="machine-panel-handle-detail">
+                            <span onclick="x_admin_show('设备详情', '{% url 'machine_detail' machine.nid %}', 400, 300)"><i
+                                    class="layui-icon">&#xe705;</i></span>
+                        </div>
+                        <div class="machine-panel-handle-del">
+                            <span><i class="layui-icon" onclick="MachineDel(this,'{{ machine.nid }}')">&#xe640;</i></span>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% endfor %}
+    </div>
+
+{% endblock %}

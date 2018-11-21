@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+{% load mytag %}
+{% block extra_css %}
+    <link rel="stylesheet" type="text/css" href="http://www.jq22.com/jquery/bootstrap-3.3.4.css">
+    <style>
+        .x-body {
+            margin-bottom: 20px;
+        }
+
+        .material-file-add-body {
+            padding: 20px;
+        }
+
+        .material-img {
+            max-height: 100px;
+            max-width: 100px;
+            vertical-align: middle;
+        }
+
+        .pmaterial-boot {
+            padding: 0;
+            text-align: center;
+        }
+
+        .pmaterial-content {
+            text-align: center;
+            height: 120px;
+            padding: 10px 0 0 0;
+            vertical-align: middle;
+            display: table-cell;
+            background: rgba(255, 255, 255, 0.3)
+        }
+
+        .pmaterial-control > a {
+            margin-left: 10px;
+            cursor: pointer;
+        }
+    </style>
+{% endblock %}
+{% block content %}
+    <form class="layui-form material-file-add-body">
+        {% csrf_token %}
+        <div class="x-body">
+            <div class="row">
+                {% for file in files %}
+                    <div class="col-sm-2 pmaterial-boot">
+                        <div class="panel-primary pmaterial-content" id="pmaterial-content-id" name="{{ file.nid }}">
+                            <div class="thumbnail">
+                                {% if file.files.url|image_video %}
+                                    <img src="{{ file.files.url }}" alt="" width="100%"
+                                         class="material-img img-rounded">
+                                {% else %}
+                                    <div style="height: 100px">{{ file.title }}</div>
+                                {% endif %}
+                            </div>
+                            <input type="checkbox" name="material_file_interval" title="{{ file.nid }}">
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <div class="layui-input-block">
+                <input type="button" value="提交" onclick="NewMaterialFile()" class="layui-btn">
+                <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+            </div>
+            <span id="material-file-add-has-error" class="material-file-add-error"></span>
+        </div>
+
+    </form>
+
+
+{% endblock %}
+{% block extra_js %}
+    <script>
+        function NewMaterialFile() {
+            var form_data = new FormData();
+            var obj = $("[name='material_file_interval']");
+            var materials = [];
+            for (var i = 0; i < obj.length; i++) {
+                if (obj[i].checked) {
+                    materials.push(obj[i].title);
+                }
+            }
+            form_data.append('materials', materials);
+            form_data.append("csrfmiddlewaretoken", $("[name='csrfmiddlewaretoken']").val());
+            $.ajax({
+                url: "{% url 'programme_material_add' nid 'name' %}", /* 此url中的name是随意添加的，为了添补空白 */
+                type: "post",
+                data: form_data,
+                processData: false,
+                contentType: false,
+                success: function (data) {
+                    if (data.status) {
+                        parent.location.reload();
+                    } else {
+                        $("#material-file-add-has-error").text(data.msg);
+                        setTimeout(function () {
+                            $("#material-file-add-has-error").text("");
+                        }, 2000);
+                        return false
+                    }
+                }
+            })
+
+        }
+
+    </script>
+{% endblock %}

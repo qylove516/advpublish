@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/bootstrap.css' %}">
+    <style>
+
+    </style>
+{% endblock %}
+{% block content %}
+    <form class="layui-form machine-update-body">
+        <!-- 标题 -->
+        {% csrf_token %}
+        <div class="layui-form-item">
+            <label class="layui-form-label">标题</label>
+            <div class="layui-input-block">
+                <input type="text" name="title" value="{{ machine.title }}" autocomplete="off"
+                       class="layui-input machine-update-title" id="machine-update-title">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">位置</label>
+            <div class="layui-input-block">
+                <input type="text" name="title" value="{{ machine.position }}" autocomplete="off"
+                       class="layui-input machine-update-position" id="machine-update-position">
+            </div>
+        </div>
+        <!-- 提交 -->
+        <div class="layui-form-item">
+            <div class="layui-input-block">
+                <input type="button" value="提交" onclick="MachineUpdate()" class="layui-btn">
+                <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+            </div>
+            <span id="machine-update-has-error" class="machine-update-error"></span>
+        </div>
+    </form>
+{% endblock %}
+{% block extra_js %}
+    <script>
+        function MachineUpdate() {
+            var form_data = new FormData();
+            var title = $("#machine-update-title").val();
+            var position = $("#machine-update-position").val();
+
+            form_data.append("title", title);
+            form_data.append("position", position);
+            form_data.append("csrfmiddlewaretoken", $("[name='csrfmiddlewaretoken']").val());
+
+            $.ajax({
+                url: "{% url 'machine_update' machine.nid %}",
+                type: "post",
+                data: form_data,
+                processData: false,  // tell jquery not to process the data
+                contentType: false, // tell jquery not to set contentType
+                success: function (data) {
+                    if (data.status) {
+                        parent.location.reload();
+                    } else {
+                        $("#machine-update-has-error").text(data.msg);
+                        setTimeout(function () {
+                            $("#machine-update-has-error").text("");
+                        }, 2000);
+                        return false
+                    }
+                }
+            })
+        }
+    </script>
+{% endblock %}

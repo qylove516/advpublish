@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block content %}
+    <div style="padding: 20px; padding-left: 50px">
+        {% csrf_token %}
+        <div class="layui-inline">
+            <label class="layui-form-label">区域名称</label>
+            <div class="layui-input-inline">
+                <input type="text" name="phone" autocomplete="off" class="layui-input"
+                       placeholder="区域名称" id="area-update-title">
+            </div>
+        </div>
+        <hr>
+        <div class="layui-form-item">
+            <div class="layui-input-block">
+                <button class="layui-btn" lay-submit="" lay-filter="demo1" id="area-update-submit">立即提交</button>
+                <span id="area-update-error" style="color: orange;margin-left: 10px"></span>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block extra_js %}
+    <script>
+        $("#area-update-submit").click(function () {
+            var title = $("#area-update-title").val();
+            if (title == "") {
+                $("#area-update-error").text("请输入区域名称！");
+                setTimeout(function () {
+                    $("#area-update-error").text("");
+                }, 2000);
+                return false;
+            }
+            $.ajax({
+                url: "{% url 'areas_update' nid %}",
+                type: 'post',
+                dataType: 'json',
+                data: {
+                    title: title,
+                    csrfmiddlewaretoken: $("[name='csrfmiddlewaretoken']").val(),
+                },
+                success: function (data) {
+                    if (data.status) {
+                        parent.location.reload();
+                    } else {
+                        $("#area-update-error").text(data.msg);
+                        setTimeout(function () {
+                            $("#area-update-error").text("");
+                        }, 2000)
+                    }
+                }
+            })
+        })
+    </script>
+{% endblock %}

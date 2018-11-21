@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/bootstrap.css' %}">
+    <style>
+        .machine-detail-nav {
+            height: 200px;
+            padding: 0 10px 0 10px;
+        }
+
+        .machine-detail-nav > div {
+            margin-top: 5px;
+        }
+    </style>
+{% endblock %}
+{% block content %}
+    <div class="panel panel-default machine-detail-nav">
+        <div>
+            <label>设备标题：</label><span>{{ machine.title }}</span>
+        </div>
+        <div>
+            <label>设备编号：</label><span>{{ machine.nid }}</span>
+        </div>
+        <div>
+            <label>设备位置：</label><span>{{ machine.position }}</span>
+        </div>
+        <div>
+            <label>所属区域：</label><span>{{ machine.area.title }}</span>
+        </div>
+        <div>
+            <label>供应商：</label><span>{{ machine.supplier }}</span>
+        </div>
+        <div>
+            <label>最近连接时间：</label><span>{{ machine.heart_time }}</span>
+        </div>
+        <div>
+            <label>最近更新时间：</label><span>{{ machine.update_time }}</span>
+        </div>
+
+    </div>
+{% endblock %}
