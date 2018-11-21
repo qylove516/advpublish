@@ -43,8 +43,15 @@
                         <i class="iconfont nav_right">&#xe697;</i>
                     </a>
                     <ul class="sub-menu">
+                        {% if request.user.is_superuser %}
+                            <li>
+                                <a _href="{% url 'areas' %}">
+                                    <cite>终端区域</cite>
+                                </a>
+                            </li>
+                        {% endif %}
                         <li>
-                            <a _href="member-list.html">
+                            <a _href="{% url 'machines' %}">
                                 <cite>终端列表</cite>
                             </a>
                         </li>
@@ -105,6 +112,7 @@
                                     <cite>分配时间</cite>
                                 </a>
                             </li>
+
                             <li>
                                 <a _href="admin-list.html">
                                     <cite>管理员列表</cite>
@@ -125,6 +133,22 @@
                                     <cite>权限管理</cite>
                                 </a>
                             </li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="javascript:;">
+                            <i class="layui-icon layui-icon-app"></i>
+                            <cite>设备分配</cite>
+                            <i class="iconfont nav_right">&#xe697;</i>
+                        </a>
+                        <ul class="sub-menu">
+                            {% for user in users %}
+                                <li>
+                                    <a _href="{% url 'manage_machine' %}">
+                                        <cite>{{ user.username }}</cite>
+                                    </a>
+                                </li>
+                            {% endfor %}
                         </ul>
                     </li>
                 {% endif %}

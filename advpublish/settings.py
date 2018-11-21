@@ -15,7 +15,6 @@ import os
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
 
@@ -26,7 +25,6 @@ SECRET_KEY = '7awk7c#@d)#@e28l0^nsm6=!4bgtn=wefdhi!#8vap$zjqlu=%'
 DEBUG = True
 
 ALLOWED_HOSTS = []
-
 
 # Application definition
 
@@ -71,7 +69,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'advpublish.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
 
@@ -81,7 +78,6 @@ DATABASES = {
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/2.1/ref/settings/#auth-password-validators
@@ -101,7 +97,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/2.1/topics/i18n/
 
@@ -114,7 +109,6 @@ USE_I18N = True
 USE_L10N = False
 
 USE_TZ = False
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
@@ -130,3 +124,13 @@ LOGIN_URL = "/login/"
 # 自定义文件路径
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# 上传文件格式限制
+FILE_TYPES = ["bmp", "jpg", "jpeg", "png", "avi", "rmvb", "rm", "mkv", "mp4", "3gp", "flv", "f4v", "asf", "mov",
+              "flash", "wma"]
+
+# 请求间隔时间，单位 秒
+REQUEST_INTERVAL_TIME = 30
+
+# 供应商
+SUPPLIERS = {"0": "华为", "1": "中科"}

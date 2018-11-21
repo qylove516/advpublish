@@ -6,21 +6,21 @@
 {% block extra_css %}
     <link rel="stylesheet" href="{% static 'css/bootstrap.css' %}">
     <style>
-        .material-body{
+        .material-body {
             border: 1px solid #9F9F9F;
             margin: 10px;
         }
+
         .material-img {
             max-height: 120px;
             max-width: 120px;
             vertical-align: middle;
         }
+
         .material-content {
             text-align: center;
-            {#border: 1px solid red;#}
             height: 150px;
-            line-height: 150px;
-            padding: 0;
+            padding: 20px 0 0 0;
         }
     </style>
 {% endblock %}
@@ -35,12 +35,12 @@
         </a>
     </div>
 
-            <xblock>
-                <button class="layui-btn" onclick="x_admin_show('添加文件','{% url 'material_file_add' %}', 500, 300)"><i
-                        class="layui-icon"></i>添加文件
-                </button>
-                <span class="x-right" style="line-height:40px">共有数据：{{ files.count }} 条</span>
-            </xblock>
+    <xblock>
+        <button class="layui-btn" onclick="x_admin_show('添加文件','{% url 'material_file_add' %}', 500, 300)"><i
+                class="layui-icon"></i>添加文件
+        </button>
+        <span class="x-right" style="line-height:40px">共有数据：{{ files.count }} 条</span>
+    </xblock>
     <div class="x-body">
         <div class="layui-row">
             <div class="row">

@@ -12,3 +12,9 @@ def image_video(url):
     if style[-1] in img:
         return True
     return False
+
+
+@register.filter
+def list_length(li):
+    k = len(li)
+    return k

@@ -3,7 +3,6 @@ from django.contrib.auth.models import auth, AbstractUser
 
 
 class UserInfo(AbstractUser):
-    nid = models.AutoField(primary_key=True)
     company = models.CharField("单位/公司", max_length=256, blank=True, null=True)
     tel = models.CharField("联系方式", max_length=11, blank=True, null=True)
     address = models.CharField("联系地址", max_length=256, blank=True, null=True)
@@ -17,18 +16,80 @@ class UserInfo(AbstractUser):
         verbose_name_plural = "用户"
 
 
+class IntervalTime(models.Model):
+    interval = models.CharField("时间段", max_length=32)
+    user = models.ForeignKey(
+        to="UserInfo",
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
+    )
+
+    def __str__(self):
+        return self.interval
+
+    class Meta:
+        verbose_name = "时间段"
+        verbose_name_plural = "时间段"
+
+
+class Area(models.Model):
+    title = models.CharField("标题", max_length=64, blank=True)
+
+    def __str__(self):
+        return self.title
+
+    class Meta:
+        verbose_name = "设备区域"
+        verbose_name_plural = "设备区域"
+
+
+class AreaIntervalTime(models.Model):
+    interval_time = models.ManyToManyField(
+        IntervalTime,
+        blank=True,
+    )
+    area = models.ManyToManyField(
+        Area,
+        blank=True,
+    )
+    user = models.ForeignKey(
+        UserInfo,
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL
+    )
+    programme = models.ForeignKey(
+        to="Programme",
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL
+    )
+
+    def __str__(self):
+        return self.area
+
+    class Meta:
+        verbose_name = "区域时间"
+        verbose_name_plural = "区域时间"
+
+
 class Machine(models.Model):
+    title = models.CharField("名称", max_length=64, blank=True, null=True)
     nid = models.CharField(primary_key=True, max_length=256)
     position = models.CharField("地理位置", max_length=256, blank=True, null=True)
     supplier = models.CharField("供应商", max_length=62, blank=True, null=True)
     heart_time = models.DateTimeField("心跳时间", blank=True, null=True)
-    user = models.ManyToManyField(
-        to="UserInfo",
-        blank=True
+    update_time = models.DateTimeField("更新时间", blank=True, null=True)
+    area = models.ForeignKey(
+        Area,
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL
     )
 
     def __str__(self):
-        return self.nid
+        return self.title
 
     class Meta:
         verbose_name = "设备"
@@ -36,8 +97,7 @@ class Machine(models.Model):
 
 
 class FileTag(models.Model):
-    nid = models.AutoField(primary_key=True)
-    title = models.CharField("标签", max_length=32)
+    title = models.CharField("标签", max_length=64)
     user = models.ForeignKey(
         to='UserInfo',
         blank=True,
@@ -53,13 +113,18 @@ class FileTag(models.Model):
         verbose_name_plural = "文件标签"
 
 
-class MaterialFather(models.Model):
-    nid = models.AutoField(primary_key=True)
+class MaterialFiles(models.Model):
     title = models.CharField("标题", max_length=32, blank=True, null=True)
     create_time = models.DateTimeField(auto_now=True)
     user = models.ForeignKey(
         to="UserInfo",
-        to_field="nid",
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
+    )
+    files = models.FileField("文件", upload_to="documents/")
+    tag = models.ForeignKey(
+        FileTag,
         blank=True,
         null=True,
         on_delete=models.SET_NULL,
@@ -69,40 +134,8 @@ class MaterialFather(models.Model):
         return self.title
 
     class Meta:
-        abstract = True
-
-
-class MaterialFiles(MaterialFather):
-    files = models.FileField("文件", upload_to="documents/")
-    tag = models.ForeignKey(
-        FileTag,
-        blank=True,
-        null=True,
-        on_delete=models.SET_NULL,
-    )
-
-    class Meta:
         verbose_name = "文件"
         verbose_name_plural = "文件"
-
-
-class IntervalTime(models.Model):
-    nid = models.AutoField(primary_key=True)
-    interval = models.CharField("时间段", max_length=32)
-    user = models.ForeignKey(
-        to="UserInfo",
-        to_field="nid",
-        blank=True,
-        null=True,
-        on_delete=models.SET_NULL,
-    )
-
-    def __str__(self):
-        return self.interval
-
-    class Meta:
-        verbose_name = "时间段"
-        verbose_name_plural = "时间段"
 
 
 class Programme(models.Model):
@@ -112,18 +145,9 @@ class Programme(models.Model):
     create_time = models.DateTimeField(auto_now=True)
     user = models.ForeignKey(
         to="UserInfo",
-        to_field="nid",
         blank=True,
         null=True,
         on_delete=models.SET_NULL
-    )
-    machine = models.ManyToManyField(
-        to="Machine",
-        blank=True,
-    )
-    interval = models.ManyToManyField(
-        to="IntervalTime",
-        blank=True
     )
 
     def __str__(self):
@@ -135,17 +159,16 @@ class Programme(models.Model):
 
 
 class ProgrammeMaterial(models.Model):
-    nid = models.PositiveIntegerField("序号")
+    # 每一个节目单对应多个素材，先创建节目单，再在节目单中添加素材
+    nid = models.PositiveIntegerField("序号", blank=True, null=True)
     programme = models.ForeignKey(
         to="Programme",
-        to_field="nid",
         blank=True,
         null=True,
         on_delete=models.SET_NULL
     )
     material = models.ForeignKey(
         to="MaterialFiles",
-        to_field="nid",
         blank=True,
         null=True,
         on_delete=models.SET_NULL
@@ -153,7 +176,7 @@ class ProgrammeMaterial(models.Model):
 
     def __str__(self):
         if self.material:
-            return self.programme.title
+            return self.material.title
         return self.nid
 
     class Meta:

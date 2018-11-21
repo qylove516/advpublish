@@ -35,7 +35,8 @@
             {% if request.user.is_superuser %}
                 <th width="70">用户</th>
             {% endif %}
-            <th width="300">操作</th>
+            <th width="170">时间段</th>
+            <th width="200">操作</th>
         </tr>
         </thead>
         <tbody class="programme-body-tbody">
@@ -46,31 +47,56 @@
                     <td>{{ programme.user.username }}</td>
                 {% endif %}
                 <td>
+                    {% for interval in programme.interval.all %}
+                        {{ interval.interval }}
+                    {% endfor %}
+                </td>
+                <td>
                     <button class="layui-btn layui-btn layui-btn-xs"
-                            onclick="x_admin_show('编辑','programme/materials/')"><i class="layui-icon">&#xe642;</i>素材
+                            onclick="x_admin_show('添加素材','{% url 'programme_material_add' programme.nid programme.user.username %}')">
+                        <i class="layui-icon">&#xe642;</i>添加素材
                     </button>
                     <button class="layui-btn layui-btn-warm layui-btn-xs"
-                            onclick="x_admin_show('编辑','programme/machines/')"><i class="layui-icon">&#xe642;</i>设备
+                            onclick="x_admin_show('素材排序','{% url 'programme_sort' programme.nid %}', 300, 500)"><i
+                            class="layui-icon">&#xe642;</i>素材排序
                     </button>
                     <button class="layui-btn layui-btn-warm layui-btn-xs"
-                            onclick="x_admin_show('编辑','programme/intervals/')"><i class="layui-icon">&#xe642;</i>时间段
+                            onclick="x_admin_show('素材删除','{% url 'programme_material_del' programme.nid %}')"><i
+                            class="layui-icon">&#xe642;</i>素材删除
                     </button>
-                    <button class="layui-btn-danger layui-btn layui-btn-xs" onclick="member_del(this,'要删除的id')"
+                    <button class="layui-btn layui-btn-warm layui-btn-xs"
+                            onclick="x_admin_show('修改时间段','programme/intervals/')"><i class="layui-icon">&#xe642;</i>修改时间段
+                    </button>
+                    <button class="layui-btn-danger layui-btn layui-btn-xs" onclick="programme_del(this,'{{ programme.pk }}')"
                             href="javascript:;"><i class="layui-icon">&#xe640;</i>删除
                     </button>
                 </td>
             </tr>
         {% endfor %}
-
-
         </tbody>
     </table>
-
-
-
-
 {% endblock %}
 {% block extra_js %}
-
-
+    <script>
+        function programme_del(obj, pk) {
+            layer.confirm('确认要删除吗？', function (index) {
+                //发异步删除数据
+                $.ajax({
+                    url: "{% url 'programme_del' %}",
+                    type: "get",
+                    data: {
+                        pk: pk
+                    },
+                    success: function (data) {
+                        if (data.status) {
+                            layer.msg('已删除!', {icon: 1, time: 1000});
+                            window.location.reload();
+                        } else {
+                            layer.msg('删除失败啦!', {icon: 1, time: 1000});
+                        }
+                    }
+                });
+            });
+        }
+    </script>
 {% endblock %}

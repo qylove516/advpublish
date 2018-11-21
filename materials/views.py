@@ -10,8 +10,7 @@ from materials import forms
 from advpublish import settings
 from collections import OrderedDict
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from materials.programme import programme_add
-from materials.intervals import intervals, intervals_add, intervals_del
+from advpublish import settings
 
 
 def register(request):
@@ -70,8 +69,11 @@ def logout(request):
 @login_required
 def index(request):
     tags = models.FileTag.objects.all()
+    users = models.UserInfo.objects.all()
+
     ret = {
         "tags": tags,
+        "users": users
     }
     return render(request, 'index.html', ret)
 
@@ -85,7 +87,7 @@ def materials(request):
         file_list = models.MaterialFiles.objects.all().order_by("-create_time")
     else:
         file_list = models.MaterialFiles.objects.filter(user=request.user).order_by("-create_time")
-    paginator = Paginator(file_list, 12)
+    paginator = Paginator(file_list, 20)
     page = request.GET.get('page')
     try:
         current_page = paginator.page(page)
@@ -105,19 +107,30 @@ def materials(request):
 
 
 def materials_add(request):
+    file_types = settings.FILE_TYPES
     if request.method == 'POST':
         time = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
         file_obj = request.FILES.get('file')
         tag = request.POST.get('tag')
         title = file_obj.name
-        file_path = os.path.join(settings.MEDIA_ROOT, "uploads", time + file_obj.name)
-        f = open(file_path, "wb")
-        for chunk in file_obj.chunks():
-            f.write(chunk)
-        f.close()
-        tag = models.FileTag.objects.filter(title=tag).first()
-        models.MaterialFiles.objects.create(title=title, tag=tag, files=file_path, user=request.user)
-        return HttpResponse('OK')
+        ret = {"status": True, "msg": ""}
+        if title.split(".")[-1] in file_types:
+            file_path = os.path.join(settings.MEDIA_ROOT, "uploads", time + file_obj.name)
+            try:
+                f = open(file_path, "wb")
+                for chunk in file_obj.chunks():
+                    f.write(chunk)
+                f.close()
+                tag = models.FileTag.objects.filter(title=tag).first()
+                models.MaterialFiles.objects.create(title=title, tag=tag, files=file_path, user=request.user)
+                ret["msg"] = "上传成功！"
+            except Exception as e:
+                ret["status"] = False
+                ret["msg"] = "上传失败"
+        else:
+            ret["status"] = False
+            ret["msg"] = "不支持此文件格式！"
+        return JsonResponse(ret)
     if request.user.is_superuser:
         tags = models.FileTag.objects.all()
     else:
@@ -211,20 +224,6 @@ def tags_delete(request):
             ret["status"] = False
             ret["msg"] = "删除失败！"
         return JsonResponse(ret)
-
-
-def programme(request):
-    if request.user.is_superuser:
-        programmes = models.Programme.objects.all()
-    else:
-        programmes = models.Programme.objects.filter(user=request.user)
-
-    ret = {
-        "programmes": programmes,
-    }
-    # 取每个节目单的 programme material
-
-    return render(request, 'programme.html', ret)
 
 
 def user(request):

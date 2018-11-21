@@ -21,7 +21,9 @@
         <hr>
         <input type="button" value="上传" onclick="FileUpload()" class="layui-btn">
         <span id="has-error" style="color: orange;margin-left: 10px"></span>
-        <div id="son"></div>
+        <div class="layui-progress layui-progress-big" lay-showpercent="true" lay-filter="demo" style="margin-top: 10px">
+            <div class="layui-progress-bar layui-bg-blue" lay-percent="0%"></div>
+        </div>
     </div>
     {% csrf_token %}
 {% endblock %}
@@ -62,16 +64,25 @@
                             var loaded = e.loaded;//已经上传大小情况
                             var tot = e.total;//附件总大小
                             var per = Math.floor(100 * loaded / tot);  //已经上传的百分比
-                            $("#son").html(per + "%");
-                            $("#son").css("width", per + "%");
+                            element.progress('demo', per + "%");
+                            //$("#son").css("width", per + "%");
                             //console.log('附件总大小 = ' + loaded);
                             //console.log('已经上传大小 = ' + tot);
                         }, false); // for handling the progress of the upload
                     }
                     return myXhr;
                 },
-                success: function (callback) {
-                    parent.location.reload();
+                success: function (data) {
+                    if (data.status) {
+                        parent.location.reload();
+                    } else {
+                        $("#has-error").text(data.msg);
+                        setTimeout(function () {
+                            $("#has-error").text("");
+                        }, 2000);
+                        return false;
+                    }
+
                 }
             });
         }

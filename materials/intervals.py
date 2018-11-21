@@ -13,6 +13,7 @@ def intervals(request):
 
 
 def intervals_add(request):
+    # 添加时间段，只有 is_staff 的用户才可以添加
     if request.method == "POST":
         username = request.POST.get("user")
         user = models.UserInfo.objects.filter(username=username).first()
@@ -29,13 +30,11 @@ def intervals_add(request):
             ret["status"] = False
             ret["msg"] = "添加用户失败！"
         return JsonResponse(ret)
-    users = models.UserInfo.objects.filter(is_staff=True)
-    intervals_all = models.IntervalTime.objects.all()
-    intervals_used = models.IntervalTime.objects.filter(Q(user__is_staff=True))
-    intervals_get = list(set(intervals_all) ^ set(intervals_used))
+    users = models.UserInfo.objects.all()
+    interval = models.IntervalTime.objects.filter(user_id=None)
     ret = {
         "users": users,
-        "intervals": intervals_get
+        "intervals": interval
     }
     return render(request, 'show_admin/intervals_add.html', ret)
 
