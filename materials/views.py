@@ -122,7 +122,8 @@ def materials_add(request):
                     f.write(chunk)
                 f.close()
                 tag = models.FileTag.objects.filter(title=tag).first()
-                models.MaterialFiles.objects.create(title=title, tag=tag, files=file_path, user=request.user)
+                tag_user = tag.user
+                models.MaterialFiles.objects.create(title=title, tag=tag, files=file_path, user=tag_user)
                 ret["msg"] = "上传成功！"
             except Exception as e:
                 ret["status"] = False
@@ -142,26 +143,12 @@ def materials_add(request):
 
 
 def materials_delete(request):
-    all_img = request.GET.get("all")
-    all_img = json.loads(all_img)
-    nid = request.GET.get("nid")
+    pk = request.GET.get("pk")
     ret = {"status": True}
-    if nid:
-        nid = json.loads(nid)
-    if all_img:
-        if request.user.is_superuser:
-            try:
-                models.MaterialFiles.objects.all().delete()
-            except Exception as e:
-                ret["status"] = False
-        else:
-            try:
-                models.MaterialFiles.objects.filter(user=request.user).delete()
-            except Exception as e:
-                ret["status"] = False
-    else:
+    if pk:
+        pk = json.loads(pk)
         try:
-            models.MaterialFiles.objects.filter(nid=nid).delete()
+            models.MaterialFiles.objects.filter(pk=pk).delete()
         except Exception as e:
             ret["status"] = False
     return JsonResponse(ret)
@@ -214,12 +201,29 @@ def tag_add(request):
     return render(request, 'show_admin/tags_add.html', ret)
 
 
+def tags_update(request, pk):
+    if request.method == "POST":
+        title = request.POST.get("title")
+        ret = {"status": True, "msg": ""}
+        try:
+            models.FileTag.objects.filter(pk=pk).update(title=title)
+        except Exception as e:
+            ret["msg"] = "修改失败！"
+            ret["status"] = False
+        return JsonResponse(ret)
+    ret = {
+        'pk': pk,
+        'tag': models.FileTag.objects.filter(pk=pk).first()
+    }
+    return render(request, 'show_admin/tags_update.html', ret)
+
+
 def tags_delete(request):
     if request.method == "GET":
-        nid = request.GET.get("nid")
+        pk = request.GET.get("pk")
         ret = {"status": True, "msg": "删除成功！"}
         try:
-            models.FileTag.objects.filter(nid=nid).delete()
+            models.FileTag.objects.filter(pk=pk).delete()
         except Exception as e:
             ret["status"] = False
             ret["msg"] = "删除失败！"
@@ -227,4 +231,4 @@ def tags_delete(request):
 
 
 def user(request):
-    return render(request, 'show_admin/user.html', {"name": "admin"})
+    return render(request, 'show_admin/user.html')

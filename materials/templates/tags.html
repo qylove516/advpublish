@@ -5,7 +5,8 @@
         .tags-head tr > th {
             text-align: center;
         }
-        .tags-body tr > td{
+
+        .tags-body tr > td {
             text-align: center;
         }
     </style>
@@ -27,16 +28,27 @@
     <table class="layui-table layui-form">
         <thead class="tags-head">
         <tr>
-            <th width="70">标题</th>
-            <th width="300">操作</th>
+            <th width="150">标签名称</th>
+            {% if request.user.is_superuser %}
+                <th width="50">用户</th>
+            {% endif %}
+            <th width="200">操作</th>
         </tr>
         </thead>
         <tbody class="tags-body">
         {% for tag in tags %}
             <tr>
-                <td><span onclick="edit(this)" id="{{ tag.nid }}">{{ tag.title }}</span></td>
+                <td><span>{{ tag.title }}</span></td>
+                {% if request.user.is_superuser %}
+                    <td>{{ tag.user.username }}</td>
+                {% endif %}
                 <td>
-                    <button class="layui-btn-danger layui-btn layui-btn-xs" onclick="material_tag_del(this,'{{ tag.nid }}')"
+                    <button class="layui-btn layui-btn layui-btn-xs"
+                            onclick="x_admin_show('修改标签名称','{% url 'tags_update' tag.pk %}', 500, 300)"
+                            href="javascript:;"><i class="layui-icon">&#xe642;</i>修改
+                    </button>
+                    <button class="layui-btn-danger layui-btn layui-btn-xs"
+                            onclick="material_tag_del(this,'{{ tag.pk }}')"
                             href="javascript:;"><i class="layui-icon">&#xe640;</i>删除
                     </button>
                 </td>
@@ -48,6 +60,7 @@
 {% endblock %}
 {% block extra_js %}
     <script>
+        /*
         function edit(element) {
             var oldhtml = element.innerHTML;
             var newobj = document.createElement("input");
@@ -58,32 +71,32 @@
             newobj.focus();
             newobj.onblur = function () {
                 var title = $(this).val();
-                var nid = $(this).parent();
-                if (nid.length > 0){
-                    nid=nid.attr("id");
+                var pk = $(this).parent();
+                if (pk.length > 0) {
+                    pk = pk.attr("id");
                 }
                 $.ajax({
-                    url: "{% url 'tags' %}",
+                    url: "",
                     type: "post",
                     dataType: "json",
                     data: {
                         title: title,
-                        nid: nid,
+                        pk: pk,
                         csrfmiddlewaretoken: $("[name='csrfmiddlewaretoken']").val()
                     },
                     success: function (data) {
-                        if (data.status){
+                        if (data.status) {
                             layer.msg(data.msg, {icon: 1, time: 2000});
                             window.location.reload();
-                        }else{
+                        } else {
                             layer.msg(data.msg);
                         }
                     }
                 })
             }
         }
-
-        function material_tag_del(obj, id) {
+        */
+        function material_tag_del(obj, pk) {
             layer.confirm('确认要删除吗？', function (index) {
                 //发异步删除数据
                 $.ajax({
@@ -91,7 +104,7 @@
                     type: "get",
                     data: {
                         all: false,
-                        nid: id
+                        pk: pk
                     },
                     success: function (data) {
                         if (data.status) {

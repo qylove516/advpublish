@@ -21,7 +21,7 @@
             <li class="layui-nav-item">
                 <a href="javascript:;">{{ request.user.username }}</a>
                 <dl class="layui-nav-child"> <!-- 二级菜单 -->
-                    <dd><a onclick="x_admin_show('个人信息','materials/user', 500, 400)"
+                    <dd><a onclick="x_admin_show('个人信息','{% url 'user' %}', 500, 400)"
                            id="header-person-information">个人信息</a></dd>
                     <dd><a id="header-logout">退出</a></dd>
                 </dl>
@@ -69,25 +69,20 @@
                         <i class="iconfont nav_right">&#xe697;</i>
                     </a>
                     <ul class="sub-menu">
+
                         <li>
-                            <a href="javascript:;">
+                            <a _href="{% url 'tags' %}">
                                 <i class="iconfont">&#xe744;</i>
-                                <cite>素材管理</cite>
-                                <i class="iconfont nav_right">&#xe697;</i>
+                                <cite>文件标签</cite>
                             </a>
-                            <ul class="sub-menu">
-                                <li>
-                                    <a _href="{% url 'tags' %}">
-                                        <cite>文件标签</cite>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a _href="{% url 'materials' %}">
-                                        <cite>文件上传</cite>
-                                    </a>
-                                </li>
-                            </ul>
                         </li>
+                        <li>
+                            <a _href="{% url 'materials' %}">
+                                <i class="iconfont">&#xe744;</i>
+                                <cite>文件上传</cite>
+                            </a>
+                        </li>
+
                         <li>
                             <a _href="{% url 'programme' %}">
                                 <i class="iconfont">&#xe6b4;</i>

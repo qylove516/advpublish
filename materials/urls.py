@@ -17,6 +17,7 @@ urlpatterns = [
     re_path(r'^machines/machine_update/(\d*)/$', machines.machine_update, name='machine_update'),
 
     path('tags/', views.tags, name='tags'),
+    re_path(r'^tags_update/(\d*)/$', views.tags_update, name='tags_update'),
     path('tags/tags_add/', views.tag_add, name='material_tag_add'),
     path('tags/tags_delete/', views.tags_delete, name='tags_delete'),
 
@@ -34,8 +35,6 @@ urlpatterns = [
     path('intervals/', intervals.intervals, name='intervals'),
     path('intervals/intervals_add/', intervals.intervals_add, name='intervals_add'),
     path('intervals/intervals_del/', intervals.intervals_del, name='intervals_del'),
-
-    path('user/', views.user, name='user'),
 
     path('manage_machine/', manage_machine.manage_machine, name='manage_machine'),
 ]

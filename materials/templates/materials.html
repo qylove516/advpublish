@@ -54,7 +54,7 @@
                             {% endif %}
                         </div>
                         <div class="panel-primary" style="text-align: center">
-                            <a title="删除" onclick="member_del(this,'{{ file.nid }}')" href="javascript:;">
+                            <a title="删除" onclick="member_del(this,'{{ file.pk }}')" href="javascript:;">
                                 <i class="layui-icon">&#xe640;</i>
                             </a>
                         </div>
@@ -86,15 +86,14 @@
 {% block extra_js %}
     <script>
         /*用户-删除*/
-        function member_del(obj, id) {
+        function member_del(obj, pk) {
             layer.confirm('确认要删除吗？', function (index) {
                 //发异步删除数据
                 $.ajax({
                     url: "{% url 'materials_delete' %}",
                     type: "get",
                     data: {
-                        all: false,
-                        nid: id
+                        pk: pk
                     },
                     success: function (data) {
                         if (data.status) {

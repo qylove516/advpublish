@@ -28,5 +28,6 @@ urlpatterns = [
     path('check_username_exist/', views.check_username_exist, name="check_username_exist"),
     path('login/', views.login, name="login"),
     path('logout/', views.logout, name='logout'),
+    path('user/', views.user, name='user'),
     path('backend/', include(materials_urls)),
 ]

@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block extra_css %}
+<style>
+    .tag-update-body{
+        padding: 20px;
+    }
+    .tag-update-title{
+        width: 60%;
+    }
+</style>
+{% endblock %}
+{% block content %}
+    <form class="layui-form tag-update-body">
+        {% csrf_token %}
+        <div class="layui-form-item">
+            <label class="layui-form-label">标题</label>
+            <div class="layui-input-block">
+                <input type="text" name="title" value="{{ tag.title }}" autocomplete="off"
+                       class="layui-input tag-update-title" id="tag-update-title">
+            </div>
+        </div>
+        <!-- 提交 -->
+        <div class="layui-form-item">
+            <div class="layui-input-block">
+                <input type="button" value="提交" onclick="TagUpdate()" class="layui-btn">
+                <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+            </div>
+            <span id="tag-update-has-error" class="tag-update-error"></span>
+        </div>
+    </form>
+{% endblock %}
+{% block extra_js %}
+    <script>
+        function TagUpdate() {
+            var title = $("#tag-update-title").val();
+            var form_data = new FormData();
+            form_data.append('title', title);
+            form_data.append("csrfmiddlewaretoken", $("[name='csrfmiddlewaretoken']").val());
+            $.ajax({
+                url: "{% url 'tags_update' pk %}",
+                type: "post",
+                data: form_data,
+                processData: false,
+                contentType: false,
+                success: function (data) {
+                    if (data.status){
+                        parent.location.reload();
+                    }else{
+                        $("#tag-update-has-error").text(data.msg);
+                        setTimeout(function () {
+                            $("#tag-update-has-error").text("");
+                        }, 2000);
+                        return false; // 禁止页面跳转
+                    }
+                }
+            })
+        }
+    </script>
+
+{% endblock %}
