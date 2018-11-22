@@ -17,7 +17,7 @@ class UserInfo(AbstractUser):
 
 
 class IntervalTime(models.Model):
-    interval = models.CharField("时间段", max_length=32)
+    interval = models.CharField("时间段", max_length=32, unique=True)
     user = models.ForeignKey(
         to="UserInfo",
         blank=True,
@@ -34,7 +34,7 @@ class IntervalTime(models.Model):
 
 
 class Area(models.Model):
-    title = models.CharField("标题", max_length=64, blank=True)
+    title = models.CharField("标题", max_length=64, unique=True)
 
     def __str__(self):
         return self.title
@@ -45,13 +45,18 @@ class Area(models.Model):
 
 
 class AreaIntervalTime(models.Model):
-    interval_time = models.ManyToManyField(
+    # 在一个时间段，一个区域，只能选择一个节目单
+    interval_time = models.ForeignKey(
         IntervalTime,
         blank=True,
+        null=True,
+        on_delete=models.SET_NULL
     )
-    area = models.ManyToManyField(
+    area = models.ForeignKey(
         Area,
         blank=True,
+        null=True,
+        on_delete=models.SET_NULL
     )
     user = models.ForeignKey(
         UserInfo,
@@ -65,9 +70,10 @@ class AreaIntervalTime(models.Model):
         null=True,
         on_delete=models.SET_NULL
     )
+    is_blank = models.BooleanField(default=False)
 
     def __str__(self):
-        return self.area
+        return "{area}-{time}".format(area=self.area.title, time=self.interval_time.interval)
 
     class Meta:
         verbose_name = "区域时间"
@@ -75,7 +81,7 @@ class AreaIntervalTime(models.Model):
 
 
 class Machine(models.Model):
-    title = models.CharField("名称", max_length=64, blank=True, null=True)
+    title = models.CharField("名称", max_length=64, unique=True)
     nid = models.CharField(primary_key=True, max_length=256)
     position = models.CharField("地理位置", max_length=256, blank=True, null=True)
     supplier = models.CharField("供应商", max_length=62, blank=True, null=True)
@@ -97,7 +103,7 @@ class Machine(models.Model):
 
 
 class FileTag(models.Model):
-    title = models.CharField("标签", max_length=64)
+    title = models.CharField("标签", max_length=64, unique=True)
     user = models.ForeignKey(
         to='UserInfo',
         blank=True,
@@ -139,7 +145,6 @@ class MaterialFiles(models.Model):
 
 
 class Programme(models.Model):
-    nid = models.AutoField(primary_key=True)
     title = models.CharField('标题', max_length=64)
     is_publish = models.BooleanField("是否发布", default=False)
     create_time = models.DateTimeField(auto_now=True)

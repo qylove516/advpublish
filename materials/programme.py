@@ -20,35 +20,18 @@ def programme(request):
 
 def programme_add(request):
     if request.method == "POST":
-        ret = {"status": False, "msg": ""}
+        ret = {"status": True, "msg": ""}
         title = request.POST.get("title")
-        intervals = request.POST.getlist("intervals")[0]
-        intervals = intervals.split(",")
         try:
-            programme_obj = None
             if title:
-                programme_obj = models.Programme.objects.create(title=title, user=request.user)
-            if programme_obj:
-                for i in intervals:
-                    k = models.IntervalTime.objects.filter(interval=i).first()
-                    programme_obj.interval.add(k)
-            ret["status"] = True
-            ret["msg"] = "成功新建节目！"
+                models.Programme.objects.create(title=title, user=request.user)
         except Exception as e:
+            ret["status"] = False
             ret["msg"] = "新建节目单失败！"
         return JsonResponse(ret)
     # 取属于该用户的所有时间段
     user = request.user
-    user_intervals = user.intervaltime_set.all()
-    k = []
-    for p in models.Programme.objects.filter(user=user):
-        intervals = p.interval.all()
-        for i in intervals:
-            k.append(i)
-    intervals = []
-    for m in user_intervals:
-        if m not in k:
-            intervals.append(m)
+    intervals = user.areaintervaltime_set.all()
     ret = {
         "intervals": intervals
     }
@@ -68,6 +51,7 @@ def programme_del(request):
 
 
 def programme_material_add(request, nid, username):
+    # 添加
     if request.method == "POST":
         materials = request.POST.getlist("materials")[0]
         materials = materials.split(",")
@@ -75,7 +59,7 @@ def programme_material_add(request, nid, username):
         ret = {"status": True, "msg": ""}
         try:
             for m in materials:
-                material_obj = models.MaterialFiles.objects.filter(nid=m).first()
+                material_obj = models.MaterialFiles.objects.filter(pk=m).first()
                 models.ProgrammeMaterial.objects.create(material=material_obj, programme=programme_obj)
             ret["msg"] = "添加素材成功！"
         except Exception as e:
@@ -83,9 +67,6 @@ def programme_material_add(request, nid, username):
             ret["msg"] = "添加素材失败！"
         return JsonResponse(ret)
 
-    # if request.user.is_superuser:
-    #     files = models.MaterialFiles.objects.all().order_by("-create_time")
-    # else:
     user = models.UserInfo.objects.filter(username=username).first()
     files = models.MaterialFiles.objects.filter(user=user).order_by("-create_time")
     ret = {

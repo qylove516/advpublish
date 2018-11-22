@@ -7,10 +7,6 @@
             padding-left: 5px;
         }
 
-        .machine-button {
-            display: block;
-        }
-
         .machine-panel {
             display: inline-block;
             width: 12%;
@@ -51,68 +47,63 @@
     </div>
 
     <xblock>
-        <button class="layui-btn" onclick="x_admin_show('添加设备','{% url 'machines_add' %}', 700, 500)"><i
-                class="layui-icon"></i>添加标签
+        <button class="layui-btn" onclick="x_admin_show('添加设备','{% url 'machines_add' area_pk %}', 700, 500)"><i
+                class="layui-icon"></i>添加设备
         </button>
         <span class="x-right" style="line-height:40px">共有设备：{{ machines.count }} 台</span>
     </xblock>
     <div class="machine-nav">
         {% csrf_token %}
-        {% for area, machines in area_group.items %}
-            <div class="machine-nav-but">
-                {% with m=machines|list_length %}
-                    <button class="layui-btn machine-button">{{ area.title }}<span
-                            class="layui-badge layui-bg-gray">{{ m }}</span></button>
-                {% endwith %}
-            </div>
-            <!-- TODO   此处方格状  是否在线 -->
-            {% for machine in machines %}
-                <div class="panel panel-primary machine-panel">
-                    <div class="machine-panel-title">
-                        <span>{{ machine.title }}</span>
-                    </div>
-                    <div class="machine-panel-nid">
-                        <span>{{ machine.nid }}</span>
-                    </div>
-                    <div class="machine-panel-handle">
-                        <div class="machine-panel-handle-detail">
+
+        {% for machine in machines %}
+            <div class="panel panel-primary machine-panel">
+                <div class="machine-panel-title">
+                    <span>{{ machine.title }}</span>
+                </div>
+                <div class="machine-panel-nid">
+                    <span>{{ machine.nid }}</span>
+                </div>
+                <div class="machine-panel-handle">
+                    <div class="machine-panel-handle-detail">
                             <span onclick="x_admin_show('设备详情', '{% url 'machine_detail' machine.nid %}', 400, 300)"><i
                                     class="layui-icon">&#xe705;</i></span>
-                        </div>
-                        {% if request.user.is_superuser %}
-                            <div class="machine-panel-handle-editor">
+                    </div>
+                    {% if request.user.is_superuser %}
+                        <div class="machine-panel-handle-editor">
                                 <span onclick="x_admin_show('设备修改', '{% url 'machine_update' machine.nid %}', 400, 300)"><i
                                         class="layui-icon">&#xe6b2;</i></span>
-                            </div>
-                            <div class="machine-panel-handle-del">
-                                <span><i class="layui-icon" onclick="MachineDel(this,'{{ machine.nid }}')">&#xe640;</i></span>
-                            </div>
-                        {% endif %}
-                    </div>
+                        </div>
+                        <div class="machine-panel-handle-del">
+                            <span><i class="layui-icon"
+                                     onclick="MachineDel(this,'{{ machine.nid }}')">&#xe640;</i></span>
+                        </div>
+                    {% endif %}
                 </div>
-            {% endfor %}
+            </div>
         {% endfor %}
     </div>
 {% endblock %}
 {% block extra_js %}
     <script>
         function MachineDel(obj, nid) {
-            $.ajax({
-                url: "{% url 'machines' %}",
-                type: "post",
-                data: {
-                    csrfmiddlewaretoken: $("[name='csrfmiddlewaretoken']").val(),
-                    nid: nid,
-                },
-                success: function (data) {
-                    if (data.status) {
-                        layer.msg('已删除!', {icon: 1, time: 1000});
-                        window.location.reload();
-                    } else {
-                        layer.msg('删除失败啦!', {icon: 1, time: 1000});
+            layer.confirm('确认要删除吗？', function (index) {
+                $.ajax({
+                    url: "{% url 'machine_area' area_pk %}",
+                    type: "post",
+                    data: {
+                        csrfmiddlewaretoken: $("[name='csrfmiddlewaretoken']").val(),
+                        nid: nid,
+                    },
+                    success: function (data) {
+                        if (data.status) {
+                            layer.msg('已删除!', {icon: 1, time: 1000});
+                            window.location.reload();
+                        } else {
+                            layer.msg('删除失败啦!', {icon: 1, time: 1000});
+                        }
                     }
-                }
-            })
+                });
+            });
         }
     </script>
 

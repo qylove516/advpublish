@@ -35,7 +35,6 @@
             {% if request.user.is_superuser %}
                 <th width="70">用户</th>
             {% endif %}
-            <th width="170">时间段</th>
             <th width="200">操作</th>
         </tr>
         </thead>
@@ -46,11 +45,6 @@
                 {% if request.user.is_superuser %}
                     <td>{{ programme.user.username }}</td>
                 {% endif %}
-                <td>
-                    {% for interval in programme.interval.all %}
-                        {{ interval.interval }}
-                    {% endfor %}
-                </td>
                 <td>
                     <button class="layui-btn layui-btn layui-btn-xs"
                             onclick="x_admin_show('添加素材','{% url 'programme_material_add' programme.nid programme.user.username %}')">
@@ -63,9 +57,6 @@
                     <button class="layui-btn layui-btn-warm layui-btn-xs"
                             onclick="x_admin_show('素材删除','{% url 'programme_material_del' programme.nid %}')"><i
                             class="layui-icon">&#xe642;</i>素材删除
-                    </button>
-                    <button class="layui-btn layui-btn-warm layui-btn-xs"
-                            onclick="x_admin_show('修改时间段','programme/intervals/')"><i class="layui-icon">&#xe642;</i>修改时间段
                     </button>
                     <button class="layui-btn-danger layui-btn layui-btn-xs" onclick="programme_del(this,'{{ programme.pk }}')"
                             href="javascript:;"><i class="layui-icon">&#xe640;</i>删除

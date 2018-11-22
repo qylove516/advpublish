@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% block content %}
+    <form class="layui-form" action="">
+        {% csrf_token %}
+        <div class="layui-form-item">
+            <div class="layui-input-block">
+                {% for interval in area_interval %}
+                    {% if interval.is_blank %}
+                        <input type="checkbox" area="area_interval_time" name="{{ interval.pk }}" title="{{ interval }}" disabled="disabled">
+                    {% else %}
+                        <input type="checkbox" area="area_interval_time" name="{{ interval.pk }}" title="{{ interval }}">
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-input-block">
+                <button class="layui-btn" onclick="AreaInterval()">立即提交</button>
+            </div>
+            <span id="area-interval"></span>
+        </div>
+    </form>
+{% endblock %}
+{% block extra_js %}
+    <script>
+        function AreaInterval() {
+            var form_data = new FormData();
+            var obj = $("[area='area_interval_time']");
+            var area_interval = [];
+            for (var i=0;i<obj.length; i++){
+                if(obj[i].checked){
+                    area_interval.push(obj[i].name);
+                }
+            }
+            form_data.append('area_interval', area_interval);
+            form_data.append("csrfmiddlewaretoken", $("[name='csrfmiddlewaretoken']").val());
+            $.ajax({
+                url: "{% url 'manage_area' username 1 %}",
+                type: "post",
+                data: form_data,
+                processData: false,
+                contentType: false,
+                success: function (data) {
+                    if(data.status){
+                        parent.location.reload()
+                    }else{
+                        $("#area-interval").text(data.msg);
+                        setTimeout(function () {
+                            $("#area-interval").text("");
+                        }, 2000);
+                        return false
+                    }
+                }
+            })
+        }
+    </script>
+
+{% endblock %}

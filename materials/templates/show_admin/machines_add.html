@@ -26,17 +26,19 @@
                        class="layui-input" id="machine-position">
             </div>
         </div>
+        <!--
         <div class="layui-form-item">
             <label class="layui-form-label">区域</label>
             <div class="layui-input-block">
                 <select name="interest" lay-filter="quyu" id="machine-area">
                     <option></option>
-                    {% for a in areas %}
-                        <option>{{ a }}</option>
-                    {% endfor %}
+{#                    {% for a in areas %}#}
+{#                        <option>{{ a }}</option>#}
+{#                    {% endfor %}#}
                 </select>
             </div>
         </div>
+        -->
         <div class="layui-form-item">
             <label class="layui-form-label">供应商</label>
             <div class="layui-input-block">
@@ -62,7 +64,7 @@
             var title = $("#machine-title").val();
             var nid = $("#machine-nid").val();
             var position = $("#machine-position").val();
-            var area = $("#machine-area option:selected").text();
+            //var area = $("#machine-area option:selected").text();
             var supplier = $("#machine-supplier option:selected").text();
             var MachineError = function (message) {
                 $("#machine-has-error").text(message);
@@ -76,23 +78,25 @@
                 return false;
             }else if(nid==""){
                 MachineError("请输入编号！")
-            }else if(position==""){
+            }
+            else if(position==""){
                 MachineError("请输入位置！");
                 return false;
-            }else if(area==""){
+            }/*
+            else if(area==""){
                 MachineError("请输入区域！");
                 return false
-            }else if(supplier==""){
+            }*/
+            else if(supplier==""){
                 MachineError("请输入供应商！")
             }
             $.ajax({
-                url: "{% url 'machines_add' %}",
+                url: "{% url 'machines_add' area_pk %}",
                 type: "post",
                 data: {
                     title: title,
                     nid: nid,
                     position: position,
-                    area: area,
                     supplier: supplier,
                     csrfmiddlewaretoken: $("[name='csrfmiddlewaretoken']").val()
                 },

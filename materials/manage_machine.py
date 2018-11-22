@@ -1,15 +1,36 @@
 from materials import models
-from django.shortcuts import render
+from django.shortcuts import render, HttpResponse
+import json
+from django.http import JsonResponse
 
 
-def manage_machine(request):
-    # TODO 查询每个用户下的设备
-    users = models.UserInfo.objects.all()
-    manage = {}
-    for user in users:
-        machines = (models.UserInfo.objects.get(username=user.username)).machine_set.all()
-        manage[user] = machines
+def manage_machine(request, username):
+    # 为用户分配设备时间，先选择区域，再选择时间
+    areas = models.Area.objects.all()
     ret = {
-        'manage': manage,
+        "username": username,
+        "areas": areas
     }
     return render(request, 'manage_machine.html', ret)
+
+
+def manage_area(request, username, area_pk):
+    if request.method == "POST":
+        area_interval_obj = request.POST.get("area_interval")
+        area_interval = area_interval_obj.split(",")
+        user = models.UserInfo.objects.filter(username=username).first()
+        ret = {"status": True, "msg": ""}
+        try:
+            for k in area_interval:
+                models.AreaIntervalTime.objects.filter(pk=int(k)).update(user=user, is_blank=True)
+        except Exception as e:
+            ret["status"] = False
+            ret["msg"] = "出错啦！"
+        return JsonResponse(ret)
+    area_interval = models.Area.objects.filter(pk=area_pk).first()
+    area_interval = area_interval.areaintervaltime_set.all()
+    ret = {
+        'username': username,
+        'area_interval': area_interval
+    }
+    return render(request, 'show_admin/manage_area.html', ret)

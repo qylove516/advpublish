@@ -70,10 +70,11 @@ def logout(request):
 def index(request):
     tags = models.FileTag.objects.all()
     users = models.UserInfo.objects.all()
-
+    areas = models.Area.objects.all()
     ret = {
         "tags": tags,
-        "users": users
+        "users": users,
+        "areas": areas
     }
     return render(request, 'index.html', ret)
 
@@ -111,7 +112,7 @@ def materials_add(request):
     if request.method == 'POST':
         time = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
         file_obj = request.FILES.get('file')
-        tag = request.POST.get('tag')
+        tag_pk = request.POST.get('tag_pk')
         title = file_obj.name
         ret = {"status": True, "msg": ""}
         if title.split(".")[-1] in file_types:
@@ -121,7 +122,7 @@ def materials_add(request):
                 for chunk in file_obj.chunks():
                     f.write(chunk)
                 f.close()
-                tag = models.FileTag.objects.filter(title=tag).first()
+                tag = models.FileTag.objects.filter(pk=tag_pk).first()
                 tag_user = tag.user
                 models.MaterialFiles.objects.create(title=title, tag=tag, files=file_path, user=tag_user)
                 ret["msg"] = "上传成功！"

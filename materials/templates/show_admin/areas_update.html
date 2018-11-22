@@ -5,8 +5,8 @@
         <div class="layui-inline">
             <label class="layui-form-label">区域名称</label>
             <div class="layui-input-inline">
-                <input type="text" name="phone" autocomplete="off" class="layui-input"
-                       placeholder="区域名称" id="area-update-title">
+                <input type="text" autocomplete="off" class="layui-input"
+                       placeholder="区域名称" id="area-update-title" value="{{ area.title }}">
             </div>
         </div>
         <hr>
@@ -30,7 +30,7 @@
                 return false;
             }
             $.ajax({
-                url: "{% url 'areas_update' nid %}",
+                url: "{% url 'areas_update' pk %}",
                 type: 'post',
                 dataType: 'json',
                 data: {

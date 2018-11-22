@@ -8,7 +8,8 @@
         .programme-add-title {
             width: 80%;
         }
-        .programme-add-error{
+
+        .programme-add-error {
             display: inline-block;
             color: orange;
             margin-left: 100px;
@@ -28,15 +29,7 @@
                        class="layui-input programme-add-title" id="programme-add-title">
             </div>
         </div>
-        <!-- 时间复选框 -->
-        <div class="layui-form-item">
-            <label class="layui-form-label">复选框</label>
-            <div class="layui-input-block">
-                {% for interval in intervals %}
-                    <input type="checkbox" name="programme_interval" title="{{ interval.interval }}">
-                {% endfor %}
-            </div>
-        </div>
+
         <!-- 提交 -->
         <div class="layui-form-item">
             <div class="layui-input-block">
@@ -52,23 +45,15 @@
         function NewProgramme() {
             var form_data = new FormData();
             var title = $("#programme-add-title").val();
-            var obj = $("[name='programme_interval']");
-            var intervals = [];
-            for (var i = 0; i < obj.length; i++) {
-                if (obj[i].checked) {
-                    intervals.push(obj[i].title);
-                }
-            }
-            form_data.append("intervals", intervals);
-            form_data.append("title", title);
-            form_data.append("csrfmiddlewaretoken", $("[name='csrfmiddlewaretoken']").val());
-            if (intervals.length == 0) {
-                $("#programme-add-has-error").text("暂无时间段，不可添加节目单！");
+            if (title == "") {
+                $("#programme-add-has-error").text("请输入标题！");
                 setTimeout(function () {
                     $("#programme-add-has-error").text("");
                 }, 2000);
-                return false;
+                return false
             }
+            form_data.append("title", title);
+            form_data.append("csrfmiddlewaretoken", $("[name='csrfmiddlewaretoken']").val());
             $.ajax({
                 url: "{% url 'programme_add' %}",
                 type: "post",

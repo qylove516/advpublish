@@ -43,6 +43,22 @@
                         <i class="iconfont nav_right">&#xe697;</i>
                     </a>
                     <ul class="sub-menu">
+                        <li>
+                            <a href="javascript:;">
+                                <i class="layui-icon layui-icon-app"></i>
+                                <cite>区域列表</cite>
+                                <i class="iconfont nav_right">&#xe697;</i>
+                            </a>
+                            <ul class="sub-menu">
+                                {% for area in areas %}
+                                    <li>
+                                        <a _href="{% url 'machine_area' area.pk %}">
+                                            <cite>{{ area.title }}</cite>
+                                        </a>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </li>
                         {% if request.user.is_superuser %}
                             <li>
                                 <a _href="{% url 'areas' %}">
@@ -51,12 +67,7 @@
                             </li>
                         {% endif %}
                         <li>
-                            <a _href="{% url 'machines' %}">
-                                <cite>终端列表</cite>
-                            </a>
-                        </li>
-                        <li>
-                            <a _href="member-del.html">
+                            <a _href="">
                                 <cite>终端监控</cite>
                             </a>
                         </li>
@@ -72,20 +83,17 @@
 
                         <li>
                             <a _href="{% url 'tags' %}">
-                                <i class="iconfont">&#xe744;</i>
                                 <cite>文件标签</cite>
                             </a>
                         </li>
                         <li>
                             <a _href="{% url 'materials' %}">
-                                <i class="iconfont">&#xe744;</i>
                                 <cite>文件上传</cite>
                             </a>
                         </li>
 
                         <li>
                             <a _href="{% url 'programme' %}">
-                                <i class="iconfont">&#xe6b4;</i>
                                 <cite>节目单</cite>
                             </a>
 
@@ -139,7 +147,7 @@
                         <ul class="sub-menu">
                             {% for user in users %}
                                 <li>
-                                    <a _href="{% url 'manage_machine' %}">
+                                    <a _href="{% url 'manage_machine' user.username %}">
                                         <cite>{{ user.username }}</cite>
                                     </a>
                                 </li>

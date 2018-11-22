@@ -11,7 +11,7 @@
             <select style="width: auto;height: 30px; margin-top: 5px" id="tag-id">
                 {% for s in tags %}
                     {% if forloop.first %}
-                        <option selected="selected" id="material-add-option">{{ s.user.username }}-{{ s.title }}</option>
+                        <option selected="selected" id="material-add-option" name="{{ s.pk }}">{{ s.user.username }}-{{ s.title }}</option>
                     {% else %}
                         <option value="volvo" id="material-add-option">{{ s.user.username }}-{{ s.title }}</option>
                     {% endif %}
@@ -21,7 +21,7 @@
         <hr>
         <input type="button" value="上传" onclick="FileUpload()" class="layui-btn">
         <span id="has-error" style="color: orange;margin-left: 10px"></span>
-        <div class="layui-progress layui-progress-big" lay-showpercent="true" lay-filter="demo" style="margin-top: 10px">
+        <div class="layui-progress layui-progress-big" lay-showpercent="true" lay-filter="demo" style="margin-top: 10px;width: 70%;">
             <div class="layui-progress-bar layui-bg-blue" lay-percent="0%"></div>
         </div>
     </div>
@@ -32,11 +32,11 @@
     <script>
         function FileUpload() {
             var form_data = new FormData();
-            var tag = $("#tag-id option:selected").text();
+            var tag_pk = $("#tag-id option:selected").attr("name");
             var file_info = $('#file_upload')[0].files[0];
             form_data.append("csrfmiddlewaretoken", $("[name='csrfmiddlewaretoken']").val());
             form_data.append('file', file_info);
-            form_data.append('tag', tag);
+            form_data.append('tag_pk', tag_pk);
             if (file_info == undefined) {
                 $("#has-error").text("请选择上传文件！");
                 setTimeout(function () {
@@ -44,7 +44,7 @@
                 }, 1500);
                 return false;
             }//暂且不许要判断是否有附件
-            if (tag == "") {
+            if (tag_pk == "") {
                 $("#has-error").text("请选择标签，或在文件上传页面中添加标签！");
                 setTimeout(function () {
                     $("#has-error").text("");
