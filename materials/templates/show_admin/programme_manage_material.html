@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% block content %}
+    <form class="layui-form" action="">
+        {% csrf_token %}
+        <div class="layui-form-item">
+            <div class="layui-input-block">
+                {% for interval in area_interval %}
+                    {% if interval.is_inuse %}
+                        <input type="checkbox" programme_area="programme_area_interval_time" name="{{ interval.pk }}" title="{{ interval }}"
+                               disabled="disabled">
+                    {% else %}
+                        <input type="checkbox" programme_area="programme_area_interval_time" name="{{ interval.pk }}"
+                               title="{{ interval }}">
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-input-block">
+                <button class="layui-btn" onclick="ProgrammeAreaInterval()" {% if material_blank %}
+                    disabled="disabled" style="background-color: #9F9F9F"
+                {% endif %}>提交审核</button>
+                <span style="color: orange;">
+                    {% if material_blank %}
+                        请先选择素材！
+                    {% endif %}
+                </span>
+            </div>
+            <span id="programme-area-interval-error"></span>
+        </div>
+    </form>
+
+{% endblock %}
+{% block extra_js %}
+    <script>
+    function ProgrammeAreaInterval() {
+        var form_data = new FormData();
+        var obj = $("[programme_area='programme_area_interval_time']");
+        var programme_area = [];
+        for (var i=0;i<obj.length;i++){
+            if (obj[i].checked){
+                programme_area.push(obj[i].name)
+            }
+        }
+        form_data.append('programme_area', programme_area);
+        form_data.append("csrfmiddlewaretoken", $("[name='csrfmiddlewaretoken']").val());
+        $.ajax({
+            url: "{% url 'programme_manage_material' username pk %}",
+            type: "post",
+            data: form_data,
+            processData: false,
+            contentType: false,
+            success: function (data) {
+                if (data.status){
+                    parent.location.reload();
+                }else{
+                    $("#programme-area-interval-error").text(data.msg);
+                    setTimeout(function () {
+                        $("#programme-area-interval-error").text("");
+                    }, 2000);
+                    return false;
+                }
+            }
+        })
+    }
+    </script>
+
+{% endblock %}
