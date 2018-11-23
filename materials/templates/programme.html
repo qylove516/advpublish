@@ -50,26 +50,29 @@
                             onclick="x_admin_show('添加素材','{% url 'programme_material_add' programme.pk programme.user.username %}')">
                         <i class="layui-icon">&#xe642;</i>添加素材
                     </button>
-                    <button class="layui-btn layui-btn-warm layui-btn-xs"
+                    <button class="layui-btn layui-btn layui-btn-xs"
                             onclick="x_admin_show('素材排序','{% url 'programme_sort' programme.pk %}', 300, 500)"><i
                             class="layui-icon">&#xe642;</i>素材排序
                     </button>
-                    <button class="layui-btn layui-btn-warm layui-btn-xs"
+                    <button class="layui-btn layui-btn layui-btn-xs"
                             onclick="x_admin_show('素材删除','{% url 'programme_material_del' programme.pk %}')"><i
                             class="layui-icon">&#xe642;</i>素材删除
                     </button>
 
                     <button class="layui-btn-danger layui-btn layui-btn-xs"
                             onclick="programme_del(this,'{{ programme.pk }}')"
-                            href="javascript:;"><i class="layui-icon">&#xe640;</i>删除
+                            href="javascript:;"><i class="layui-icon">&#xe640;</i>删除节目单
                     </button>
-                    <button class="layui-btn layui-btn-warm layui-btn-xs"
+                    <button class="layui-btn layui-btn-normal layui-btn-xs"
                             onclick="x_admin_show('选择要发布的区域时间','{% url 'programme_manage_material' programme.user.username programme.pk %}')">
-                        <i
-                                class="layui-icon">&#xe642;</i>提交审核
+                        <i class="layui-icon">&#xe642;</i>提交审核
+                    </button>
+                    <button class="layui-btn layui-btn-normal layui-btn-xs"
+                            onclick="x_admin_show('要发布的区域时间','{% url 'programme_manage_view' programme.pk %}')">
+                        <i class="layui-icon">&#xe642;</i>查看发布的区域时间
                     </button>
                     {% if request.user.is_superuser %}
-                        <button class="layui-btn layui-btn-warm layui-btn-xs"
+                        <button class="layui-btn layui-btn-normal layui-btn-xs"
                                 onclick="programme_publish(this, '{{ programme.pk }}')" href="javascript:;">
                             <i class="layui-icon">&#xe642; </i>发布
                         </button>

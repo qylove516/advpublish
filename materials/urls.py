@@ -30,6 +30,7 @@ urlpatterns = [
     path('programme/programme_publish/', programme.programme_publish, name='programme_publish'),
     re_path(r'^programme/programme_sort/(\d*)/$', programme.programme_sort, name='programme_sort'),
     re_path(r'^programme/programme_manage_material/(\w*)/(\d*)/$', programme.programme_manage_material, name='programme_manage_material'),
+    re_path(r'^programme/programme_manage_view/(\w*)/$', programme.programme_manage_view, name='programme_manage_view'),
     re_path(r'^programme/programme_material/del/(\d*)/$', programme.programme_material_del, name='programme_material_del'),
     re_path(r'^programme/programme_material/add/(\d*)/(\w*)/$', programme.programme_material_add, name='programme_material_add'),
     # 使用   (\d*)  表示数字

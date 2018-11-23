@@ -38,6 +38,7 @@
                 url: "{% url 'manage_area' username 1 %}",
                 type: "post",
                 data: form_data,
+                async: false,
                 processData: false,
                 contentType: false,
                 success: function (data) {

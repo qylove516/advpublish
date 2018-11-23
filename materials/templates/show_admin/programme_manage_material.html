@@ -29,7 +29,6 @@
             <span id="programme-area-interval-error"></span>
         </div>
     </form>
-
 {% endblock %}
 {% block extra_js %}
     <script>
@@ -48,6 +47,7 @@
             url: "{% url 'programme_manage_material' username pk %}",
             type: "post",
             data: form_data,
+            async: false,
             processData: false,
             contentType: false,
             success: function (data) {
@@ -64,5 +64,4 @@
         })
     }
     </script>
-
 {% endblock %}
