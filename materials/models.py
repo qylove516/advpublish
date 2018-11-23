@@ -70,7 +70,8 @@ class AreaIntervalTime(models.Model):
         null=True,
         on_delete=models.SET_NULL
     )
-    is_blank = models.BooleanField(default=False)
+    is_selected = models.BooleanField(default=False)
+    is_inuse = models.BooleanField(default=False)
 
     def __str__(self):
         return "{area}-{time}".format(area=self.area.title, time=self.interval_time.interval)

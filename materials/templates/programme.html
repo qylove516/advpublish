@@ -47,20 +47,33 @@
                 {% endif %}
                 <td>
                     <button class="layui-btn layui-btn layui-btn-xs"
-                            onclick="x_admin_show('添加素材','{% url 'programme_material_add' programme.nid programme.user.username %}')">
+                            onclick="x_admin_show('添加素材','{% url 'programme_material_add' programme.pk programme.user.username %}')">
                         <i class="layui-icon">&#xe642;</i>添加素材
                     </button>
                     <button class="layui-btn layui-btn-warm layui-btn-xs"
-                            onclick="x_admin_show('素材排序','{% url 'programme_sort' programme.nid %}', 300, 500)"><i
+                            onclick="x_admin_show('素材排序','{% url 'programme_sort' programme.pk %}', 300, 500)"><i
                             class="layui-icon">&#xe642;</i>素材排序
                     </button>
                     <button class="layui-btn layui-btn-warm layui-btn-xs"
-                            onclick="x_admin_show('素材删除','{% url 'programme_material_del' programme.nid %}')"><i
+                            onclick="x_admin_show('素材删除','{% url 'programme_material_del' programme.pk %}')"><i
                             class="layui-icon">&#xe642;</i>素材删除
                     </button>
-                    <button class="layui-btn-danger layui-btn layui-btn-xs" onclick="programme_del(this,'{{ programme.pk }}')"
+
+                    <button class="layui-btn-danger layui-btn layui-btn-xs"
+                            onclick="programme_del(this,'{{ programme.pk }}')"
                             href="javascript:;"><i class="layui-icon">&#xe640;</i>删除
                     </button>
+                    <button class="layui-btn layui-btn-warm layui-btn-xs"
+                            onclick="x_admin_show('选择要发布的区域时间','{% url 'programme_manage_material' programme.user.username programme.pk %}')">
+                        <i
+                                class="layui-icon">&#xe642;</i>提交审核
+                    </button>
+                    {% if request.user.is_superuser %}
+                        <button class="layui-btn layui-btn-warm layui-btn-xs"
+                                onclick="programme_publish(this, '{{ programme.pk }}')" href="javascript:;">
+                            <i class="layui-icon">&#xe642; </i>发布
+                        </button>
+                    {% endif %}
                 </td>
             </tr>
         {% endfor %}
@@ -70,7 +83,7 @@
 {% block extra_js %}
     <script>
         function programme_del(obj, pk) {
-            layer.confirm('确认要删除吗？', function (index) {
+            layer.confirm('该节目单下的所有素材都会被删除，确认要删除吗？', function (index) {
                 //发异步删除数据
                 $.ajax({
                     url: "{% url 'programme_del' %}",
@@ -84,6 +97,27 @@
                             window.location.reload();
                         } else {
                             layer.msg('删除失败啦!', {icon: 1, time: 1000});
+                        }
+                    }
+                });
+            });
+        }
+
+        function programme_publish(obj, pk) {
+            layer.confirm('确认要发布吗？', function (index) {
+                //发异步删除数据
+                $.ajax({
+                    url: "{% url 'programme_publish' %}",
+                    type: "get",
+                    data: {
+                        pk: pk
+                    },
+                    success: function (data) {
+                        if (data.status) {
+                            layer.msg('已发布!', {icon: 1, time: 2000});
+                            window.location.reload();
+                        } else {
+                            layer.msg(data.msg, {icon: 1, time: 1000});
                         }
                     }
                 });

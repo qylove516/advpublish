@@ -13,7 +13,7 @@
                     {% if forloop.first %}
                         <option selected="selected" id="material-add-option" name="{{ s.pk }}">{{ s.user.username }}-{{ s.title }}</option>
                     {% else %}
-                        <option value="volvo" id="material-add-option">{{ s.user.username }}-{{ s.title }}</option>
+                        <option value="volvo" id="material-add-option" name="{{ s.pk }}">{{ s.user.username }}-{{ s.title }}</option>
                     {% endif %}
                 {% endfor %}
             </select>

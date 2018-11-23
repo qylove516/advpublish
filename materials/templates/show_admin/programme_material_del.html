@@ -7,7 +7,7 @@
             margin-bottom: 20px;
         }
 
-        .material-file-add-body {
+        .material-file-del-body {
             padding: 20px;
         }
 
@@ -18,6 +18,7 @@
         }
 
         .pmaterial-boot {
+            margin: 5px;
             padding: 0;
             text-align: center;
         }
@@ -38,49 +39,47 @@
     </style>
 {% endblock %}
 {% block content %}
-    <form class="layui-form material-file-add-body">
+    <form class="layui-form material-file-del-body">
         {% csrf_token %}
         <div class="x-body">
             <div class="row">
-                {% for material in programme_materials %}
+                {% for programme_material in programme_materials %}
                     <div class="col-sm-2 pmaterial-boot">
-                        <div class="panel-primary pmaterial-content" id="pmaterial-content-id" name="{{ material.pk }}">
-                            <div class="thumbnail">
-                                {% if material.material.files.url|image_video %}
-                                    <img src="{{ material.material.files.url }}" alt="" width="100%"
+                        <div class="panel-primary pmaterial-content" id="pmaterial-content-id">
+                            <div class="thumbnail" style="height: 100px; line-height: 100px">
+                                {% if programme_material.material.files.url|image_video %}
+                                    <img src="{{ programme_material.material.files.url }}" alt="" width="100%"
                                          class="material-img img-rounded">
                                 {% else %}
-                                    <div style="height: 100px">{{ material.material.title }}</div>
+                                    <div style="height: 100px; line-height: 18px">{{ programme_material.material.title }}</div>
                                 {% endif %}
                             </div>
-                            <input type="checkbox" name="material_file_interval" title="{{ material.pk }}">
+                            <input type="checkbox" material_select="material_file_interval_del" name="{{ programme_material.pk }}">
                         </div>
                     </div>
                 {% endfor %}
             </div>
         </div>
-
         <div class="layui-form-item">
             <div class="layui-input-block">
-                <input type="button" value="提交" onclick="NewMaterialFile()" class="layui-btn">
+                <input type="button" value="删除所选的文件" onclick="DelMaterialFile()" class="layui-btn">
                 <button type="reset" class="layui-btn layui-btn-primary">重置</button>
             </div>
-            <span id="material-file-add-has-error" class="material-file-add-error"></span>
+            <span id="material-file-del-has-error" class="material-file-del-error"></span>
         </div>
-
     </form>
 
 
 {% endblock %}
 {% block extra_js %}
     <script>
-        function NewMaterialFile() {
+        function DelMaterialFile() {
             var form_data = new FormData();
-            var obj = $("[name='material_file_interval']");
+            var obj = $("[material_select='material_file_interval_del']");
             var programme_materials = [];
             for (var i = 0; i < obj.length; i++) {
                 if (obj[i].checked) {
-                    programme_materials.push(obj[i].title);
+                    programme_materials.push(obj[i].name);
                 }
             }
             form_data.append('programme_materials', programme_materials);
@@ -93,11 +92,11 @@
                 contentType: false,
                 success: function (data) {
                     if (data.status) {
-                        window.location.reload();
+                        parent.location.reload();
                     } else {
-                        $("#material-file-add-has-error").text(data.msg);
+                        $("#material-file-del-has-error").text(data.msg);
                         setTimeout(function () {
-                            $("#material-file-add-has-error").text("");
+                            $("#material-file-del-has-error").text("");
                         }, 2000);
                         return false
                     }

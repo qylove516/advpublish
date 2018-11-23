@@ -60,50 +60,13 @@
 {% endblock %}
 {% block extra_js %}
     <script>
-        /*
-        function edit(element) {
-            var oldhtml = element.innerHTML;
-            var newobj = document.createElement("input");
-            newobj.type = "text";
-            newobj.value = oldhtml;
-            element.innerHTML = "";
-            element.appendChild(newobj);
-            newobj.focus();
-            newobj.onblur = function () {
-                var title = $(this).val();
-                var pk = $(this).parent();
-                if (pk.length > 0) {
-                    pk = pk.attr("id");
-                }
-                $.ajax({
-                    url: "",
-                    type: "post",
-                    dataType: "json",
-                    data: {
-                        title: title,
-                        pk: pk,
-                        csrfmiddlewaretoken: $("[name='csrfmiddlewaretoken']").val()
-                    },
-                    success: function (data) {
-                        if (data.status) {
-                            layer.msg(data.msg, {icon: 1, time: 2000});
-                            window.location.reload();
-                        } else {
-                            layer.msg(data.msg);
-                        }
-                    }
-                })
-            }
-        }
-        */
         function material_tag_del(obj, pk) {
-            layer.confirm('确认要删除吗？', function (index) {
+            layer.confirm('确认要删除吗？这会删除此标签下的所有文件！', function (index) {
                 //发异步删除数据
                 $.ajax({
                     url: "{% url 'tags_delete' %}",
                     type: "get",
                     data: {
-                        all: false,
                         pk: pk
                     },
                     success: function (data) {

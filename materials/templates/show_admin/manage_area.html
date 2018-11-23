@@ -5,7 +5,7 @@
         <div class="layui-form-item">
             <div class="layui-input-block">
                 {% for interval in area_interval %}
-                    {% if interval.is_blank %}
+                    {% if interval.is_selected %}
                         <input type="checkbox" area="area_interval_time" name="{{ interval.pk }}" title="{{ interval }}" disabled="disabled">
                     {% else %}
                         <input type="checkbox" area="area_interval_time" name="{{ interval.pk }}" title="{{ interval }}">

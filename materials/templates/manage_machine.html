@@ -3,15 +3,29 @@
 {% block extra_css %}
     <link rel="stylesheet" href="{% static 'css/bootstrap.css' %}">
     <style>
-        .areas-head{
+        .areas-head {
             padding: 30px;
+        }
+        .manage-machine-panel{
+            margin: 10px;
+            display: inline-block;
+            width: 15%;
+            text-align: center;
+        }
+        .manage-machine-title{
+            font-size: 12px;
+            height: 40px;
+            line-height: 40px;
+        }
+        .manage-machine-del span:hover{
+            cursor: pointer;
         }
     </style>
 {% endblock %}
 {% block content %}
     <div class="x-nav">
-        <a class="layui-btn layui-btn-small" style="line-height:1.6em;margin-top:3px;float:left" title="请选择区域及时间">
-            <i class="layui-icon" style="line-height:18px; font-size: 18px; padding-top: 5px;">请选择区域及时间</i>
+        <a class="layui-btn layui-btn-lg" style="line-height:1.6em;margin-top:3px;float:left" title="请选择区域及时间">
+            <i class="layui-icon" style="line-height:18px; font-size: 18px; padding-top: 5px;">请点击区域进行选择</i>
         </a>
         <a class="layui-btn layui-btn-small" style="line-height:1.6em;margin-top:3px;float:right"
            href="javascript:location.replace(location.href);" title="刷新">
@@ -21,12 +35,49 @@
 
     <div class="areas-head">
         {% for area in areas %}
-            <button class="layui-btn" onclick="x_admin_show('选择区域及时间', '{% url 'manage_area' username area.pk %}',800, 400)">
+            <button class="layui-btn"
+                    onclick="x_admin_show('选择区域及时间', '{% url 'manage_area' username area.pk %}',800, 400)">
                 {{ area.title }}
                 <span class="layui-badge layui-bg-gray">1</span>
             </button>
         {% endfor %}
     </div>
 
+    {% for area_interval in area_intervals %}
+        <div class="panel panel-primary manage-machine-panel">
+            <div class="manage-machine-title">
+                {{ area_interval }}
+            </div>
+            <div class="manage-machine-del">
+                <span>
+                    <i class="layui-icon" onclick="ManageMachineDel(this,'{{ area_interval.pk }}')">&#xe640;</i>
+                </span>
+            </div>
+        </div>
+    {% endfor %}
+    {% csrf_token %}
+{% endblock %}
+{% block extra_js %}
+    <script>
+        function ManageMachineDel(obj, pk) {
+            $.ajax({
+                url: "{% url 'manage_machine' unsername %}",
+                type: "post",
+                dataType: 'json',
+                data: {
+                    pk: pk,
+                    csrfmiddlewaretoken: $("[name='csrfmiddlewaretoken']").val(),
+                },
+                success: function (data) {
+                    if(data.status){
+                        layer.msg("已删除！", {icon: 1, time: 10000});
+                        window.location.reload();
+                    }else{
+                        layer.msg("删除失败！", {icon: 1, time: 1000})
+                    }
+                }
+            })
+        }
+    </script>
 
 {% endblock %}

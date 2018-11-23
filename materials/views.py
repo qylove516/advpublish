@@ -191,7 +191,6 @@ def tag_add(request):
         except Exception as e:
             ret["msg"] = "添加标签失败！"
         return JsonResponse(ret)
-
     if request.user.is_superuser:
         tags = models.FileTag.objects.all()
     else:
@@ -224,7 +223,9 @@ def tags_delete(request):
         pk = request.GET.get("pk")
         ret = {"status": True, "msg": "删除成功！"}
         try:
-            models.FileTag.objects.filter(pk=pk).delete()
+            tag = models.FileTag.objects.filter(pk=pk).first()
+            tag.materialfiles_set.all().delete()
+            tag.delete()
         except Exception as e:
             ret["status"] = False
             ret["msg"] = "删除失败！"

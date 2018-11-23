@@ -1,6 +1,6 @@
 from django.urls import path, re_path
 from materials import views
-from materials import manage_machine, programme, machines, intervals
+from materials import manage_machine, programme, machines
 urlpatterns = [
     path('welcome/', views.welcome, name='welcome'),
 
@@ -27,14 +27,12 @@ urlpatterns = [
     path('programme/', programme.programme, name='programme'),
     path('programme/programme_del/', programme.programme_del, name='programme_del'),
     path('programme/programme_add/', programme.programme_add, name='programme_add'),
-    re_path(r'programme/programme_sort/(\d*)/$', programme.programme_sort, name='programme_sort'),
-    re_path(r'programme/programme_material_del/(\d*)/$', programme.programme_material_del, name='programme_material_del'),
-    re_path(r'^programme/programme_material_add/(\d*)/(\w*)/$', programme.programme_material_add, name='programme_material_add'),
-
-    path('intervals/', intervals.intervals, name='intervals'),
-    path('intervals/intervals_add/', intervals.intervals_add, name='intervals_add'),
-    path('intervals/intervals_del/', intervals.intervals_del, name='intervals_del'),
-
+    path('programme/programme_publish/', programme.programme_publish, name='programme_publish'),
+    re_path(r'^programme/programme_sort/(\d*)/$', programme.programme_sort, name='programme_sort'),
+    re_path(r'^programme/programme_manage_material/(\w*)/(\d*)/$', programme.programme_manage_material, name='programme_manage_material'),
+    re_path(r'^programme/programme_material/del/(\d*)/$', programme.programme_material_del, name='programme_material_del'),
+    re_path(r'^programme/programme_material/add/(\d*)/(\w*)/$', programme.programme_material_add, name='programme_material_add'),
+    # 使用   (\d*)  表示数字
     re_path(r'^manage_machine/manage_area/(\w*)/(\w*)/$', manage_machine.manage_area, name='manage_area'),
     re_path(r'^manage_machine/(\w*)/$', manage_machine.manage_machine, name='manage_machine'),
 ]
