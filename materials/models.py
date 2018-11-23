@@ -17,6 +17,7 @@ class UserInfo(AbstractUser):
 
 
 class IntervalTime(models.Model):
+    # 时间段标题唯一
     interval = models.CharField("时间段", max_length=32, unique=True)
     user = models.ForeignKey(
         to="UserInfo",
@@ -34,6 +35,7 @@ class IntervalTime(models.Model):
 
 
 class Area(models.Model):
+    # 区域标题唯一
     title = models.CharField("标题", max_length=64, unique=True)
 
     def __str__(self):
@@ -82,7 +84,7 @@ class AreaIntervalTime(models.Model):
 
 
 class Machine(models.Model):
-    title = models.CharField("名称", max_length=64, unique=True)
+    title = models.CharField("名称", max_length=64)
     nid = models.CharField(primary_key=True, max_length=256)
     position = models.CharField("地理位置", max_length=256, blank=True, null=True)
     supplier = models.CharField("供应商", max_length=62, blank=True, null=True)
@@ -104,7 +106,7 @@ class Machine(models.Model):
 
 
 class FileTag(models.Model):
-    title = models.CharField("标签", max_length=64, unique=True)
+    title = models.CharField("标签", max_length=64)
     user = models.ForeignKey(
         to='UserInfo',
         blank=True,
