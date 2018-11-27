@@ -44,10 +44,10 @@
         form_data.append('programme_area', programme_area);
         form_data.append("csrfmiddlewaretoken", $("[name='csrfmiddlewaretoken']").val());
         $.ajax({
-            url: "{% url 'programme_manage_material' username pk %}",
+            url: "{% url 'programme_manage_material' pk username %}",
             type: "post",
             data: form_data,
-            async: false,
+            sync: false,
             processData: false,
             contentType: false,
             success: function (data) {

@@ -6,18 +6,21 @@
         .areas-head {
             padding: 30px;
         }
-        .manage-machine-panel{
+
+        .manage-machine-panel {
             margin: 10px;
             display: inline-block;
             width: 15%;
             text-align: center;
         }
-        .manage-machine-title{
+
+        .manage-machine-title {
             font-size: 12px;
             height: 40px;
             line-height: 40px;
         }
-        .manage-machine-del span:hover{
+
+        .manage-machine-del span:hover {
             cursor: pointer;
         }
     </style>
@@ -60,23 +63,26 @@
 {% block extra_js %}
     <script>
         function ManageMachineDel(obj, pk) {
-            $.ajax({
-                url: "{% url 'manage_machine' unsername %}",
-                type: "post",
-                dataType: 'json',
-                data: {
-                    pk: pk,
-                    csrfmiddlewaretoken: $("[name='csrfmiddlewaretoken']").val(),
-                },
-                success: function (data) {
-                    if(data.status){
-                        layer.msg("已删除！", {icon: 1, time: 10000});
-                        window.location.reload();
-                    }else{
-                        layer.msg("删除失败！", {icon: 1, time: 1000})
+            layer.confirm("确认要删除该区域时间吗？", function (index) {
+                $.ajax({
+                    url: "{% url 'manage_machine' unsername %}",
+                    type: "post",
+                    dataType: 'json',
+                    data: {
+                        pk: pk,
+                        csrfmiddlewaretoken: $("[name='csrfmiddlewaretoken']").val(),
+                    },
+                    success: function (data) {
+                        if (data.status) {
+                            layer.msg("已删除！", {icon: 1, time: 10000});
+                            window.location.reload();
+                        } else {
+                            layer.msg("删除失败！", {icon: 1, time: 1000})
+                        }
                     }
-                }
-            })
+                })
+            });
+
         }
     </script>
 

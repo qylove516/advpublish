@@ -50,10 +50,13 @@ def areas_update(request, pk):
 
 
 def areas_del(request):
-    nid = request.GET.get("nid")
+    pk = request.GET.get("pk")
     ret = {"status": True, "msg": ""}
     try:
-        models.Area.objects.filter(nid=nid).delete()
+        area = models.Area.objects.filter(pk=pk)
+        area.first().machine_set.all().delete()
+        area.first().areaintervaltime_set.all().delete()
+        area.delete()
         ret["msg"] = "删除成功！"
     except Exception as e:
         ret["status"] = False

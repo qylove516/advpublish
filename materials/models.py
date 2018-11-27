@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import auth, AbstractUser
+from django.contrib.auth.models import auth, AbstractUser, Group
 
 
 class UserInfo(AbstractUser):
@@ -7,6 +7,7 @@ class UserInfo(AbstractUser):
     tel = models.CharField("联系方式", max_length=11, blank=True, null=True)
     address = models.CharField("联系地址", max_length=256, blank=True, null=True)
     create_time = models.DateTimeField(auto_now=True)
+    is_manage = models.BooleanField("管理员", default=False)
 
     def __str__(self):
         return self.username
@@ -37,6 +38,12 @@ class IntervalTime(models.Model):
 class Area(models.Model):
     # 区域标题唯一
     title = models.CharField("标题", max_length=64, unique=True)
+    group = models.ForeignKey(
+        Group,
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
+    )
 
     def __str__(self):
         return self.title
@@ -149,6 +156,7 @@ class MaterialFiles(models.Model):
 
 class Programme(models.Model):
     title = models.CharField('标题', max_length=64)
+    is_review = models.BooleanField("是否提交审核", default=False)
     is_publish = models.BooleanField("是否发布", default=False)
     create_time = models.DateTimeField(auto_now=True)
     user = models.ForeignKey(

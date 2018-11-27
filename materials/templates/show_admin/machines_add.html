@@ -26,19 +26,7 @@
                        class="layui-input" id="machine-position">
             </div>
         </div>
-        <!--
-        <div class="layui-form-item">
-            <label class="layui-form-label">区域</label>
-            <div class="layui-input-block">
-                <select name="interest" lay-filter="quyu" id="machine-area">
-                    <option></option>
-{#                    {% for a in areas %}#}
-{#                        <option>{{ a }}</option>#}
-{#                    {% endfor %}#}
-                </select>
-            </div>
-        </div>
-        -->
+
         <div class="layui-form-item">
             <label class="layui-form-label">供应商</label>
             <div class="layui-input-block">
@@ -82,11 +70,7 @@
             else if(position==""){
                 MachineError("请输入位置！");
                 return false;
-            }/*
-            else if(area==""){
-                MachineError("请输入区域！");
-                return false
-            }*/
+            }
             else if(supplier==""){
                 MachineError("请输入供应商！")
             }

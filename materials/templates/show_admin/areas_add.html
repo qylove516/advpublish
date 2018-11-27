@@ -34,6 +34,7 @@
                 url: "{% url 'areas_add' %}",
                 type: 'post',
                 dataType: 'json',
+                sync: false,
                 data: {
                     title: title,
                     csrfmiddlewaretoken: $("[name='csrfmiddlewaretoken']").val(),

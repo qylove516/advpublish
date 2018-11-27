@@ -1,6 +1,6 @@
 from django.urls import path, re_path
 from materials import views
-from materials import manage_machine, programme, machines
+from materials import manage_machine, programme, machines, xadmin
 urlpatterns = [
     path('welcome/', views.welcome, name='welcome'),
 
@@ -28,13 +28,17 @@ urlpatterns = [
     path('programme/programme_del/', programme.programme_del, name='programme_del'),
     path('programme/programme_add/', programme.programme_add, name='programme_add'),
     path('programme/programme_publish/', programme.programme_publish, name='programme_publish'),
-    re_path(r'^programme/programme_sort/(\d*)/$', programme.programme_sort, name='programme_sort'),
-    re_path(r'^programme/programme_manage_material/(\w*)/(\d*)/$', programme.programme_manage_material, name='programme_manage_material'),
-    re_path(r'^programme/programme_manage_view/(\w*)/$', programme.programme_manage_view, name='programme_manage_view'),
-    re_path(r'^programme/programme_material/del/(\d*)/$', programme.programme_material_del, name='programme_material_del'),
-    re_path(r'^programme/programme_material/add/(\d*)/(\w*)/$', programme.programme_material_add, name='programme_material_add'),
+    path('programme/programme_material/del/', programme.programme_material_del, name='programme_material_del'),
+    path('programme/programme_material/area_interval_del/', programme.programme_area_interval_del, name='programme_area_interval_del'),
+    path('programme/programme_manage_review/', programme.programme_manage_review, name="programme_manage_review"),
+
+    re_path(r'^programme/programme_sort/(\d*)/(\w*)/$', programme.programme_sort, name='programme_sort'),
+    re_path(r'^programme/programme_manage_material/(\w*)/(\w*)/$', programme.programme_manage_material, name='programme_manage_material'),
+    re_path(r'^programme/programme_material/add/(\w*)/(\w*)/$', programme.programme_material_add, name='programme_material_add'),
     # 使用   (\d*)  表示数字
     re_path(r'^manage_machine/manage_area/(\w*)/(\w*)/$', manage_machine.manage_area, name='manage_area'),
     re_path(r'^manage_machine/(\w*)/$', manage_machine.manage_machine, name='manage_machine'),
+
+    path('xadmin/', xadmin.admin_role, name="admin_role"),
 ]
 

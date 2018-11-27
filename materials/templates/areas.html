@@ -42,7 +42,7 @@
                             href="javascript:;"><i class="layui-icon">&#xe640;</i>修改
                     </button>
                     <button class="layui-btn-danger layui-btn layui-btn-xs"
-                            onclick="area_del(this,'{{ area.nid }}')"
+                            onclick="area_del(this,'{{ area.pk }}')"
                             href="javascript:;"><i class="layui-icon">&#xe640;</i>删除
                     </button>
                 </td>
@@ -54,15 +54,16 @@
 {% endblock %}
 {% block extra_js %}
     <script>
-        function area_del(obj, id) {
+        function area_del(obj, pk) {
             layer.confirm('确认要删除吗？', function (index) {
                 //发异步删除数据
                 $.ajax({
                     url: "{% url 'areas_del' %}",
                     type: "get",
+                    sync: false,
                     data: {
                         all: false,
-                        nid: id
+                        pk: pk
                     },
                     success: function (data) {
                         if (data.status) {
