@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/bootstrap.css' %}">
+    <style>
+        .db-area-head {
+            text-align: center;
+            width: 100%;
+            height: 40px;
+            display: -webkit-flex; /*Webkit内核的浏览器，必须加上-webkit前缀。*/
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .assign-area-cancel span:hover {
+            cursor: pointer;
+        }
+
+        .db-area-list {
+            padding: 15px;
+        }
+    </style>
+{% endblock %}
+{% block content %}
+    <div class="x-nav">
+        <a class="layui-btn layui-btn-small" style="line-height:1.6em;margin-top:3px;float:right"
+           href="javascript:location.replace(location.href);" title="刷新">
+            <i class="layui-icon" style="line-height:30px">ဂ</i>
+        </a>
+    </div>
+    {% if request.user.is_superuser %}
+        <xblock>
+            <button class="layui-btn" onclick="x_admin_show('分配区域','{% url 'assign_area' group_pk %}', 500, 400)"><i
+                    class="layui-icon"></i>分配区域
+            </button>
+            <span class="x-right" style="line-height:40px">共有区域：{{ areas.count }} 个</span>
+        </xblock>
+    {% elif request.user.is_manage %}
+        <div class="db-area-list">
+            <button class="layui-btn">
+                区域列表
+            </button>
+        </div>
+    {% endif %}
+    <div class="row">
+        {% for area in areas %}
+            <div class="col-md-3">
+                <div class="panel panel-primary db-area-head">
+                    {{ area.title }}
+                    <div class="assign-area-cancel">
+                        <span>
+                            <i class="layui-icon" onclick="AssignAreaCancel(this, '{{ area.pk }}')">&#xe640;</i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+    {% csrf_token %}
+{% endblock %}
+{% block extra_js %}
+    <script>
+        function AssignAreaCancel(obj, area_pk) {
+            layer.confirm("确定要删除此区域吗？", function (index) {
+                $.ajax({
+                    url: "{% url 'db_area' group_pk %}",
+                    type: "post",
+                    data: {
+                        "area_pk": area_pk,
+                        csrfmiddlewaretoken: $("[name='csrfmiddlewaretoken']").val(),
+                    },
+                    dataType: "json",
+                    success: function (data) {
+                        if (data.status) {
+                            layer.msg("已删除！", {icon: 1, time: 10000});
+                            window.location.reload();
+                        } else {
+                            layer.msg("删除失败！", {icon: 1, time: 1000})
+                        }
+                    }
+                })
+            })
+        }
+    </script>
+
+{% endblock %}

@@ -47,40 +47,45 @@
     </div>
 
     <xblock>
-        <button class="layui-btn" onclick="x_admin_show('添加设备','{% url 'machines_add' area_pk %}', 700, 500)"><i
-                class="layui-icon"></i>添加设备
-        </button>
+        {% if request.user.is_superuser %}
+            <button class="layui-btn" onclick="x_admin_show('添加设备','{% url 'machines_add' area_pk %}', 700, 500)"><i
+                    class="layui-icon"></i>添加设备
+            </button>
+        {% endif %}
         <span class="x-right" style="line-height:40px">共有设备：{{ machines.count }} 台</span>
     </xblock>
     <div class="machine-nav">
         {% csrf_token %}
-
-        {% for machine in machines %}
-            <div class="panel panel-primary machine-panel">
-                <div class="machine-panel-title">
-                    <span>{{ machine.title }}</span>
-                </div>
-                <div class="machine-panel-nid">
-                    <span>{{ machine.nid }}</span>
-                </div>
-                <div class="machine-panel-handle">
-                    <div class="machine-panel-handle-detail">
+        {% if machines %}
+            {% for machine in machines %}
+                <div class="panel panel-primary machine-panel">
+                    <div class="machine-panel-title">
+                        <span>{{ machine.title }}</span>
+                    </div>
+                    <div class="machine-panel-nid">
+                        <span>{{ machine.nid }}</span>
+                    </div>
+                    <div class="machine-panel-handle">
+                        <div class="machine-panel-handle-detail">
                             <span onclick="x_admin_show('设备详情', '{% url 'machine_detail' machine.nid %}', 400, 300)"><i
                                     class="layui-icon">&#xe705;</i></span>
-                    </div>
-                    {% if request.user.is_superuser %}
-                        <div class="machine-panel-handle-editor">
+                        </div>
+                        {% if request.user.is_superuser %}
+                            <div class="machine-panel-handle-editor">
                                 <span onclick="x_admin_show('设备修改', '{% url 'machine_update' machine.nid %}', 400, 300)"><i
                                         class="layui-icon">&#xe6b2;</i></span>
-                        </div>
-                        <div class="machine-panel-handle-del">
+                            </div>
+                            <div class="machine-panel-handle-del">
                             <span><i class="layui-icon"
                                      onclick="MachineDel(this,'{{ machine.nid }}')">&#xe640;</i></span>
-                        </div>
-                    {% endif %}
+                            </div>
+                        {% endif %}
+                    </div>
                 </div>
-            </div>
-        {% endfor %}
+            {% endfor %}
+        {% else %}
+            <h4>该区域暂无设备！</h4>
+        {% endif %}
     </div>
 {% endblock %}
 {% block extra_js %}

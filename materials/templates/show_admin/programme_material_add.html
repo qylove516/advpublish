@@ -1,36 +1,12 @@
 {% extends 'base.html' %}
-{% load mytag %}
+{% load static mytag %}
 {% block extra_css %}
-    <link rel="stylesheet" type="text/css" href="http://www.jq22.com/jquery/bootstrap-3.3.4.css">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap.css' %}">
     <style>
-        .material-sort-head{
-            overflow-y: scroll;
-        }
-        #sortable {
-            list-style-type: none;
-            margin: 0;
-            padding: 0;
-            width: 100%;
-        }
-
         #sortable li {
             margin-bottom: 10px;
             margin-top: 10px;
             text-align: center;
-        }
-
-        .material-sort-img {
-            max-height: 80px;
-            max-width: 80px;
-            vertical-align: middle;
-        }
-
-        .material-sort-img:hover {
-            cursor: pointer;
-        }
-
-        .material-sort-title:hover {
-            cursor: pointer;
         }
 
         .x-body {

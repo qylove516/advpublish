@@ -9,6 +9,14 @@ class UserInfo(AbstractUser):
     create_time = models.DateTimeField(auto_now=True)
     is_manage = models.BooleanField("管理员", default=False)
 
+    @property
+    def groups_all(self):
+        gps = self.groups.all()
+        gp_name = []
+        for gp in gps:
+            gp_name.append(gp.name)
+        return ",".join(gp_name)
+
     def __str__(self):
         return self.username
 
@@ -20,12 +28,6 @@ class UserInfo(AbstractUser):
 class IntervalTime(models.Model):
     # 时间段标题唯一
     interval = models.CharField("时间段", max_length=32, unique=True)
-    user = models.ForeignKey(
-        to="UserInfo",
-        blank=True,
-        null=True,
-        on_delete=models.SET_NULL,
-    )
 
     def __str__(self):
         return self.interval
@@ -38,6 +40,7 @@ class IntervalTime(models.Model):
 class Area(models.Model):
     # 区域标题唯一
     title = models.CharField("标题", max_length=64, unique=True)
+    is_selected = models.BooleanField("是否已选择", default=False)
     group = models.ForeignKey(
         Group,
         blank=True,
@@ -81,6 +84,7 @@ class AreaIntervalTime(models.Model):
     )
     is_selected = models.BooleanField(default=False)
     is_inuse = models.BooleanField(default=False)
+    is_publish = models.BooleanField("是否发布", default=False)
 
     def __str__(self):
         return "{area}-{time}".format(area=self.area.title, time=self.interval_time.interval)
@@ -157,7 +161,6 @@ class MaterialFiles(models.Model):
 class Programme(models.Model):
     title = models.CharField('标题', max_length=64)
     is_review = models.BooleanField("是否提交审核", default=False)
-    is_publish = models.BooleanField("是否发布", default=False)
     create_time = models.DateTimeField(auto_now=True)
     user = models.ForeignKey(
         to="UserInfo",

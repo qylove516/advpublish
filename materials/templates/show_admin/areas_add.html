@@ -1,5 +1,17 @@
 {% extends 'base.html' %}
 {% load static %}
+{% block extra_css %}
+    <style>
+        .layui-inline label{
+            padding: 9px 5px 9px 0;
+
+        }
+        .layui-input-inline{
+            width: 300px;
+        }
+    </style>
+
+{% endblock %}
 {% block content %}
     <div style="padding: 20px; padding-left: 50px">
         {% csrf_token %}

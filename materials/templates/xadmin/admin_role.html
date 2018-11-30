@@ -1,4 +1,16 @@
 {% extends 'base.html' %}
+{% block extra_css %}
+    <style>
+        .admin-role-title th {
+            text-align: center;
+        }
+
+        .groups-body tr td {
+            text-align: center;
+        }
+    </style>
+
+{% endblock %}
 {% block content %}
     <div class="x-nav">
         <a class="layui-btn layui-btn-small" style="line-height:1.6em;margin-top:3px;float:right"
@@ -6,5 +18,65 @@
             <i class="layui-icon" style="line-height:30px">ဂ</i>
         </a>
     </div>
+    <xblock>
+        <button class="layui-btn" onclick="x_admin_show('添加标签','{% url 'groups_add' %}', 500, 300)"><i
+                class="layui-icon"></i>添加分组
+        </button>
+        <span class="x-right" style="line-height:40px">共有数据：{{ groups.count }} 条</span>
+    </xblock>
+    <table class="layui-table layui-form">
+        <thead class="groups-head">
+        <tr class="admin-role-title">
+            <th width="150">标签名称</th>
+            <th width="200">操作</th>
+        </tr>
+        </thead>
+        <tbody class="groups-body">
+        {% for group in groups %}
+            <tr>
+                <td><span>{{ group.name }}</span></td>
+                <td>
+                    <button class="layui-btn layui-btn layui-btn-xs"
+                            onclick="x_admin_show('修改分组名称','{% url 'groups_update' group.pk %}', 500, 300)"
+                            href="javascript:;"><i class="layui-icon">&#xe642;</i>修改
+                    </button>
+                    <button class="layui-btn layui-btn layui-btn-xs"
+                            onclick="x_admin_show('添加用户','{% url 'groups_user_add' group.pk %}', 700, 500)"
+                            href="javascript:;"><i class="layui-icon">&#xe642;</i>查看或添加用户
+                    </button>
+                    <button class="layui-btn-danger layui-btn layui-btn-xs"
+                            onclick="group_del(this,'{{ group.pk }}')"
+                            href="javascript:;"><i class="layui-icon">&#xe640;</i>删除
+                    </button>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% csrf_token %}
+{% endblock %}
+{% block extra_js %}
+    <script>
+        function group_del(obj, pk) {
+            layer.confirm("删除此分组会删除其下所有的用户及其数据，确定要删除此分组吗？", function (index) {
+                $.ajax({
+                    url: "{% url 'groups_del' %}",
+                    type: "get",
+                    data: {
+                        "pk": pk,
+                    },
+                    success: function (data) {
+                        if (data.status) {
+                            layer.msg(data.msg, {icon: 1, time: 1000});
+                            window.location.reload();
+                        } else {
+                            layer.msg(data.msg, {icon: 1, time: 1000});
+                        }
+                    }
+                })
+            });
+
+        }
+    </script>
 
 {% endblock %}

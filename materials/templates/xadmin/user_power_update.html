@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block extra_css %}
+    <style>
+        .user-power-body {
+            padding: 20px;
+        }
+    </style>
+{% endblock %}
+{% block content %}
+    <form class="layui-form user-power-body">
+        {% csrf_token %}
+        <div class="layui-form-item">
+            <label class="layui-form-label">一级管理员</label>
+            <div class="layui-input-block">
+                <input type="checkbox" name="is-manage" {% if is_manage %} checked=""
+
+                {% endif %}
+                       class="layui-input user-update-is-manage" id="user-update-is-manage"
+                lay-skin="switch" lay-text="true|false">
+            </div>
+        </div>
+            <div class="layui-form-item">
+            <div class="layui-input-block">
+                <input type="button" value="提交" onclick="UserPowerUpdate()" class="layui-btn">
+            </div>
+            <span id="user-power-update-has-error" class="user-update-error"></span>
+        </div>
+
+    </form>
+{% endblock %}
+{% block extra_js %}
+    <script>
+        function UserPowerUpdate() {
+            var is_manage = $("em").text();
+            $.ajax({
+                url: "{% url 'user_power_update' user_pk %}",
+                type: "post",
+                dataType: "json",
+                data: {
+                    is_manage: is_manage,
+                    csrfmiddlewaretoken: $("[name='csrfmiddlewaretoken']").val()
+                },
+                success: function (data) {
+                    if (data.status) {
+                        parent.location.reload();
+                    } else {
+                        $("#user-power-update-has-error").text(data.msg);
+                        setTimeout(function () {
+                            $("#user-power-update-has-error").text("");
+                        }, 2000);
+                        return false; // 禁止页面跳转
+                    }
+                }
+            })
+        }
+    </script>
+
+{% endblock %}

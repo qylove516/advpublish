@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load static %}
+{% load static mytag %}
 {% block title %}
     节目单管理
 {% endblock %}
@@ -32,7 +32,7 @@
         <thead class="programme-body-thead">
         <tr>
             <th width="70">标题</th>
-            {% if request.user.is_superuser %}
+            {% if request.user.is_superuser or request.user.is_manage %}
                 <th width="70">用户</th>
             {% endif %}
             <th width="200">操作</th>
@@ -42,33 +42,45 @@
         {% for programme in programmes %}
             <tr>
                 <td>{{ programme.title }}</td>
-                {% if request.user.is_superuser %}
+                {% if request.user.is_superuser or request.user.is_manage %}
                     <td>{{ programme.user.username }}</td>
                 {% endif %}
                 <td>
-                    <button class="layui-btn layui-btn-xs">
-                        <i class="layui-icon">&#xe642;</i>
-                        <a href="{% url 'programme_sort' programme.pk programme.user.username %}" target="_blank"
-                           style="color: white">编辑</a>
-                    </button>
+                    <!-- 当前登录用户为节目单的用户时才可以编辑或删除节目单 -->
+                    {% if request.user.pk|is_power:programme.user.pk %}
+                        <button class="layui-btn layui-btn-xs">
+                            <i class="layui-icon">&#xe642;</i>
+                            <a href="{% url 'programme_sort' programme.pk programme.user.username %}" target="_blank"
+                               style="color: white">编辑</a>
+                        </button>
 
-                    <button class="layui-btn-danger layui-btn layui-btn-xs"
-                            onclick="programme_del(this,'{{ programme.pk }}')"
-                            href="javascript:;"><i class="layui-icon">&#xe640;</i>删除节目单
-                    </button>
-
-                    {% if request.user.is_superuser %}
-                        <button class="layui-btn layui-btn-normal layui-btn-xs" style="width: 100px;"
-                                onclick="programme_publish(this, '{{ programme.pk }}')" href="javascript:;">
-                            <i class="layui-icon">&#xe642; </i>
-                            {% if programme.is_publish %}
-                                <span>取消发布</span>
-                            {% else %}
-                                <span>发布</span>
-                            {% endif %}
+                        <button class="layui-btn-danger layui-btn layui-btn-xs"
+                                onclick="programme_del(this,'{{ programme.pk }}')"
+                                href="javascript:;"><i class="layui-icon">&#xe640;</i>删除节目单
+                        </button>
+                    {% endif %}
+                    <!-- 超级管理员或普通管理员可以查看节目单内容 -->
+                    {% if request.user.is_manage or request.user.is_superuser %}
+                        <button class="layui-btn layui-btn-xs">
+                            <i class="layui-icon">&#xe642;</i>
+                            <a href="{% url 'programme_view' programme.pk %}" target="_blank"
+                               style="color: white">查看节目单</a>
                         </button>
                     {% endif %}
 
+                    {% if request.user.is_manage %}
+                        <button class="layui-btn layui-btn-normal layui-btn-xs" style="width: 100px;"
+                                onclick="programme_publish(this, '{{ programme.pk }}')" href="javascript:;">
+                            <i class="layui-icon">&#xe642; </i>
+                            <span>发布</span>
+                        </button>
+
+                        <button class="layui-btn layui-btn-normal layui-btn-xs" style="width: 100px;"
+                                onclick="programme_unpublish(this, '{{ programme.pk }}')" href="javascript:;">
+                            <i class="layui-icon">&#xe642; </i>
+                            <span>取消发布</span>
+                        </button>
+                    {% endif %}
                 </td>
             </tr>
         {% endfor %}
@@ -98,25 +110,34 @@
             });
         }
 
-        function programme_publish(obj, pk) {
-            layer.confirm('确认要发布吗？', function (index) {
+        function is_publish(obj, pk, url) {
+            layer.confirm('确认执行操作吗？', function (index) {
                 //发异步发布数据
                 $.ajax({
-                    url: "{% url 'programme_publish' %}",
+                    url: url,
                     type: "get",
                     data: {
                         pk: pk
                     },
                     success: function (data) {
                         if (data.status) {
-                            layer.msg('已发布!', {icon: 1, time: 2000});
-                            window.location.reload();
+                            layer.msg(data.msg, {icon: 1, time: 2000});
                         } else {
-                            layer.msg(data.msg, {icon: 1, time: 1000});
+                            layer.msg(data.msg, {icon: 1, time: 2000});
                         }
                     }
                 });
             });
+        }
+
+        function programme_publish(obj, pk) {
+            var url = "{% url 'programme_publish' %}";
+            is_publish(obj, pk, url)
+        }
+
+        function programme_unpublish(obj, pk) {
+            var url = "{% url 'programme_unpublish' %}";
+            is_publish(obj, pk, url)
         }
     </script>
 {% endblock %}

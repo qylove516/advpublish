@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% block extra_css %}
+    <style>
+        .layui-input-block{
+            margin-left: 50px;
+        }
+        .layui-input-block >div> span{
+            width: 300px;
+            text-align: center;
+        }
+    </style>
+{% endblock %}
+{% block content %}
+    <div class="layui-form">
+        {% csrf_token %}
+        <div class="layui-form-item">
+            <div class="layui-input-block">
+                {% for area in areas %}
+                    {% if area.is_selected %}
+                        <input type="checkbox" assign="assign-area" name="{{ area.pk }}" title="{{ area.title }}"
+                               disabled="disabled">
+                    {% else %}
+                        <input type="checkbox" assign="assign-area" name="{{ area.pk }}" title="{{ area.title }}">
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-input-block">
+                <button class="layui-btn" onclick="AssignArea()">立即提交</button>
+            </div>
+            <span id="assign-area-error"></span>
+        </div>
+    </div>
+{% endblock %}
+{% block extra_js %}
+    <script>
+        function AssignArea() {
+            var form_data = new FormData();
+            var obj = $("[assign='assign-area']");
+            var assign_areas = [];
+            for (var i=0; i<obj.length;i++){
+                if(obj[i].checked){
+                    assign_areas.push(obj[i].name);
+                }
+            }
+            form_data.append("assign_areas", assign_areas);
+            form_data.append("csrfmiddlewaretoken", $("[name='csrfmiddlewaretoken']").val());
+            $.ajax({
+                url: "{% url 'assign_area' pk %}",
+                type: "post",
+                data: form_data,
+                processData: false, /* 不需要对数据进行处理*/
+                contentType: false, /*由<form>表单构造的FormData对象，且已经声明了属性enctype="multipart/form-data"*/
+                success: function (data) {
+                    if(data.status){
+                        parent.location.reload()
+                    }else{
+                        $("#assign-area-error").text(data.msg);
+                        setTimeout(function () {
+                            $("#assign-area-error").text("");
+                        }, 2000);
+                        return false
+                    }
+                }
+            })
+        }
+    </script>
+
+{% endblock %}

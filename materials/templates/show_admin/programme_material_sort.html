@@ -51,7 +51,7 @@
 
         .area-interval-head {
             padding: 20px 20px 10px 20px;
-            width: 30%;
+            width: 40%;
             height: 600px;
             float: left;
             overflow-y: scroll;
@@ -159,7 +159,7 @@
                 {% endif %}
             {% else %}
                 {% if programme.is_review %}
-                    <div>您已提交审请，请稍等相关人员批准！</div>
+                    <div>您已提交审请！</div>
                 {% endif %}
             {% endif %}
         </div>
@@ -229,5 +229,4 @@
             func(url, review_pk, confirm_message);
         }
     </script>
-
 {% endblock %}

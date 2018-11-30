@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+    <div style="padding: 20px; padding-left: 50px">
+        {% csrf_token %}
+        <div class="layui-inline">
+            <label class="layui-form-label">分组名称</label>
+            <div class="layui-input-inline">
+                <input type="text" name="phone" autocomplete="off" class="layui-input"
+                       placeholder="分组名称" id="groups-add-title">
+            </div>
+        </div>
+        <hr>
+        <div class="layui-form-item">
+            <div class="layui-input-block">
+                <button class="layui-btn" lay-submit="" lay-filter="demo1" id="groups-add-submit">立即提交</button>
+                <span id="groups-add-error" style="color: orange;margin-left: 10px"></span>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block extra_js %}
+    <script>
+        $("#groups-add-submit").click(function () {
+            var title = $("#groups-add-title").val();
+            if (title == "") {
+                $("#groups-add-error").text("请输入标签名称！");
+                setTimeout(function () {
+                    $("#groups-add-error").text("");
+                }, 2000);
+                return false;
+            }
+            $.ajax({
+                url: "{% url 'groups_add' %}",
+                type: 'post',
+                dataType: 'json',
+                data: {
+                    title: title,
+                    csrfmiddlewaretoken: $("[name='csrfmiddlewaretoken']").val(),
+                },
+                success: function (data) {
+                    if (data.status) {
+                        parent.location.reload();
+                    } else {
+                        $("#groups-add-error").text(data.msg);
+                        setTimeout(function () {
+                            $("#groups-add-error").text("");
+                        }, 2000)
+                    }
+                }
+            })
+        })
+    </script>
+
+{% endblock %}

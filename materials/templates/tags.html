@@ -29,7 +29,7 @@
         <thead class="tags-head">
         <tr>
             <th width="150">标签名称</th>
-            {% if request.user.is_superuser %}
+            {% if request.user.is_superuser or request.user.is_manage %}
                 <th width="50">用户</th>
             {% endif %}
             <th width="200">操作</th>
@@ -39,7 +39,7 @@
         {% for tag in tags %}
             <tr>
                 <td><span>{{ tag.title }}</span></td>
-                {% if request.user.is_superuser %}
+                {% if request.user.is_superuser or request.user.is_manage %}
                     <td>{{ tag.user.username }}</td>
                 {% endif %}
                 <td>

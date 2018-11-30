@@ -1,4 +1,4 @@
-from django.db.models import Count
+from django.db.models import Count, Q
 from django.shortcuts import render, HttpResponse, redirect
 from materials import models
 from django.contrib.auth.models import auth
@@ -68,15 +68,37 @@ def logout(request):
 
 @login_required
 def index(request):
-    tags = models.FileTag.objects.all()
-    users = models.UserInfo.objects.all()
-    areas = models.Area.objects.all()
+    """
+    判断用户的身份，超级用户与普通管理员返回的结果不同
+    :param request:
+    :return:
+    """
+    user = request.user
+    area_interval = None
+    users = None
+    areas = None
+    group = None
+    if user.is_superuser:
+        users = models.UserInfo.objects.all().filter(~Q(is_superuser=True))
+        areas = models.Area.objects.all().order_by("-title")
+        group = models.Group.objects.all()
+    elif user.is_manage:
+        group = user.groups.all()[0]
+        users = group.user_set.all()
+        areas = group.area_set.all()
+    else:
+        area_interval = models.AreaIntervalTime.objects.filter(user_id=user.id)
     ret = {
-        "tags": tags,
+        "area_interval": area_interval,
+        "group": group,
         "users": users,
         "areas": areas
     }
     return render(request, 'index.html', ret)
+
+
+def area_interval(request):
+    pass
 
 
 def welcome(request):
@@ -156,6 +178,7 @@ def materials_delete(request):
 
 
 def tags(request):
+    user = request.user
     if request.method == "POST":
         title = request.POST.get("title")
         nid = request.POST.get("nid")
@@ -170,11 +193,15 @@ def tags(request):
             ret["msg"] = "更新失败"
         return JsonResponse(ret)
 
-    if request.user.is_superuser:
+    if user.is_superuser:
         tags = models.FileTag.objects.all()
         # num_count = models.FileTag.objects.annotate(num_article=Count("materialfiles")).values("materialfiles__title")
+    elif user.is_manage:
+        group = user.groups.all()[0]
+        users = group.user_set.all()
+        tags = models.FileTag.objects.filter(user__in=users)
     else:
-        tags = models.FileTag.objects.filter(user=request.user)
+        tags = models.FileTag.objects.filter(user=user)
     ret = {
         "tags": tags,
     }

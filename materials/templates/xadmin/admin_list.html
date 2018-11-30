@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+{% block extra_css %}
+    <style>
+        .users-head tr th {
+            text-align: center;
+        }
+
+        td {
+            text-align: center;
+        }
+    </style>
+
+{% endblock %}
+{% block content %}
+    <div class="x-nav">
+        <a class="layui-btn layui-btn-small" style="line-height:1.6em;margin-top:3px;float:right"
+           href="javascript:location.replace(location.href);" title="刷新">
+            <i class="layui-icon" style="line-height:30px">ဂ</i>
+        </a>
+    </div>
+    <button data-method="offset" data-type="auto" class="layui-btn" id="user-message">
+        点击查看当前用户权限及所在组信息
+    </button>
+    <table class="layui-table layui-form">
+            <thead class="users-head">
+            <tr>
+                <th width="50">用户</th>
+                {% if request.user.is_superuser %}
+                    <th width="50">一级管理员</th>
+                    <th width="200">所在组名</th>
+                {% endif %}
+                <th width="50">操作</th>
+            </tr>
+            </thead>
+        <tbody class="users-body">
+        {% for user in users %}
+            <tr>
+                <td>
+                    <span>{{ user.username }}</span>
+                </td>
+                {% if request.user.is_superuser %}
+                    <td>
+                        {% if user.is_manage %}
+                            是
+                        {% else %}
+                            否
+                        {% endif %}
+                    </td>
+                    <td>{{ user.groups_all }}</td>
+                {% endif %}
+                <td>
+                    <button class="layui-btn layui-btn layui-btn-xs"
+                            onclick="x_admin_show('修改管理员信息','{% url 'user_update' user.pk %}', 600, 500)"
+                            href="javascript:;"><i class="layui-icon">&#xe642;</i>修改
+                    </button>
+                    <button class="layui-btn-danger layui-btn layui-btn-xs"
+                            onclick="UserDel(this,'{{ user.pk }}')"
+                            href="javascript:;"><i class="layui-icon">&#xe640;</i>删除
+                    </button>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
+{% block extra_js %}
+    <script>
+        $('#user-message').on('click', function () {
+            layer.open({
+                type: 1,
+                area: ['200px', '200px'],
+                shadeClose: true, //点击遮罩关闭
+                content: "<div style='padding:20px'><label>权限：</label>{{ msg }}<br><label>分组：</label>{{ group }}</div>",
+            });
+        });
+
+        function UserDel(obj, user_pk) {
+            layer.confirm("该用户及其所有文件、节目单都会被删除，你确定要删除该用户吗？", function (index) {
+                $.ajax({
+                    url: "{% url 'user_del' %}",
+                    type: "get",
+                    dataType: "json",
+                    data: {
+                        "user_pk": user_pk,
+                    },
+                    success: function (data) {
+                        if (data.status) {
+                            layer.msg(data.msg, {icon: 1, time: 1000});
+                            window.location.reload();
+                        } else {
+                            layer.msg(data.msg, {icon: 1, time: 1000});
+                        }
+                    }
+                })
+            })
+        }
+    </script>
+
+{% endblock %}

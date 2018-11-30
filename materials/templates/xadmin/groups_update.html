@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block extra_css %}
+<style>
+    .groups-update-body{
+        padding: 20px;
+    }
+    .groups-update-title{
+        width: 60%;
+    }
+</style>
+{% endblock %}
+{% block content %}
+    <form class="layui-form groups-update-body">
+        {% csrf_token %}
+        <div class="layui-form-item">
+            <label class="layui-form-label">名称</label>
+            <div class="layui-input-block">
+                <input type="text" name="title" value="{{ group.name }}" autocomplete="off"
+                       class="layui-input groups-update-title" id="groups-update-title">
+            </div>
+        </div>
+        <!-- 提交 -->
+        <div class="layui-form-item">
+            <div class="layui-input-block">
+                <input type="button" value="提交" onclick="GroupsUpdate()" class="layui-btn">
+                <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+            </div>
+            <span id="groups-update-has-error" class="groups-update-error"></span>
+        </div>
+    </form>
+{% endblock %}
+{% block extra_js %}
+    <script>
+        function GroupsUpdate() {
+            var title = $("#groups-update-title").val();
+            var form_data = new FormData();
+            form_data.append('title', title);
+            form_data.append("csrfmiddlewaretoken", $("[name='csrfmiddlewaretoken']").val());
+            $.ajax({
+                url: "{% url 'groups_update' pk %}",
+                type: "post",
+                data: form_data,
+                processData: false,
+                contentType: false,
+                success: function (data) {
+                    if (data.status){
+                        parent.location.reload();
+                    }else{
+                        $("#groups-update-has-error").text(data.msg);
+                        setTimeout(function () {
+                            $("#groups-update-has-error").text("");
+                        }, 2000);
+                        return false; // 禁止页面跳转
+                    }
+                }
+            })
+        }
+    </script>
+
+{% endblock %}

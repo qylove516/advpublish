@@ -5,10 +5,26 @@ from materials import models
 
 
 def programme(request):
-    if request.user.is_superuser:
-        programmes = models.Programme.objects.all()
+    # 普通用户在区域列表中查看是否已通过审请
+    user = request.user
+    if user.is_superuser:
+        programmes = models.Programme.objects.all().filter(is_review=True)
+    elif user.is_manage:
+        # 此处应该有和manage出现同组的用户的节目单，而且只有节目单关联到同组中的区域的时候，节目单才出现这儿
+        # 同组的其它用户，
+        group = user.groups.all()[0]
+        request_area = group.area_set.all()
+        users = group.user_set.all()
+        programmes = []
+        for user in users:
+            for areainterval in user.areaintervaltime_set.all():
+                if areainterval.programme:
+                    if areainterval.area in request_area and areainterval.programme.is_review:
+                        programmes.append(areainterval.programme)
+        # 把得到的节目单去重，去除None值
+        programmes = set(list(filter(None, programmes)))
     else:
-        programmes = models.Programme.objects.filter(user=request.user)
+        programmes = models.Programme.objects.filter(user=user)
 
     ret = {
         "programmes": programmes,
@@ -37,10 +53,12 @@ def programme_add(request):
 
 
 def programme_del(request):
+    # 节目单删除之后的一系列反应： 1、连接的区域时间处于未发布状态，（区域时间下节目单自动为None）  2、下属的临时素材删除
     ret = {"status": True}
     try:
         pk = request.GET.get("pk")
         programme = models.Programme.objects.filter(pk=pk).first()
+        programme.areaintervaltime_set.all().update(is_publish=False)
         programme.programmematerial_set.all().delete()
         programme.delete()
     except Exception as e:
@@ -49,29 +67,40 @@ def programme_del(request):
 
 
 def programme_publish(request):
-    ret = {"status": True}
+    # 每个 manage 批准发布的只是其组下面的。
+    ret = {"status": True, "msg": "发布成功！"}
+    user = request.user
     try:
         pk = request.GET.get("pk")
+        group = user.groups.all()[0]
+        request_area = group.area_set.all()
         programme = models.Programme.objects.filter(pk=pk).first()
-        if not programme.is_publish:
-            programme_interval_area = programme.areaintervaltime_set.all()
-            programme_material = programme.programmematerial_set.all()
-            if len(programme_material) == 0:
-                ret["status"] = False
-                ret["msg"] = "请先添加素材"
-            elif len(programme_interval_area) == 0:
-                ret["status"] = False
-                ret["msg"] = "请先选择发布区域及时间"
-            elif programme.is_review:
-                models.Programme.objects.filter(pk=pk).update(is_publish=True)
-            else:
-                ret["status"] = False
-                ret["msg"] = "请先提交审核！"
-        else:
-            models.Programme.objects.filter(pk=pk).update(is_publish=False)
+        for areaintervaltime in programme.areaintervaltime_set.all():
+            if areaintervaltime.area in request_area:
+                areaintervaltime.is_publish = True
+                areaintervaltime.save()
     except Exception as e:
         ret["status"] = False
         ret["msg"] = "发布失败"
+    return JsonResponse(ret)
+
+
+def programme_unpublish(request):
+    # 每个 manage 批准发布的只是其组下面的。
+    ret = {"status": True, "msg": "取消发布成功！"}
+    user = request.user
+    try:
+        pk = request.GET.get("pk")
+        group = user.groups.all()[0]
+        request_area = group.area_set.all()
+        programme = models.Programme.objects.filter(pk=pk).first()
+        for areaintervaltime in programme.areaintervaltime_set.all():
+            if areaintervaltime.area in request_area:
+                areaintervaltime.is_publish = False
+                areaintervaltime.save()
+    except Exception as e:
+        ret["status"] = False
+        ret["msg"] = "取消发布失败"
     return JsonResponse(ret)
 
 
@@ -135,6 +164,17 @@ def programme_sort(request, pk, username):
     return render(request, 'show_admin/programme_material_sort.html', ret)
 
 
+def programme_view(request, programme_pk):
+    materials = models.ProgrammeMaterial.objects.filter(programme_id=programme_pk)
+    area_intervals = models.AreaIntervalTime.objects.filter(programme_id=programme_pk)
+    ret = {
+        "programme": models.Programme.objects.filter(pk=programme_pk).first().title,
+        "materials": materials,
+        "area_intervals": area_intervals
+    }
+    return render(request, 'show_admin/programme_view.html', ret)
+
+
 def programme_material_del(request):
     pk = request.GET.get("pk")
     ret = {"status": True, "msg": "删除素材成功"}
@@ -188,12 +228,15 @@ def programme_area_interval_del(request):
 
 
 def programme_manage_review(request):
+    # 提交审核, 如果提交审核的区域没有管理员？  把时间分配的权限给 is_manage 用户，在超级管理员中去掉这个权限
     pk = request.GET.get("pk")
     ret = {"status": True, "msg": ""}
     programme = models.Programme.objects.filter(pk=pk)
     try:
         if programme.first().is_review:
+            # 如果节目单取消审核，则同时取消发布
             programme.update(is_review=False)
+            models.AreaIntervalTime.objects.filter(programme_id=pk).update(is_publish=False)
         else:
             programme.update(is_review=True)
         ret["msg"] = "操成功！"

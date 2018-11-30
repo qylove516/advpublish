@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block extra_css %}
+    <style>
+        .user-update-body {
+            padding: 20px;
+        }
+
+        .user-update-title {
+            width: 60%;
+        }
+    </style>
+{% endblock %}
+{% block content %}
+    <form class="layui-form user-update-body">
+        {% csrf_token %}
+        <div class="layui-form-item">
+            <label class="layui-form-label">名字</label>
+            <div class="layui-input-block">
+                <input type="text" name="username" value="{{ username }}" autocomplete="off"
+                       class="layui-input user-update-username" id="user-update-username">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">公司</label>
+            <div class="layui-input-block">
+                <input type="text" name="company" value="{{ company }}" autocomplete="off"
+                       class="layui-input user-update-company" id="user-update-company">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">电话</label>
+            <div class="layui-input-block">
+                <input type="text" name="tel" value="{{ tel }}" autocomplete="off"
+                       class="layui-input user-update-tel" id="user-update-tel">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">地址</label>
+            <div class="layui-input-block">
+                <input type="text" name="address" value="{{ address }}" autocomplete="off"
+                       class="layui-input user-update-address" id="user-update-address">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">邮箱</label>
+            <div class="layui-input-block">
+                <input type="text" name="email" value="{{ email }}" autocomplete="off"
+                       class="layui-input user-update-email" id="user-update-email">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-input-block">
+                <input type="button" value="提交" onclick="TagUpdate()" class="layui-btn">
+                <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+            </div>
+            <span id="tag-update-has-error" class="user-update-error"></span>
+        </div>
+    </form>
+{% endblock %}
+{% block extra_js %}
+    <script>
+        function TagUpdate() {
+            var username = $("#user-update-username").val();
+            var company = $("#user-update-company").val();
+            var tel = $("#user-update-tel").val();
+            var email = $("#user-update-email").val();
+            var address = $("#user-update-address").val();
+            $.ajax({
+                url: "{% url 'user_update' user_pk %}",
+                type: "post",
+                dataType: "json",
+                sync: false,
+                data: {
+                    username: username,
+                    company: company,
+                    tel: tel,
+                    address: address,
+                    email: email,
+                    csrfmiddlewaretoken: $("[name='csrfmiddlewaretoken']").val()
+                },
+                success: function (data) {
+                    if (data.status) {
+                        parent.location.reload();
+                    } else {
+                        $("#user-update-has-error").text(data.msg);
+                        setTimeout(function () {
+                            $("#user-update-has-error").text("");
+                        }, 2000);
+                        return false; // 禁止页面跳转
+                    }
+                }
+            })
+        }
+    </script>
+
+{% endblock %}

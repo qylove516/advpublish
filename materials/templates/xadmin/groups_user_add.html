@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+{% block extra_css %}
+    <style>
+        .group-user-add-views {
+            display: inline-block;
+            width: 30%;
+        }
+
+        .group-user-cancel {
+            display: inline;
+        }
+    </style>
+{% endblock %}
+{% block content %}
+    <div class="layui-tab layui-tab-brief" lay-filter="docDemoTabBrief">
+        <ul class="layui-tab-title">
+            <li class="layui-this">查看已存在用户</li>
+            <li>添加用户</li>
+        </ul>
+        <div class="layui-tab-content" style="height: 100px;">
+            <div class="layui-tab-item layui-show">
+                {% for user in user_exist %}
+                    <div class="group-user-add-views">
+                        <button class="layui-btn">
+                            {{ user }}
+                            <span class="layui-badge layui-bg-gray">
+                                {% if user.is_manage %}
+                                    管理员
+                                {% else %}
+                                    普通用户
+                                {% endif %}
+                            </span>
+                        </button>
+                        <div class="group-user-cancel">
+                            <span>
+                                <i class="layui-icon" onclick="GroupUserCancel(this, '{{ user.pk }}')">&#xe640;</i>
+                            </span>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            <div class="layui-tab-item">
+                {% csrf_token %}
+                <div class="layui-form-item">
+                    <label class="layui-form-label">请选择用户</label>
+                    <div class="layui-input-block">
+                        <select name="interest" lay-filter="aihao" id="group-user-add-select">
+                            {% for user in users %}
+                                <option name="{{ user.pk }}">{{ user.username }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <div class="layui-input-block">
+                        <button class="layui-btn" onclick="GroupUserAdd()">立即提交</button>
+                        <span id="user-add-error"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block extra_js %}
+    <script>
+        function GroupUserAdd() {
+            var user_pk = $("#group-user-add-select option:selected").attr("name");
+            $.ajax({
+                url: "{% url 'groups_user_add' group_pk %}",
+                type: "post",
+                dataType: "json",
+                data: {
+                    user_pk: user_pk,
+                    csrfmiddlewaretoken: $("[name='csrfmiddlewaretoken']").val()
+                },
+                success: function (data) {
+                    if (data.status) {
+                        parent.location.reload()
+                    } else {
+                        $("#user-add-error").text(data.msg);
+                        setTimeout(function () {
+                            $("#user-add-error").text(data.msg);
+                        }, 2000)
+                    }
+                }
+            })
+        }
+
+        function GroupUserCancel(obj, user_pk) {
+            layer.confirm("确定要把此用户从本组中删除吗？", function (index) {
+                $.ajax({
+                    url: "{% url 'groups_user_del' group_pk %}",
+                    type: "get",
+                    dataType: "json",
+                    data: {
+                        user_pk: user_pk
+                    },
+                    success:function (data) {
+                        if (data.status){
+                            layer.msg(data.msg, {icon:1, time:1000});
+                            parent.location.reload();
+                        }else{
+                            layer.msg(data.msg, {icon:1, time:1000});
+                        }
+                    }
+                })
+            })
+        }
+    </script>
+{% endblock %}
