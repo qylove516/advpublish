@@ -1,0 +1,13 @@
+<div class="pageination" style="text-align: center; margin-top: 20px">
+    <span class="step-links">
+        {% if pg.has_previous %}
+            <a href="?page={{ pg.previous_page_number }}" style="color: blue;">前一页</a>
+        {% endif %}
+        <span class="current">
+            第{{ pg.number }}页； 共{{ pg.paginator.num_pages }}页
+        </span>
+        {% if pg.has_next %}
+            <a href="?page={{ pg.next_page_number }}" style="color: blue;">下一页</a>
+        {% endif %}
+    </span>
+</div>
