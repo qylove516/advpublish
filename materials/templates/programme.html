@@ -23,7 +23,7 @@
         </a>
     </div>
     <xblock>
-        <button class="layui-btn" onclick="x_admin_show('添加节目单','{% url 'programme_add' %}', 600, 300)"><i
+        <button class="layui-btn" onclick="x_admin_show('添加节目单','{% url 'adv_programme_add' %}', 600, 300)"><i
                 class="layui-icon"></i>添加节目单
         </button>
         <span class="x-right" style="line-height:40px">共有数据：{{ programmes.count }} 条</span>
@@ -48,12 +48,10 @@
                 <td>
                     <!-- 当前登录用户为节目单的用户时才可以编辑或删除节目单 -->
                     {% if request.user.pk|is_power:programme.user.pk %}
-                        <button class="layui-btn layui-btn-xs">
-                            <i class="layui-icon">&#xe642;</i>
-                            <a href="{% url 'programme_sort' programme.pk programme.user.username %}" target="_blank"
-                               style="color: white">编辑</a>
-                        </button>
-
+                        <a href="{% url 'adv_programme_editor' programme.pk programme.user.pk %}"
+                           target="_blank" style="color: white">
+                            <button class="layui-btn layui-btn-xs"><i class="layui-icon">&#xe642;</i>编辑</button>
+                        </a>
                         <button class="layui-btn-danger layui-btn layui-btn-xs"
                                 onclick="programme_del(this,'{{ programme.pk }}')"
                                 href="javascript:;"><i class="layui-icon">&#xe640;</i>删除节目单
@@ -63,7 +61,7 @@
                     {% if request.user.is_manage or request.user.is_superuser %}
                         <button class="layui-btn layui-btn-xs">
                             <i class="layui-icon">&#xe642;</i>
-                            <a href="{% url 'programme_view' programme.pk %}" target="_blank"
+                            <a href="#" target="_blank"
                                style="color: white">查看节目单</a>
                         </button>
                     {% endif %}
@@ -131,12 +129,10 @@
         }
 
         function programme_publish(obj, pk) {
-            var url = "{% url 'programme_publish' %}";
             is_publish(obj, pk, url)
         }
 
         function programme_unpublish(obj, pk) {
-            var url = "{% url 'programme_unpublish' %}";
             is_publish(obj, pk, url)
         }
     </script>

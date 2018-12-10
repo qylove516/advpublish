@@ -3,35 +3,25 @@
 {% block extra_css %}
     <link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap.css' %}">
     <style>
-        #sortable li {
-            margin-bottom: 10px;
-            margin-top: 10px;
+        .x-body {
             text-align: center;
         }
 
-        .x-body {
-            margin-bottom: 20px;
-        }
-
-        .material-file-add-body {
-            padding: 20px;
-        }
-
         .material-img {
-            max-height: 100px;
-            max-width: 100px;
+            max-height: 150px;
+            max-width: 150px;
             vertical-align: middle;
         }
 
         .pmaterial-boot {
-            margin: 5px;
             padding: 0;
             text-align: center;
         }
 
         .pmaterial-content {
             text-align: center;
-            height: 120px;
+            height: 150px;
+            width: 200px;
             padding: 10px 0 0 0;
             vertical-align: middle;
             display: table-cell;
@@ -42,6 +32,7 @@
             margin-left: 10px;
             cursor: pointer;
         }
+
     </style>
 {% endblock %}
 {% block content %}
@@ -50,23 +41,27 @@
         <div class="x-body">
             <div class="row">
                 {% for file in files %}
-                    <div class="col-sm-2 pmaterial-boot">
+                    <div class="col-sm-3 pmaterial-boot">
                         <div class="panel-primary pmaterial-content" id="pmaterial-content-id">
-                            <div class="thumbnail" style="height: 100px; line-height: 100px">
+                            <div class="thumbnail" style="height: 150px; line-height: 150px">
                                 {% if file.files.url|image_video %}
                                     <img src="{{ file.files.url }}" alt="" width="100%"
                                          class="material-img img-rounded">
                                 {% else %}
-                                    <div style="height: 100px; line-height: 18px">{{ file.title }}</div>
+                                    <div style="height: 150px">
+                                        <video width="180px" height="150px" id="material-video" controls>
+                                            <source src="{{ file.files.url }}" type="video/mp4">
+                                        </video>
+                                    </div>
                                 {% endif %}
                             </div>
-                            <input type="checkbox" material_select="material_file_interval" name="{{ file.pk }}">
                         </div>
+                        <input type="checkbox" material_select="material_file_interval" name="{{ file.pk }}">
                     </div>
                 {% endfor %}
             </div>
         </div>
-
+        {% include "include/paginators.html" with pg=files %}
         <div class="layui-form-item">
             <div class="layui-input-block">
                 <input type="button" value="提交" onclick="NewMaterialFile()" class="layui-btn">
@@ -74,7 +69,6 @@
             </div>
             <span id="material-file-add-has-error" class="material-file-add-error"></span>
         </div>
-
     </form>
 
 
@@ -93,7 +87,7 @@
             form_data.append('materials', materials);
             form_data.append("csrfmiddlewaretoken", $("[name='csrfmiddlewaretoken']").val());
             $.ajax({
-                url: "{% url 'programme_material_add' pk 'name' %}", /* 此url中的name是随意添加的，为了添补空白 */
+                url: "{% url 'programme_material_add' pk user_pk %}",
                 type: "post",
                 data: form_data,
                 processData: false,

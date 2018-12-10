@@ -29,7 +29,6 @@
                        class="layui-input programme-add-title" id="programme-add-title">
             </div>
         </div>
-
         <!-- 提交 -->
         <div class="layui-form-item">
             <div class="layui-input-block">
@@ -55,11 +54,12 @@
             form_data.append("title", title);
             form_data.append("csrfmiddlewaretoken", $("[name='csrfmiddlewaretoken']").val());
             $.ajax({
-                url: "{% url 'programme_add' %}",
+                url: "{% url 'adv_programme_add'  %}",
                 type: "post",
                 data: form_data,
-                processData: false,  // tell jquery not to process the data
-                contentType: false, // tell jquery not to set contentType
+                sync: false,
+                processData: false,
+                contentType: false,
                 success: function (data) {
                     if (data.status) {
                         parent.location.reload();

@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% block content %}
+    <form class="layui-form" action="">
+        {% csrf_token %}
+        <!--取得设备时间  多选-->
+        <div class="layui-form-item" style="margin-top: 20px">
+            <div class="layui-input-block">
+                {% for interval in interval_times %}
+                    <input type="checkbox" name="machine-interval" value="{{ interval.pk }}"
+                           title="{{ interval.title }}">
+                {% endfor %}
+            </div>
+            <!--单选，获取节目单-->
+            <div style="margin-top: 20px; text-align: center">
+                <label class="layui-form-label">联动选择框</label>
+                <div class="layui-input-inline">
+                    <select id="machine-programme">
+                        {% for programme in programmes %}
+                            <option value="{{ programme.pk }}">{{ programme.title }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div style="text-align: center">
+            <button class="layui-btn" onclick="MachineAddPI()">
+                提交
+            </button>
+        </div>
+    </form>
+{% endblock %}
+{% block extra_js %}
+    <script>
+        function MachineAddPI() {
+            var form_data = new FormData();
+            var interval_obj = [];
+            var interval_id = $("[name='machine-interval']");
+            var programme_pk = $("#machine-programme option:selected").attr("value");
+            for (var i=0; i<interval_id.length;i++){
+                if (interval_id[i].checked){
+                    interval_obj.push(interval_id[i].value)
+                }
+            }
+            form_data.append("intervals", interval_obj);
+            form_data.append("programme_pk", programme_pk);
+            form_data.append("csrfmiddlewaretoken", $("[name='csrfmiddlewaretoken']").val());
+            $.ajax({
+                url: "{% url 'machine_addpi' machine_nid %}",
+                type: "post",
+                data: form_data,
+                contentType: false,
+                processData: false,
+                sync: false,
+                success: function (data) {
+                    console.log(data.msg)
+                }
+            })
+        }
+    </script>
+{% endblock %}

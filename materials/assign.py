@@ -4,19 +4,18 @@ from django.http import JsonResponse
 
 
 def db_area(request, group_pk):
-    # TODO 测试删除
+    #
     if request.method == "POST":
         area_pk = request.POST.get("area_pk")
         ret = {"status": True}
         try:
             area_obj = models.Area.objects.filter(pk=area_pk)
-            area_obj.first().areaintervaltime_set.all().update(programme=None, is_selected=False, is_inuse=False)
             area_obj.update(group=None, is_selected=False)
         except Exception as e:
             ret["status"] = False
         return JsonResponse(ret)
     group = models.Group.objects.filter(pk=group_pk).first()
-    areas = group.area_set.all()
+    areas = group.area_set.all().order_by("title")
     ret = {
         "group_pk": group_pk,
         "areas": areas
@@ -50,6 +49,7 @@ def assign_area(request, pk):
     return render(request, 'show_admin/assign_area.html', ret)
 
 
+"""
 def assign_time(request, user_pk, area_pk):
     # 时间分配：为用户分配区域时间
     if request.method == "POST":
@@ -70,6 +70,7 @@ def assign_time(request, user_pk, area_pk):
         'area_interval': area_interval
     }
     return render(request, 'show_admin/assign_time.html', ret)
+
 
 
 def db_time(request, user_pk):
@@ -108,3 +109,4 @@ def db_time(request, user_pk):
         "area_intervals": area_intervals,
     }
     return render(request, 'db_time.html', ret)
+"""

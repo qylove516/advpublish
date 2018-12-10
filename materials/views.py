@@ -7,10 +7,9 @@ import os, datetime
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from materials import forms
-from advpublish import settings
-from collections import OrderedDict
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from advpublish import settings
+from materials.get_pgs import get_pg
 
 
 def register(request):
@@ -76,18 +75,21 @@ def index(request):
     user = request.user
     area_interval = None
     users = None
-    areas = None
-    group = None
     if user.is_superuser:
-        users = models.UserInfo.objects.all().filter(~Q(is_superuser=True))
+        users = models.UserInfo.objects.all().filter(~Q(is_superuser=True)).order_by("username")
         areas = models.Area.objects.all().order_by("-title")
-        group = models.Group.objects.all()
+        group = models.Group.objects.all().order_by("name")
     elif user.is_manage:
-        group = user.groups.all()[0]
-        users = group.user_set.all()
-        areas = group.area_set.all()
+        group = user.groups.all().order_by("name")[0]
+        users = group.user_set.all().order_by("-create_time")
+        areas = group.area_set.all().order_by("group_id")
     else:
-        area_interval = models.AreaIntervalTime.objects.filter(user_id=user.id)
+        group = user.groups.all().order_by("name")
+        areas = []
+        for g in group:
+            for u in g.area_set.all().order_by("group_id"):
+                areas.append(u)
+
     ret = {
         "area_interval": area_interval,
         "group": group,
@@ -97,32 +99,18 @@ def index(request):
     return render(request, 'index.html', ret)
 
 
-def area_interval(request):
-    pass
-
-
 def welcome(request):
     return render(request, 'home.html')
 
 
 def materials(request):
     if request.user.is_superuser:
-        file_list = models.MaterialFiles.objects.all().order_by("-create_time")
+        files_all = models.MaterialFiles.objects.all().order_by("-create_time")
     else:
-        file_list = models.MaterialFiles.objects.filter(user=request.user).order_by("-create_time")
-    paginator = Paginator(file_list, 20)
-    page = request.GET.get('page')
-    try:
-        current_page = paginator.page(page)
-        files = current_page.object_list
-    except PageNotAnInteger:
-        current_page = paginator.page(1)
-        files = current_page.object_list
-    except EmptyPage:
-        current_page = paginator.page(paginator.num_pages)
-        files = current_page.object_list
-
+        files_all = models.MaterialFiles.objects.filter(user=request.user).order_by("-create_time")
+    files, current_page = get_pg(request, files_all, 10)
     ret = {
+        "files_all": files_all,
         "pages": current_page,
         "files": files
     }
@@ -194,16 +182,19 @@ def tags(request):
         return JsonResponse(ret)
 
     if user.is_superuser:
-        tags = models.FileTag.objects.all()
+        tags_all = models.FileTag.objects.all().order_by("user_id")
         # num_count = models.FileTag.objects.annotate(num_article=Count("materialfiles")).values("materialfiles__title")
     elif user.is_manage:
         group = user.groups.all()[0]
         users = group.user_set.all()
-        tags = models.FileTag.objects.filter(user__in=users)
+        tags_all = models.FileTag.objects.filter(user__in=users).order_by("user_id")
     else:
-        tags = models.FileTag.objects.filter(user=user)
+        tags_all = models.FileTag.objects.filter(user=user).order_by("user_id")
+    tags, current_page = get_pg(request, tags_all, 8)
     ret = {
+        "tags_all": tags_all,
         "tags": tags,
+        "current_page": current_page
     }
     return render(request, "tags.html", ret)
 

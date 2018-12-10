@@ -9,18 +9,35 @@
         .material-body {
             border: 1px solid #9F9F9F;
             margin: 10px;
-        }
-
-        .material-img {
-            max-height: 120px;
-            max-width: 120px;
-            vertical-align: middle;
+            padding: 0;
         }
 
         .material-content {
             text-align: center;
-            height: 150px;
-            padding: 20px 0 0 0;
+            height: 170px;
+            width: 170px;
+        }
+
+        .material-nav-img {
+            height: 120px;
+            line-height: 120px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .material-nav-video {
+            height: 120px;
+            line-height: 120px;
+        }
+
+        .material-img {
+            display: inline-block;
+            max-height: 170px;
+            max-width: 170px;
+            vertical-align: middle;
+        }
+        .material-nav-del{
+            text-align: center;
         }
     </style>
 {% endblock %}
@@ -39,47 +56,39 @@
         <button class="layui-btn" onclick="x_admin_show('添加文件','{% url 'material_file_add' %}', 500, 300)"><i
                 class="layui-icon"></i>添加文件
         </button>
-        <span class="x-right" style="line-height:40px">共有数据：{{ files.count }} 条</span>
+        <span class="x-right" style="line-height:40px">共有数据：{{ files_all.count }} 条</span>
     </xblock>
     <div class="x-body">
-        <div class="layui-row">
-            <div class="row">
-                {% for file in files %}
-                    <div class="col-sm-2 material-body">
-                        <div class="panel-primary material-content">
-                            {% if file.files.url|image_video %}
-                                <img src="{{ file.files.url }}" alt="" width="100%" class="material-img img-rounded">
-                            {% else %}
-                                <div>{{ file.title }}</div>
-                            {% endif %}
-                        </div>
-                        <div class="panel-primary" style="text-align: center">
-                            <a title="删除" onclick="member_del(this,'{{ file.pk }}')" href="javascript:;">
-                                <i class="layui-icon">&#xe640;</i>
-                            </a>
-                        </div>
-                    </div>
-                {% endfor %}
-            </div>
-            <hr>
-            <div class="pagination">
-                <span class="step-links">
-                    <a href="?page=1">&laquo; 首页</a>
-                    {% if pages.has_previous %}
-                        <a href="?page={{ pages.previous_page_number }}">前一页</a>
-                    {% endif %}
+        {% if files %}
+            <div class="layui-row">
+                <div class="row">
+                    {% for file in files %}
+                        <div class="col-sm-2 material-body">
+                            <div class="panel-primary material-content">
+                                {% if file.files.url|image_video %}
+                                    <div class="material-nav-img">
+                                        <img src="{{ file.files.url }}" alt="" width="100%"
+                                             class="material-img img-rounded">
+                                    </div>
+                                {% else %}
+                                    <div class="material-nav-video">
+                                        <video src="{{ file.files.url }}" width="150px" height="150px" controls></video>
+                                    </div>
+                                {% endif %}
 
-                    <span class="current">
-                        共 {{ pages.number }}页 &nbsp; 第 {{ pages.paginator.num_pages }}页 &nbsp;
-                    </span>
-
-                    {% if pages.has_next %}
-                        <a href="?page={{ pages.next_page_number }}">下一页</a>
-                    {% endif %}
-                    <a href="?page={{ pages.paginator.num_pages }}">最后一页 &raquo;</a>
-                </span>
+                            </div>
+                            <div class="material-nav-del">
+                                <a title="删除" onclick="member_del(this,'{{ file.pk }}')" href="javascript:;">
+                                    <i class="layui-icon">&#xe640;</i>
+                                </a>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+                <hr>
+                {% include "include/paginators.html" with pg=files %}
             </div>
-        </div>
+        {% endif %}
     </div>
 
 {% endblock %}

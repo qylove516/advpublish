@@ -3,24 +3,7 @@
 {% block extra_css %}
     <link rel="stylesheet" href="{% static 'css/bootstrap.css' %}">
     <style>
-        .machine-nav {
-            padding-left: 5px;
-        }
-
-        .machine-panel {
-            display: inline-block;
-            width: 12%;
-            height: 70px;
-            margin-top: 10px;
-        }
-
-        .machine-panel-title, .machine-panel-nid {
-            text-align: center;
-            margin-top: 5px;
-            font-size: 10px;
-        }
-
-        .machine-panel-handle {
+        .machine-table-head tr th, .machine-table-body tr td {
             text-align: center;
         }
 
@@ -52,48 +35,70 @@
                     class="layui-icon"></i>添加设备
             </button>
         {% endif %}
-        <span class="x-right" style="line-height:40px">共有设备：{{ machines.count }} 台</span>
+        <span class="x-right" style="line-height:40px">共有设备：{{ machines_all.count }} 台</span>
     </xblock>
-    <div class="machine-nav">
-        {% csrf_token %}
-        {% if machines %}
-            {% for machine in machines %}
-                <div class="panel panel-primary machine-panel">
-                    <div class="machine-panel-title">
-                        <span>{{ machine.title }}</span>
-                    </div>
-                    <div class="machine-panel-nid">
-                        <span>{{ machine.nid }}</span>
-                    </div>
-                    <div class="machine-panel-handle">
-                        <div class="machine-panel-handle-detail">
-                            <span onclick="x_admin_show('设备详情', '{% url 'machine_detail' machine.nid %}', 400, 300)"><i
-                                    class="layui-icon">&#xe705;</i></span>
-                        </div>
-                        {% if request.user.is_superuser %}
-                            <div class="machine-panel-handle-editor">
-                                <span onclick="x_admin_show('设备修改', '{% url 'machine_update' machine.nid %}', 400, 300)"><i
-                                        class="layui-icon">&#xe6b2;</i></span>
+    {% csrf_token %}
+    {% if machines %}
+        <table class="layui-table layui-form">
+            <thead class="machine-table-head">
+            <tr>
+                <th width="100">设备名称</th>
+                <th width="100">设备编号</th>
+                <th width="100">设备位置</th>
+                <th width="200">操作</th>
+            </tr>
+            </thead>
+            <tbody class="machine-table-body">
+            {% if machines %}
+                {% for machine in machines %}
+                    <tr>
+                        <td>{{ machine.title }}</td>
+                        <td>{{ machine.nid }}</td>
+                        <td>{{ machine.position }}</td>
+                        <td>
+                            <div class="machine-panel-handle-detail">
+                                <button class="layui-btn layui-btn layui-btn-xs"
+                                        onclick="x_admin_show('设备详情', '{% url 'machine_detail' machine.nid %}', 400, 300)"
+                                        href="javascript:;">
+                                    <i class="layui-icon">&#xe705;</i>详情
+                                </button>
+                                <button class="layui-btn layui-btn layui-btn-xs"
+                                        onclick="x_admin_show('设备详情', '{% url 'machine_addpi' machine.nid %}')"
+                                        href="javascript:;">
+                                    <i class="layui-icon">&#xe705;</i>添加节目单
+                                </button>
                             </div>
-                            <div class="machine-panel-handle-del">
-                            <span><i class="layui-icon"
-                                     onclick="MachineDel(this,'{{ machine.nid }}')">&#xe640;</i></span>
-                            </div>
-                        {% endif %}
-                    </div>
-                </div>
-            {% endfor %}
-        {% else %}
-            <h4>该区域暂无设备！</h4>
-        {% endif %}
-    </div>
+
+                            {% if request.user.is_superuser %}
+                                <div class="machine-panel-handle-editor">
+                                    <button class="layui-btn layui-btn layui-btn-xs"
+                                            onclick="x_admin_show('设备修改', '{% url 'machine_update' machine.nid %}', 400, 300)"
+                                            href="javascript:;">
+                                        <i class="layui-icon">&#xe6b2;</i>修改
+                                    </button>
+                                </div>
+                                <div class="machine-panel-handle-del">
+                                    <button class="layui-btn layui-btn-danger layui-btn-xs"
+                                            onclick="MachineDel(this,'{{ machine.nid }}')">
+                                        <i class="layui-icon">&#xe640;</i>删除
+                                    </button>
+                                </div>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            {% endif %}
+            </tbody>
+        </table>
+        {% include 'include/paginators.html' with pg=machines %}
+    {% endif %}
 {% endblock %}
 {% block extra_js %}
     <script>
         function MachineDel(obj, nid) {
             layer.confirm('确认要删除吗？', function (index) {
                 $.ajax({
-                    url: "{% url 'machine_area' area_pk %}",
+                    url: "{% url 'machine_list' area_pk %}",
                     type: "post",
                     data: {
                         csrfmiddlewaretoken: $("[name='csrfmiddlewaretoken']").val(),

@@ -41,43 +41,35 @@
                         <i class="iconfont nav_right">&#xe697;</i>
                     </a>
                     <ul class="sub-menu">
-                        {% if request.user.pk|is_user_manage %}
-                            <li>
-                                <a href="{% url 'area_interval' %}">
-                                    <cite>区域时间</cite>
-                                </a>
-                            </li>
-                        {% endif %}
-                        {% if request.user.is_superuser or request.user.is_manage %}
-                            <li>
-                                <a href="javascript:;">
-                                    <i class="layui-icon layui-icon-app"></i>
-                                    <cite>区域列表</cite>
+                        <li>
+                            <a href="javascript:;">
+                                <cite>区域列表</cite>
+                                {% if areas %}
                                     <i class="iconfont nav_right">&#xe697;</i>
-                                </a>
-                                <ul class="sub-menu">
-                                    {% for area in areas %}
-                                        <li>
-                                            <a _href="{% url 'machine_area' area.pk %}">
-                                                <cite>{{ area.title }}</cite>
-                                            </a>
-                                        </li>
-                                    {% endfor %}
-                                </ul>
-                            </li>
-                        {% endif %}
+                                {% endif %}
+                            </a>
+                            <ul class="sub-menu">
+                                {% for area in areas %}
+                                    <li>
+                                        <a _href="{% url 'machine_list' area.pk %}">
+                                            <cite>{{ area.title }}</cite>
+                                        </a>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </li>
                         {% if request.user.is_superuser %}
                             <li>
                                 <a _href="{% url 'areas' %}">
                                     <cite>区域分组</cite>
                                 </a>
                             </li>
+                            <li>
+                                <a _href="">
+                                    <cite>终端监控</cite>
+                                </a>
+                            </li>
                         {% endif %}
-                        <li>
-                            <a _href="">
-                                <cite>终端监控</cite>
-                            </a>
-                        </li>
                     </ul>
                 </li>
                 <li>
@@ -87,7 +79,6 @@
                         <i class="iconfont nav_right">&#xe697;</i>
                     </a>
                     <ul class="sub-menu">
-
                         <li>
                             <a _href="{% url 'tags' %}">
                                 <cite>文件标签</cite>
@@ -98,15 +89,46 @@
                                 <cite>文件上传</cite>
                             </a>
                         </li>
-
+                    </ul>
+                </li>
+                <li>
+                    <a href="javascript:;">
+                        <i class="iconfont">&#xe6cb;</i>
+                        <cite>节目管理</cite>
+                        <i class="iconfont nav_right">&#xe697;</i>
+                    </a>
+                    <ul class="sub-menu">
                         <li>
                             <a _href="{% url 'programme' %}">
-                                <cite>节目单</cite>
+                                <cite>广告节目</cite>
+                            </a>
+                        </li>
+                        <li>
+                            <a _href="#">
+                                <cite>公益主屏节目</cite>
+                            </a>
+                        </li>
+                        <li>
+                            <a _href="#">
+                                <cite>公益副屏节目</cite>
                             </a>
                         </li>
                     </ul>
                 </li>
-
+                <li>
+                    <a href="javascript:;">
+                        <i class="iconfont">&#xe70c;</i>
+                        <cite>模板管理</cite>
+                        <i class="iconfont nav_right">&#xe697;</i>
+                    </a>
+                    <ul class="sub-menu">
+                        <li>
+                            <a href="#">
+                                <cite>模板一</cite>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
                 {% if request.user.is_manage or request.user.is_superuser %}
                     <li>
                         <a href="javascript:;">
@@ -117,18 +139,13 @@
                         <ul class="sub-menu">
                             <li>
                                 <a _href="{% url 'admin_list' %}">
-                                    <cite>管理员列表</cite>
+                                    <cite>用户列表</cite>
                                 </a>
                             </li>
                             {% if request.user.is_superuser %}
                                 <li>
                                     <a _href="{% url 'admin_role' %}">
                                         <cite>角色分组</cite>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a _href="{% url 'user_power' %}">
-                                        <cite>权限管理</cite>
                                     </a>
                                 </li>
                             {% endif %}
@@ -158,26 +175,6 @@
                                 </li>
                             {% endif %}
                         </ul>
-                    </li>
-
-                    <li>
-                        {% if request.user.is_manage %}
-                            <a href="javascript:;">
-                                <i class="layui-icon layui-icon-app"></i>
-                                <cite>时间分配</cite>
-                                <i class="iconfont nav_right">&#xe697;</i>
-                            </a>
-
-                            <ul class="sub-menu">
-                                {% for user in users %}
-                                    <li>
-                                        <a _href="{% url 'db_time' user.pk %}">
-                                            <cite>{{ user.username }}</cite>
-                                        </a>
-                                    </li>
-                                {% endfor %}
-                            </ul>
-                        {% endif %}
                     </li>
                 {% endif %}
             </ul>

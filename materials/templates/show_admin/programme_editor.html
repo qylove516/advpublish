@@ -1,0 +1,147 @@
+{% extends 'base.html' %}
+{% load static mytag %}
+{% block title %}
+    {{ programme.title }}
+{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/bootstrap.css' %}">
+    <link rel="stylesheet" href="{% static 'css/jquery-ui.min.css' %}">
+    <style>
+
+        .material-editor-head {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .material-editor-head button:nth-child(2) {
+            cursor: default;
+        }
+
+        .material-sort-body {
+            height: 600px;
+            overflow-y: auto;
+        }
+
+        .ui-state-default {
+            display: inline-block;
+            text-align: center;
+            margin-left: 80px;
+            margin-bottom: 40px;
+            width: 200px;
+            height: 150px;
+            line-height: 80px;
+        }
+
+        .ui-state-default img {
+            max-width: 200px;
+            max-height: 200px;
+        }
+
+        .interval-machine {
+            height: 600px;
+            overflow-y: auto;
+        }
+
+    </style>
+{% endblock %}
+{% block content %}
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-4">
+                <div class="material-sort-head">
+                    <div class="material-editor-head">
+                        <button class="layui-btn"
+                                onclick="x_admin_show('添加素材','{% url 'programme_material_add' pk user_pk %}')">
+                            <i class="layui-icon"></i>添加素材
+                        </button>
+                        <button class="layui-btn">
+                            拖动图片进行排序
+                        </button>
+                    </div>
+                    <div class="material-sort-body">
+                        <ul id="sortable" class="list-group">
+                            {% for material in programme_materials %}
+                                <li class="ui-state-default" id="{{ material.id }}">
+                                    {% if material.material.files.url|image_video %}
+                                        <div>
+                                            <img src="{{ material.material.files.url }}" alt=""
+                                                 class="material-sort-img img-rounded">
+                                        </div>
+                                    {% else %}
+                                        <div class="material-sort-title">
+                                            <video src="{{ material.material.files.url }}" width="200px" height="200px"
+                                                   controls></video>
+                                        </div>
+                                    {% endif %}
+                                    <a onclick="material_del(this, '{{ material.pk }}')"><i
+                                            class="layui-icon">&#xe640;</i></a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-8 interval-machine">
+
+
+            </div>
+
+        </div>
+    </div>
+    {% csrf_token %}
+
+{% endblock %}
+{% block extra_js %}
+    <script src="//apps.bdimg.com/libs/jqueryui/1.10.4/jquery-ui.min.js"></script>
+    <script>
+        $("#sortable").sortable({
+            stop: function () {
+                var form_data = new FormData();
+                var sort_list = $("#sortable").sortable("toArray");
+                console.log(sort_list);
+                form_data.append('sort_list', sort_list);
+                form_data.append('csrfmiddlewaretoken', $("[name='csrfmiddlewaretoken']").val());
+                $.ajax({
+                    url: "{% url 'adv_programme_editor' pk user_pk %}",
+                    type: "post",
+                    data: form_data,
+                    processData: false,
+                    contentType: false,
+                    success: function (data) {
+                        console.log(data.status)
+                    }
+                })
+            }
+        });
+        $("#sortable").sortable("refresh");
+
+        function func(url, func_pk, confirm_message) {
+            layer.confirm(confirm_message, function (index) {
+                $.ajax({
+                    url: url,
+                    type: "get",
+                    dataType: "json",
+                    data: {
+                        pk: func_pk,
+                    },
+                    success: function (data) {
+                        if (data.status) {
+                            layer.msg(data.msg, {icon: 1, time: 2000});
+                            window.location.reload();
+                        } else {
+                            layer.msg(data.msg, {icon: 1, time: 2000});
+                        }
+                    }
+                });
+            })
+        }
+
+        function material_del(obj, material_pk) {
+            url = "{% url 'adv_programme_material_del' %}";
+            confirm_message = "确定要删除该素材吗？";
+            func(url, material_pk, confirm_message);
+        }
+
+    </script>
+{% endblock %}

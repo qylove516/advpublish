@@ -1,5 +1,6 @@
 from django.db import models
-from django.contrib.auth.models import auth, AbstractUser, Group
+from django.contrib.auth.models import AbstractUser, Group
+from materials.apps import time_choices
 
 
 class UserInfo(AbstractUser):
@@ -25,18 +26,6 @@ class UserInfo(AbstractUser):
         verbose_name_plural = "用户"
 
 
-class IntervalTime(models.Model):
-    # 时间段标题唯一
-    interval = models.CharField("时间段", max_length=32, unique=True)
-
-    def __str__(self):
-        return self.interval
-
-    class Meta:
-        verbose_name = "时间段"
-        verbose_name_plural = "时间段"
-
-
 class Area(models.Model):
     # 区域标题唯一
     title = models.CharField("标题", max_length=64, unique=True)
@@ -56,44 +45,6 @@ class Area(models.Model):
         verbose_name_plural = "设备区域"
 
 
-class AreaIntervalTime(models.Model):
-    # 在一个时间段，一个区域，只能选择一个节目单
-    interval_time = models.ForeignKey(
-        IntervalTime,
-        blank=True,
-        null=True,
-        on_delete=models.SET_NULL
-    )
-    area = models.ForeignKey(
-        Area,
-        blank=True,
-        null=True,
-        on_delete=models.SET_NULL
-    )
-    user = models.ForeignKey(
-        UserInfo,
-        blank=True,
-        null=True,
-        on_delete=models.SET_NULL
-    )
-    programme = models.ForeignKey(
-        to="Programme",
-        blank=True,
-        null=True,
-        on_delete=models.SET_NULL
-    )
-    is_selected = models.BooleanField(default=False)
-    is_inuse = models.BooleanField(default=False)
-    is_publish = models.BooleanField("是否发布", default=False)
-
-    def __str__(self):
-        return "{area}-{time}".format(area=self.area.title, time=self.interval_time.interval)
-
-    class Meta:
-        verbose_name = "区域时间"
-        verbose_name_plural = "区域时间"
-
-
 class Machine(models.Model):
     title = models.CharField("名称", max_length=64)
     nid = models.CharField(primary_key=True, max_length=256)
@@ -105,7 +56,7 @@ class Machine(models.Model):
         Area,
         blank=True,
         null=True,
-        on_delete=models.SET_NULL
+        on_delete=models.CASCADE
     )
 
     def __str__(self):
@@ -158,40 +109,44 @@ class MaterialFiles(models.Model):
         verbose_name_plural = "文件"
 
 
+class IntervalTime(models.Model):
+    title = models.CharField("时间段", max_length=32, unique=True)
+
+    def __str__(self):
+        return self.title
+
+    class Meta:
+        verbose_name = "时间段"
+        verbose_name_plural = "时间段"
+
+
 class Programme(models.Model):
     title = models.CharField('标题', max_length=64)
-    is_review = models.BooleanField("是否提交审核", default=False)
+    is_public = models.BooleanField("是否发布", default=False)
     create_time = models.DateTimeField(auto_now=True)
     user = models.ForeignKey(
-        to="UserInfo",
+        UserInfo,
         blank=True,
         null=True,
-        on_delete=models.SET_NULL
+        on_delete=models.CASCADE
     )
 
     def __str__(self):
         return self.title
 
     class Meta:
-        verbose_name = "节目单"
-        verbose_name_plural = "节目单"
+        abstract = True
 
 
 class ProgrammeMaterial(models.Model):
-    # 每一个节目单对应多个素材，先创建节目单，再在节目单中添加素材
     nid = models.PositiveIntegerField("序号", blank=True, null=True)
-    programme = models.ForeignKey(
-        to="Programme",
-        blank=True,
-        null=True,
-        on_delete=models.SET_NULL
-    )
     material = models.ForeignKey(
         to="MaterialFiles",
         blank=True,
         null=True,
-        on_delete=models.SET_NULL
+        on_delete=models.CASCADE
     )
+    play_time = models.PositiveIntegerField("播放时间", default=10, help_text="单位/秒")
 
     def __str__(self):
         if self.material:
@@ -199,5 +154,129 @@ class ProgrammeMaterial(models.Model):
         return self.nid
 
     class Meta:
-        verbose_name = "节目单素材"
-        verbose_name_plural = "节目单素材"
+        abstract = True
+
+
+class AdvProgramme(Programme):
+    is_review = models.BooleanField("是否提交审核", default=False)
+
+    class Meta:
+        verbose_name = "广告节目"
+        verbose_name_plural = "广告节目"
+
+
+class AdvProgrammeMaterial(ProgrammeMaterial):
+    """广告节目素材"""
+    programme = models.ForeignKey(
+        AdvProgramme,
+        blank=True,
+        null=True,
+        on_delete=models.CASCADE  # 删除节目表，同时此素材临时表也会删除
+    )
+
+    class Meta:
+        verbose_name = "广告节目素材"
+        verbose_name_plural = "广告节目素材"
+
+
+class AdvProgrammeRelated(models.Model):
+    """ 广告节目关联设备时间"""
+    title = models.CharField("标题", max_length=64, blank=True, null=True)
+    interval = models.ManyToManyField(
+        IntervalTime,
+        blank=True,
+    )
+    machine = models.ForeignKey(
+        Machine,
+        on_delete=models.CASCADE
+    )
+    programme = models.ForeignKey(
+        AdvProgramme,
+        on_delete=models.CASCADE
+    )
+
+    def __str__(self):
+        return self.title
+
+    class Meta:
+        verbose_name = "广告节目关联设备时间"
+        verbose_name_plural = "广告节目关联设备时间"
+        unique_together = ('machine', 'programme',)
+
+
+class PrimaryWelfareProgramme(Programme):
+    """公益节目主屏"""
+
+    class Meta:
+        verbose_name = "公益节目主屏"
+        verbose_name_plural = "公益节目主屏"
+
+
+class PrimaryWelfareProgrammeMaterial(ProgrammeMaterial):
+    """公益节目主屏素材"""
+    programme = models.ForeignKey(
+        PrimaryWelfareProgramme,
+        blank=True,
+        null=True,
+        on_delete=models.CASCADE  # 删除节目表，同时此素材临时表也会删除
+    )
+
+    class Meta:
+        verbose_name = "公益节目主屏素材"
+        verbose_name_plural = "公益节目主屏素材"
+
+
+class PrimaryProgrammeRelated(models.Model):
+    """公益节目主屏关联设备"""
+    machine = models.ForeignKey(
+        Machine,
+        on_delete=models.CASCADE
+    )
+    programme = models.ForeignKey(
+        PrimaryWelfareProgramme,
+        on_delete=models.CASCADE
+    )
+
+    def __str__(self):
+        return self.machine.title + self.programme.title
+
+    class Meta:
+        verbose_name = "公益节目主屏关联设备"
+        verbose_name_plural = "公益节目主屏关联设备"
+        unique_together = ("programme", "machine")
+
+
+class SecondaryWelfareProgramme(Programme):
+    class Meta:
+        verbose_name = "公益节目副屏"
+        verbose_name_plural = "公益节目副屏"
+
+
+class SecondaryWelfareProgrammeMaterial(ProgrammeMaterial):
+    programme = models.ForeignKey(
+        SecondaryWelfareProgramme,
+        on_delete=models.CASCADE
+    )
+
+    class Meta:
+        verbose_name = "公益节目副屏素材"
+        verbose_name_plural = "公益节目副屏素材"
+
+
+class SecondaryWelfareProgrammeRelated(models.Model):
+    machine = models.ForeignKey(
+        Machine,
+        on_delete=models.CASCADE
+    )
+    welfare_programme = models.ForeignKey(
+        SecondaryWelfareProgramme,
+        on_delete=models.CASCADE
+    )
+
+    def __str__(self):
+        return self.machine.title + "--" + self.welfare_programme.title
+
+    class Meta:
+        verbose_name = "公益节目副屏关联设备"
+        verbose_name_plural = "公益节目副屏关联设备"
+        unique_together = ("machine", "welfare_programme")

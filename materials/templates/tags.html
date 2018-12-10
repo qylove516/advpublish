@@ -25,6 +25,7 @@
         </button>
         <span class="x-right" style="line-height:40px">共有数据：{{ tags.count }} 条</span>
     </xblock>
+    {% if tags %}
     <table class="layui-table layui-form">
         <thead class="tags-head">
         <tr>
@@ -57,6 +58,8 @@
         </tbody>
     </table>
     {% csrf_token %}
+    {% include "include/paginators.html" with pg=tags %}
+    {% endif %}
 {% endblock %}
 {% block extra_js %}
     <script>

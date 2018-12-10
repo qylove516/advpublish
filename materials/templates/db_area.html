@@ -3,22 +3,18 @@
 {% block extra_css %}
     <link rel="stylesheet" href="{% static 'css/bootstrap.css' %}">
     <style>
-        .db-area-head {
-            text-align: center;
-            width: 100%;
-            height: 40px;
-            display: -webkit-flex; /*Webkit内核的浏览器，必须加上-webkit前缀。*/
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
         .assign-area-cancel span:hover {
             cursor: pointer;
         }
 
         .db-area-list {
             padding: 15px;
+        }
+        tr td{
+            text-align: center;
+        }
+        .db-area-head tr th{
+            text-align: center;
         }
     </style>
 {% endblock %}
@@ -43,20 +39,28 @@
             </button>
         </div>
     {% endif %}
-    <div class="row">
+
+    <table class="layui-table layui-form">
+        <thead class="db-area-head">
+        <tr>
+            <th width="150">区域</th>
+            <th width="50">操作</th>
+        </tr>
+        </thead>
+        <tbody>
         {% for area in areas %}
-            <div class="col-md-3">
-                <div class="panel panel-primary db-area-head">
-                    {{ area.title }}
-                    <div class="assign-area-cancel">
-                        <span>
-                            <i class="layui-icon" onclick="AssignAreaCancel(this, '{{ area.pk }}')">&#xe640;</i>
-                        </span>
-                    </div>
-                </div>
-            </div>
+            <tr>
+                <td>{{ area.title }}</td>
+                <td>
+                    <button class="layui-btn-danger layui-btn layui-btn-xs"
+                            onclick="AssignAreaCancel(this, '{{ area.pk }}')"
+                            href="javascript:;"><i class="layui-icon">&#xe640;</i>删除
+                    </button>
+                </td>
+            </tr>
         {% endfor %}
-    </div>
+        </tbody>
+    </table>
     {% csrf_token %}
 {% endblock %}
 {% block extra_js %}

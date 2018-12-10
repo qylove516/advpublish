@@ -37,3 +37,12 @@ def is_user_manage(pk):
         return True
     else:
         return False
+
+
+@register.filter
+def area_list(area_pk):
+    area = models.Area.objects.filter(pk=area_pk).first()
+
+    machines = area.machine_set.all().values('nid', 'title')
+    if len(machines) > 0:
+        return machines

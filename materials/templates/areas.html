@@ -21,42 +21,44 @@
     </div>
     <xblock>
         <button class="layui-btn" onclick="x_admin_show('添加设备区域','{% url 'areas_add' %}', 500, 300)"><i
-                class="layui-icon"></i>添加标签
+                class="layui-icon"></i>添加区域
         </button>
-        <span class="x-right" style="line-height:40px">共有数据：{{ areas.count }} 条</span>
+        <span class="x-right" style="line-height:40px">共有数据：{{ areas_all.count }} 条</span>
     </xblock>
-    <table class="layui-table layui-form">
-        <thead class="tags-head">
-        <tr>
-            <th width="150">区域</th>
-            <th width="200">操作</th>
-        </tr>
-        </thead>
-        <tbody class="tags-body">
-        {% for area in areas %}
+    {% if areas %}
+        <table class="layui-table layui-form">
+            <thead class="tags-head">
             <tr>
-                <td>{{ area.title }}</td>
-                <td>
-                    <button class="layui-btn layui-btn layui-btn-xs"
-                            onclick="x_admin_show('修改设备区域','{% url 'areas_update' area.pk %}', 500, 300)"
-                            href="javascript:;"><i class="layui-icon">&#xe642;</i>修改
-                    </button>
-                    <button class="layui-btn-danger layui-btn layui-btn-xs"
-                            onclick="area_del(this,'{{ area.pk }}')"
-                            href="javascript:;"><i class="layui-icon">&#xe640;</i>删除
-                    </button>
-                </td>
+                <th width="150">区域</th>
+                <th width="200">操作</th>
             </tr>
-        {% endfor %}
-        </tbody>
-    </table>
-    {% csrf_token %}
+            </thead>
+            <tbody class="tags-body">
+            {% for area in areas %}
+                <tr>
+                    <td>{{ area.title }}</td>
+                    <td>
+                        <button class="layui-btn layui-btn layui-btn-xs"
+                                onclick="x_admin_show('修改设备区域','{% url 'areas_update' area.pk %}', 500, 300)"
+                                href="javascript:;"><i class="layui-icon">&#xe642;</i>修改
+                        </button>
+                        <button class="layui-btn-danger layui-btn layui-btn-xs"
+                                onclick="area_del(this,'{{ area.pk }}')"
+                                href="javascript:;"><i class="layui-icon">&#xe640;</i>删除
+                        </button>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% csrf_token %}
+        {% include 'include/paginators.html' with pg=areas %}
+    {% endif %}
 {% endblock %}
 {% block extra_js %}
     <script>
         function area_del(obj, pk) {
-            layer.confirm('确认要删除吗？', function (index) {
-                //发异步删除数据
+            layer.confirm('删除此项，此区域下的设备也会删除，如果要保留设备请修改设备信息，确认要删除吗？', function (index) {
                 $.ajax({
                     url: "{% url 'areas_del' %}",
                     type: "get",
@@ -70,7 +72,7 @@
                             layer.msg('已删除!', {icon: 1, time: 1000});
                             window.location.reload();
                         } else {
-                            layer.msg('删除失败啦!', {icon: 1, time: 1000});
+                            layer.msg('删除失败!', {icon: 1, time: 1000});
                         }
                     }
                 });

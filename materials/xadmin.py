@@ -2,13 +2,17 @@ from materials import models
 from django.shortcuts import render
 from django.http import JsonResponse
 from django.db.models import Q
-import json
+from materials.get_pgs import get_pg
 
 
 def admin_role(request):
-    groups = models.Group.objects.all()
+    # 角色分组
+    groups_all = models.Group.objects.all().order_by("name")
+    groups, current_page = get_pg(request, groups_all, 8)
     ret = {
-        "groups": groups
+        "groups_all": groups_all,
+        "groups": groups,
+        "current_page": current_page
     }
     return render(request, "xadmin/admin_role.html", ret)
 
@@ -112,19 +116,25 @@ def groups_user_del(request, group_pk):
 def admin_list(request):
     # 每一个组中只有一个 manage， 在权限管理的时间限制
     user = request.user
-    ret = {}
     if user.is_manage:
         group = user.groups.all()[0]
-        users = group.user_set.filter(~Q(pk=user.pk))
-        ret["msg"] = "有审核批准发布节目的权限！"
-        ret["group"] = group
+        users_all = group.user_set.filter(~Q(pk=user.pk)).order_by("create_time")
+        msg = "有审核批准发布节目的权限！"
     elif user.is_superuser:
-        users = models.UserInfo.objects.all().filter(~Q(pk=user.pk))
-        ret["msg"] = "有所有的权限！"
-        ret["group"] = "不属于任何组"
+        users_all = models.UserInfo.objects.all().filter(~Q(pk=user.pk)).order_by("username")
+        msg = "有所有的权限！"
+        group = "不属于任何组"
     else:
-        users = None
-    ret["users"] = users
+        users_all = None
+        msg = None
+        group = None
+    users, current_page = get_pg(request, users_all, 8)
+    ret = {
+        "users_all": users_all,
+        "users": users,
+        "msg": msg,
+        "group": group
+    }
     return render(request, 'xadmin/admin_list.html', ret)
 
 
@@ -180,25 +190,6 @@ def user_del(request):
     return JsonResponse(ret)
 
 
-def user_power(request):
-    # 每一个组中只有一个 manage， 在权限管理的时间限制
-    user = request.user
-    ret = {}
-    if user.is_manage:
-        group = user.groups.all()[0]
-        users = group.user_set.filter(~Q(pk=user.pk))
-        ret["msg"] = "有审核批准发布节目的权限！"
-        ret["group"] = group
-    elif user.is_superuser:
-        users = models.UserInfo.objects.all().filter(~Q(pk=user.pk))
-        ret["msg"] = "有所有的权限！"
-        ret["group"] = "不属于任何组"
-    else:
-        users = None
-    ret["users"] = users
-    return render(request, 'xadmin/user_power.html', ret)
-
-
 def user_power_update(request, user_pk):
     if request.method == "POST":
         is_manage = request.POST.get("is_manage")
@@ -213,7 +204,7 @@ def user_power_update(request, user_pk):
                 groups = user.groups.all()
                 if len(groups) > 1:
                     ret["status"] = False
-                    ret["msg"] = "所在组的个数大于1，不能作为一级管理员"
+                    ret["msg"] = "所在组的一级管理员个数大于1，不能提交为一级管理员"
                 elif len(groups) == 1:
                     user = groups[0].user_set.filter(~Q(pk=user_pk))
                     user = user.filter(is_manage=True)

@@ -8,9 +8,9 @@ class Command(BaseCommand):
         try:
             for h in hour_list:
                 if h == "23:00-24:00":
-                    models.IntervalTime.objects.create(interval="23:00-00:00")
+                    models.IntervalTime.objects.create(title="23:00-00:00")
                 else:
-                    models.IntervalTime.objects.create(interval=h)
+                    models.IntervalTime.objects.create(title=h)
             print("成功插入数据！")
         except Exception as e:
             raise CommandError("插入数据失败！ %s" % e)

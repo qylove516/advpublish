@@ -2,6 +2,14 @@
 {% load static %}
 {% block extra_css %}
     <link rel="stylesheet" href="{% static 'css/bootstrap.css' %}">
+    <style>
+        .layui-form-label{
+            padding: 9px 0;
+        }
+        .layui-input-block{
+            width: 60%;
+        }
+    </style>
 {% endblock %}
 {% block content %}
     <form class="layui-form machine-update-body">
@@ -12,6 +20,13 @@
             <div class="layui-input-block">
                 <input type="text" name="title" value="{{ machine.title }}" autocomplete="off"
                        class="layui-input machine-update-title" id="machine-update-title">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">区域</label>
+            <div class="layui-input-block">
+                <input type="text" name="title" value="{{ machine.area }}" autocomplete="off" placeholder="请输入已存在的终端区域完整名称"
+                       class="layui-input machine-update-area" id="machine-update-area">
             </div>
         </div>
         <div class="layui-form-item">
@@ -36,18 +51,21 @@
         function MachineUpdate() {
             var form_data = new FormData();
             var title = $("#machine-update-title").val();
+            var area = $("#machine-update-area").val();
             var position = $("#machine-update-position").val();
 
             form_data.append("title", title);
             form_data.append("position", position);
+            form_data.append("area", area);
             form_data.append("csrfmiddlewaretoken", $("[name='csrfmiddlewaretoken']").val());
 
             $.ajax({
                 url: "{% url 'machine_update' machine.nid %}",
                 type: "post",
                 data: form_data,
-                processData: false,  // tell jquery not to process the data
-                contentType: false, // tell jquery not to set contentType
+                sync: false,
+                processData: false,
+                contentType: false,
                 success: function (data) {
                     if (data.status) {
                         parent.location.reload();

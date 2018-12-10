@@ -53,6 +53,11 @@
                             onclick="x_admin_show('修改管理员信息','{% url 'user_update' user.pk %}', 600, 500)"
                             href="javascript:;"><i class="layui-icon">&#xe642;</i>修改
                     </button>
+
+                    <button class="layui-btn layui-btn layui-btn-xs"
+                            onclick="x_admin_show('修改标签名称','{% url 'user_power_update' user.pk %}', 600, 500)"
+                            href="javascript:;"><i class="layui-icon">&#xe642;</i>修改权限
+                    </button>
                     <button class="layui-btn-danger layui-btn layui-btn-xs"
                             onclick="UserDel(this,'{{ user.pk }}')"
                             href="javascript:;"><i class="layui-icon">&#xe640;</i>删除
@@ -62,6 +67,7 @@
         {% endfor %}
         </tbody>
     </table>
+    {% include 'include/paginators.html' with pg=users %}
 {% endblock %}
 {% block extra_js %}
     <script>
