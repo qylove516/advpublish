@@ -1,92 +1,112 @@
 {% extends 'base.html' %}
 {% load static mytag %}
 {% block title %}
-    {{ programme.title }}
+    {{ adv_programmes.title }}
 {% endblock %}
 
 {% block extra_css %}
     <link rel="stylesheet" href="{% static 'css/bootstrap.css' %}">
     <link rel="stylesheet" href="{% static 'css/jquery-ui.min.css' %}">
     <style>
+        .programme-material-wrap {
+            padding: 10px 0;
+        }
 
-        .material-editor-head {
+        .programme-material-left {
+            float: left;
+            width: 30%;
+        }
+
+        .programme-material-left-main ul {
+            height: 600px;
+            overflow-y: auto;
+        }
+
+        .programme-material-left-main ul li {
             text-align: center;
             margin: 20px 0;
         }
 
-        .material-editor-head button:nth-child(2) {
-            cursor: default;
-        }
-
-        .material-sort-body {
-            height: 600px;
-            overflow-y: auto;
-        }
-
-        .ui-state-default {
-            display: inline-block;
+        /* > 在css 中只选择一代*/
+        .programme-material-left-content div {
             text-align: center;
-            margin-left: 80px;
-            margin-bottom: 40px;
-            width: 200px;
-            height: 150px;
-            line-height: 80px;
         }
 
-        .ui-state-default img {
+        img {
             max-width: 200px;
             max-height: 200px;
         }
 
-        .interval-machine {
-            height: 600px;
-            overflow-y: auto;
+        video {
+            width: 200px;
+            height: 200px;
         }
 
+        .programme-material-right {
+            float: left;
+            width: 70%;
+        }
+
+        .programme-material-right {
+            margin-top: 20px;
+        }
+
+        .programme-material-right h3 {
+            padding-left: 40px;
+        }
+
+        form {
+            padding-left: 40px;
+        }
+
+        .programme-material-add-content {
+            display: inline-block;
+            text-align: center;
+            width: 200px;
+            height: 150px;
+        }
+
+        .programme-material-add-body {
+            height: 150px;
+            margin: 10px 5px;
+        }
+
+        /*vertical-align: middle; 是参照line-height属性来设置的*/
+        .programme-material-add-body div {
+            display: table-cell;
+            text-align: center;
+            vertical-align: middle;
+            line-height: 150px;
+            height: 150px;
+        }
+
+        .programme-material-add-body div img {
+            max-width: 200px;
+            max-height: 140px;
+        }
+
+        .programme-material-add-body div video {
+            width: 200px;
+            height: 150px;
+        }
+
+        .programme-material-button {
+            margin-top: 10px;
+        }
     </style>
 {% endblock %}
 {% block content %}
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-sm-4">
-                <div class="material-sort-head">
-                    <div class="material-editor-head">
-                        <button class="layui-btn"
-                                onclick="x_admin_show('添加素材','{% url 'programme_material_add' pk user_pk %}')">
-                            <i class="layui-icon"></i>添加素材
-                        </button>
-                        <button class="layui-btn">
-                            拖动图片进行排序
-                        </button>
-                    </div>
-                    <div class="material-sort-body">
-                        <ul id="sortable" class="list-group">
-                            {% for material in programme_materials %}
-                                <li class="ui-state-default" id="{{ material.id }}">
-                                    {% if material.material.files.url|image_video %}
-                                        <div>
-                                            <img src="{{ material.material.files.url }}" alt=""
-                                                 class="material-sort-img img-rounded">
-                                        </div>
-                                    {% else %}
-                                        <div class="material-sort-title">
-                                            <video src="{{ material.material.files.url }}" width="200px" height="200px"
-                                                   controls></video>
-                                        </div>
-                                    {% endif %}
-                                    <a onclick="material_del(this, '{{ material.pk }}')"><i
-                                            class="layui-icon">&#xe640;</i></a>
-                                </li>
-                            {% endfor %}
-                        </ul>
-                    </div>
-                </div>
+    <div class="programme-material-wrap">
+        <div class="programme-material-left">
+            <div class="programme-material-left-main">
+                <ul id="sortable" class="list-group">
+                    {% include 'include/programme_editor_view.html' with programme_materials=adv_programme_materials %}
+                </ul>
             </div>
-            <div class="col-sm-8 interval-machine">
-
-
-            </div>
-
+        </div>
+        <div class="programme-material-right">
+            <h3>选择素材添加到节目单</h3>
+            {% include 'include/programme_material_add.html' with files=files current_page=current_page %}
         </div>
     </div>
     {% csrf_token %}
@@ -103,7 +123,7 @@
                 form_data.append('sort_list', sort_list);
                 form_data.append('csrfmiddlewaretoken', $("[name='csrfmiddlewaretoken']").val());
                 $.ajax({
-                    url: "{% url 'adv_programme_editor' pk user_pk %}",
+                    url: "{% url 'adv_programme_editor' adv_programme_pk user_pk %}",
                     type: "post",
                     data: form_data,
                     processData: false,
@@ -116,14 +136,14 @@
         });
         $("#sortable").sortable("refresh");
 
-        function func(url, func_pk, confirm_message) {
-            layer.confirm(confirm_message, function (index) {
+        function material_del(obj, material_pk) {
+            layer.confirm("确定要删除此临时素材吗？", function (index) {
                 $.ajax({
-                    url: url,
+                    url: "{% url 'adv_programme_material_del' %}",
                     type: "get",
                     dataType: "json",
                     data: {
-                        pk: func_pk,
+                        material_pk: material_pk,
                     },
                     success: function (data) {
                         if (data.status) {
@@ -137,11 +157,50 @@
             })
         }
 
-        function material_del(obj, material_pk) {
-            url = "{% url 'adv_programme_material_del' %}";
-            confirm_message = "确定要删除该素材吗？";
-            func(url, material_pk, confirm_message);
+        function ImgMaterialTime(obj, material_related_pk) {
+            var play_time = $(obj).val();
+            $.ajax({
+                url: "{% url 'programme_change_time' %}",
+                type: "get",
+                data: {
+                    material_related_pk: material_related_pk,
+                    play_time: play_time,
+                },
+                success: function (data) {
+                    layer.msg(data.msg, {icon: 1, time: 2000})
+                }
+            })
         }
 
+        function NewMaterialFile() {
+            var form_data = new FormData();
+            var obj = $("[material_select='material_file_interval']");
+            var materials = [];
+            for (var i = 0; i < obj.length; i++) {
+                if (obj[i].checked) {
+                    materials.push(obj[i].name);
+                }
+            }
+            form_data.append('materials', materials);
+            form_data.append("csrfmiddlewaretoken", $("[name='csrfmiddlewaretoken']").val());
+            $.ajax({
+                url: "{% url 'programme_material_add' pk user_pk %}",
+                type: "post",
+                data: form_data,
+                processData: false,
+                contentType: false,
+                success: function (data) {
+                    if (data.status) {
+                        parent.location.reload();
+                    } else {
+                        $("#material-file-add-has-error").text(data.msg);
+                        setTimeout(function () {
+                            $("#material-file-add-has-error").text("");
+                        }, 2000);
+                        return false
+                    }
+                }
+            })
+        }
     </script>
 {% endblock %}
