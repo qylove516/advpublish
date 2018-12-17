@@ -1,0 +1,87 @@
+.programme-material-wrap {
+    padding: 10px 0;
+}
+
+.programme-material-left {
+    float: left;
+    width: 30%;
+}
+.programme-material-left-main h3{
+    padding-left: 20px;
+}
+.programme-material-left-main ul {
+    height: 600px;
+    overflow-y: auto;
+}
+
+.programme-material-left-main ul li {
+    text-align: center;
+    margin: 20px 0;
+}
+
+/* > 在css 中只选择一代*/
+.programme-material-left-content div {
+    text-align: center;
+}
+
+img {
+    max-width: 200px;
+    max-height: 200px;
+}
+
+video {
+    width: 200px;
+    height: 200px;
+}
+
+.programme-material-right {
+    float: left;
+    width: 70%;
+}
+
+.programme-material-right {
+    margin-top: 20px;
+}
+
+.programme-material-right h3 {
+    padding-left: 40px;
+}
+
+form {
+    padding-left: 40px;
+}
+
+.programme-material-add-content {
+    display: inline-block;
+    text-align: center;
+    width: 200px;
+    height: 150px;
+}
+
+.programme-material-add-body {
+    height: 150px;
+    margin: 10px 5px;
+}
+
+/*vertical-align: middle; 是参照line-height属性来设置的*/
+.programme-material-add-body div {
+    display: table-cell;
+    text-align: center;
+    vertical-align: middle;
+    line-height: 150px;
+    height: 150px;
+}
+
+.programme-material-add-body div img {
+    max-width: 200px;
+    max-height: 140px;
+}
+
+.programme-material-add-body div video {
+    width: 200px;
+    height: 150px;
+}
+
+.programme-material-button {
+    margin-top: 10px;
+}

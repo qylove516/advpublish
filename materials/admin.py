@@ -16,7 +16,7 @@ admin.site.register(models.AdvProgrammeRelated)
 # 公益节目主屏
 admin.site.register(models.PrimaryWelfareProgramme)
 admin.site.register(models.PrimaryWelfareProgrammeMaterial)
-admin.site.register(models.PrimaryProgrammeRelated)
+admin.site.register(models.PrimaryWelfareProgrammeRelated)
 # 公益节目副屏
 admin.site.register(models.SecondaryWelfareProgramme)
 admin.site.register(models.SecondaryWelfareProgrammeMaterial)

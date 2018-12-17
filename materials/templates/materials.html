@@ -5,99 +5,51 @@
 {% endblock %}
 {% block extra_css %}
     <link rel="stylesheet" href="{% static 'css/bootstrap.css' %}">
-    <style>
-        .material-body {
-            border: 1px solid #9F9F9F;
-            margin: 10px;
-            padding: 0;
-        }
-
-        .material-content {
-            text-align: center;
-            height: 170px;
-            width: 170px;
-        }
-
-        .material-nav-img {
-            height: 120px;
-            line-height: 120px;
-            width: 100%;
-            text-align: center;
-        }
-
-        .material-nav-video {
-            height: 120px;
-            line-height: 120px;
-        }
-
-        .material-img {
-            display: inline-block;
-            max-height: 170px;
-            max-width: 170px;
-            vertical-align: middle;
-        }
-        .material-nav-del{
-            text-align: center;
-        }
-    </style>
+    <link rel="stylesheet" href="{% static 'css/material.css' %}">
 {% endblock %}
 {% block content %}
-    <div class="x-nav">
-      <span class="layui-breadcrumb">
-        <span style="font-size: 22px">{{ tag }}</span>
-      </span>
-        <a class="layui-btn layui-btn-small" style="line-height:1.6em;margin-top:3px;float:right"
-           href="javascript:location.replace(location.href);" title="刷新">
+    <div class="material-head-renew">
+        <a class="layui-btn layui-btn-small" href="javascript:location.replace(location.href);" title="刷新">
             <i class="layui-icon" style="line-height:30px">ဂ</i>
         </a>
     </div>
 
-    <xblock>
+    <div class="material-head-add">
         <button class="layui-btn" onclick="x_admin_show('添加文件','{% url 'material_file_add' %}', 500, 300)"><i
                 class="layui-icon"></i>添加文件
         </button>
-        <span class="x-right" style="line-height:40px">共有数据：{{ files_all.count }} 条</span>
-    </xblock>
-    <div class="x-body">
+        <span class="x-right">共有数据：{{ files_all.count }} 条</span>
+    </div>
+    <div class="material-wrap">
         {% if files %}
-            <div class="layui-row">
-                <div class="row">
-                    {% for file in files %}
-                        <div class="col-sm-2 material-body">
-                            <div class="panel-primary material-content">
-                                {% if file.files.url|image_video %}
-                                    <div class="material-nav-img">
-                                        <img src="{{ file.files.url }}" alt="" width="100%"
-                                             class="material-img img-rounded">
-                                    </div>
-                                {% else %}
-                                    <div class="material-nav-video">
-                                        <video src="{{ file.files.url }}" width="150px" height="150px" controls></video>
-                                    </div>
-                                {% endif %}
-
+            {% for file in files %}
+                <div class="material-body">
+                    <div class="material-content">
+                        {% if file.files.url|image_video %}
+                            <div>
+                                <img src="{{ file.files.url }}" alt="" width="100%" class="img-rounded">
                             </div>
-                            <div class="material-nav-del">
-                                <a title="删除" onclick="member_del(this,'{{ file.pk }}')" href="javascript:;">
-                                    <i class="layui-icon">&#xe640;</i>
-                                </a>
+                        {% else %}
+                            <div>
+                                <video src="{{ file.files.url }}" controls></video>
                             </div>
-                        </div>
-                    {% endfor %}
+                        {% endif %}
+                    </div>
+                    <div class="material-button">
+                        <a title="删除" onclick="member_del(this,'{{ file.pk }}')" href="javascript:;">
+                            <i class="layui-icon">&#xe640;</i>
+                        </a>
+                    </div>
                 </div>
-                <hr>
-                {% include "include/paginators.html" with pg=files %}
-            </div>
+            {% endfor %}
+            {% include "include/paginators.html" with pg=files %}
         {% endif %}
     </div>
-
 {% endblock %}
 {% block extra_js %}
     <script>
-        /*用户-删除*/
         function member_del(obj, pk) {
             layer.confirm('确认要删除吗？', function (index) {
-                //发异步删除数据
                 $.ajax({
                     url: "{% url 'materials_delete' %}",
                     type: "get",
@@ -116,5 +68,4 @@
             });
         }
     </script>
-
 {% endblock %}

@@ -1,0 +1,37 @@
+.material-head-renew{
+        float: right;
+        margin: 0 0 10px 20px;
+    }
+    .material-head-add{
+        padding: 0 15px;
+    }
+    .material-head-add span{
+        line-height: 40px;
+    }
+    .material-wrap{
+        margin-left: 40px;
+        padding: 15px;
+    }
+    .material-body{
+        display: inline-block;
+        text-align: center;
+        width: 18%;
+    }
+    .material-content{
+        height: 150px;
+        text-align: center;
+    }
+    .material-content div{
+        display: table-cell;
+        vertical-align: middle;
+        text-align: center;
+        line-height: 140px;
+    }
+    .material-content img{
+        max-width: 150px;
+        max-height: 150px;
+    }
+    .material-content video{
+        width: 150px;
+        height: 150px;
+}

@@ -23,7 +23,7 @@
         <button class="layui-btn" onclick="x_admin_show('添加标签','{% url 'material_tag_add' %}', 500, 300)"><i
                 class="layui-icon"></i>添加标签
         </button>
-        <span class="x-right" style="line-height:40px">共有数据：{{ tags.count }} 条</span>
+        <span class="x-right" style="line-height:40px">共有数据：{{ tags_all.count }} 条</span>
     </xblock>
     {% if tags %}
     <table class="layui-table layui-form">

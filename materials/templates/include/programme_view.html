@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% load static mytag %}
+{% block title %}
+    {{ programme.title }}
+{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/bootstrap.css' %}">
+    <link rel="stylesheet" href="{% static 'css/jquery-ui.min.css' %}">
+    <style>
+        .material-editor-head button:nth-child(2) {
+            cursor: default;
+        }
+
+        .material-sort-body {
+            height: 600px;
+            overflow-y: auto;
+        }
+
+        .ui-state-default {
+            display: inline-block;
+            text-align: center;
+            margin-left: 80px;
+            margin-bottom: 40px;
+            width: 200px;
+            height: 150px;
+        }
+
+        .ui-state-default img {
+            max-width: 200px;
+            max-height: 200px;
+        }
+
+    </style>
+{% endblock %}
+{% block content %}
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-4">
+                <div class="material-sort-head">
+                    <div class="material-sort-body">
+                        <ul id="sortable" class="list-group">
+                            {% if programme_materials %}
+                                {% for material in programme_materials %}
+                                    <li class="ui-state-default" id="{{ material.id }}">
+                                        {% if material.material.files.url|image_video %}
+                                            <div>
+                                                <img src="{{ material.material.files.url }}" alt=""
+                                                     class="material-sort-img img-rounded">
+                                            </div>
+                                            {% if is_play_time %}
+                                                <div style="margin-top: 10px">
+                                                    <span>播放时长：{{ material.play_time }}</span>
+                                                </div>
+                                            {% endif %}
+
+                                        {% else %}
+                                            <div class="material-sort-title">
+                                                <video src="{{ material.material.files.url }}" width="200px"
+                                                       height="200px"
+                                                       controls></video>
+                                            </div>
+                                        {% endif %}
+                                    </li>
+                                {% endfor %}
+                            {% else %}
+                                <div style="padding: 20px;">暂无素材</div>
+                            {% endif %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% csrf_token %}
+{% endblock %}

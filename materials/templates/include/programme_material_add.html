@@ -1,0 +1,27 @@
+{% load mytag %}
+<form class="layui-form">
+    {% for file in files %}
+        <div class="programme-material-add-content">
+            <div class="programme-material-add-body">
+                <div>
+                    {% if file.files.url|image_video %}
+                        <img src="{{ file.files.url }}" alt="" width="100%" class="img-rounded">
+                    {% else %}
+                        <video id="material-video" controls>
+                            <source src="{{ file.files.url }}" type="video/mp4">
+                        </video>
+                    {% endif %}
+                </div>
+            </div>
+            <input type="checkbox" material_select="material_file_interval" name="{{ file.pk }}">
+        </div>
+    {% endfor %}
+    {% include "include/paginators.html" with pg=files %}
+    <div class="layui-form-item programme-material-button">
+        <div class="layui-input-block">
+            <input type="button" value="提交" onclick="NewMaterialFile()" class="layui-btn">
+            <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+        </div>
+        <span id="material-file-add-has-error" class="material-file-add-error"></span>
+    </div>
+</form>

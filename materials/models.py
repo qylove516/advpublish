@@ -121,8 +121,8 @@ class IntervalTime(models.Model):
 
 
 class Programme(models.Model):
+    # TODO title 设置为unique
     title = models.CharField('标题', max_length=64)
-    is_public = models.BooleanField("是否发布", default=False)
     create_time = models.DateTimeField(auto_now=True)
     user = models.ForeignKey(
         UserInfo,
@@ -139,14 +139,14 @@ class Programme(models.Model):
 
 
 class ProgrammeMaterial(models.Model):
-    nid = models.PositiveIntegerField("序号", blank=True, null=True)
+    # TODO 把 material blank=True null=True 去掉
+    nid = models.IntegerField("序号", blank=True, null=True)
     material = models.ForeignKey(
         to="MaterialFiles",
         blank=True,
         null=True,
         on_delete=models.CASCADE
     )
-    play_time = models.PositiveIntegerField("播放时间", default=10, help_text="单位/秒")
 
     def __str__(self):
         if self.material:
@@ -158,7 +158,6 @@ class ProgrammeMaterial(models.Model):
 
 
 class AdvProgramme(Programme):
-    is_review = models.BooleanField("是否提交审核", default=False)
 
     class Meta:
         verbose_name = "广告节目"
@@ -173,6 +172,7 @@ class AdvProgrammeMaterial(ProgrammeMaterial):
         null=True,
         on_delete=models.CASCADE  # 删除节目表，同时此素材临时表也会删除
     )
+    play_time = models.PositiveIntegerField("播放时间", default=10, help_text="单位/秒")
 
     class Meta:
         verbose_name = "广告节目素材"
@@ -182,6 +182,8 @@ class AdvProgrammeMaterial(ProgrammeMaterial):
 class AdvProgrammeRelated(models.Model):
     """ 广告节目关联设备时间"""
     title = models.CharField("标题", max_length=64, blank=True, null=True)
+    is_review = models.BooleanField("是否提交审核", default=False)
+    is_publish = models.BooleanField("是否发布", default=False)
     interval = models.ManyToManyField(
         IntervalTime,
         blank=True,
@@ -220,13 +222,14 @@ class PrimaryWelfareProgrammeMaterial(ProgrammeMaterial):
         null=True,
         on_delete=models.CASCADE  # 删除节目表，同时此素材临时表也会删除
     )
+    play_time = models.PositiveIntegerField("播放时间", default=10, help_text="单位/秒")
 
     class Meta:
         verbose_name = "公益节目主屏素材"
         verbose_name_plural = "公益节目主屏素材"
 
 
-class PrimaryProgrammeRelated(models.Model):
+class PrimaryWelfareProgrammeRelated(models.Model):
     """公益节目主屏关联设备"""
     machine = models.ForeignKey(
         Machine,

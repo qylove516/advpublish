@@ -1,0 +1,31 @@
+{% load mytag %}
+
+{% for material in programme_materials %}
+    <li id="{{ material.id }}">
+        <div class="programme-material-left-content">
+            {% if material.material.files.url|image_video %}
+                <div>
+                    <img src="{{ material.material.files.url }}" alt="" title="我是可以拖动进行上下移动的哦！"
+                         class="img-rounded">
+                </div>
+                {% if is_play_time %}
+                    <div style="margin-top: 10px">
+                        <span>播放时长：</span>
+                        <input type="text" id="img-time" value="{{ material.play_time }}"
+                               onchange="ImgMaterialTime(this, '{{ material.pk }}' )"
+                               style="width: 40px;height: 20px">
+                    </div>
+                {% endif %}
+
+            {% else %}
+                <div>
+                    <video src="{{ material.material.files.url }}" title="我是可以拖动进行上下移动的哦！"
+                           controls></video>
+                </div>
+            {% endif %}
+            <div>
+                <a onclick="material_del(this, '{{ material.pk }}')"><i class="layui-icon">&#xe640;</i></a>
+            </div>
+        </div>
+    </li>
+{% endfor %}

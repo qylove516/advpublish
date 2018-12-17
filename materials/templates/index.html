@@ -103,16 +103,19 @@
                                 <cite>广告节目</cite>
                             </a>
                         </li>
-                        <li>
-                            <a _href="#">
-                                <cite>公益主屏节目</cite>
-                            </a>
-                        </li>
-                        <li>
-                            <a _href="#">
-                                <cite>公益副屏节目</cite>
-                            </a>
-                        </li>
+                        {% if request.user.is_manage or request.user.is_superuser %}
+                            <li>
+                                <a _href="{% url 'welfare_programme_primary' %}">
+                                    <cite>公益主屏节目</cite>
+                                </a>
+                            </li>
+                            <li>
+                                <a _href="#">
+                                    <cite>公益副屏节目</cite>
+                                </a>
+                            </li>
+                        {% endif %}
+
                     </ul>
                 </li>
                 <li>

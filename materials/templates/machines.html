@@ -60,13 +60,33 @@
                                 <button class="layui-btn layui-btn layui-btn-xs"
                                         onclick="x_admin_show('设备详情', '{% url 'machine_detail' machine.nid %}', 400, 300)"
                                         href="javascript:;">
-                                    <i class="layui-icon">&#xe705;</i>详情
+                                    <i class="layui-icon">&#xe705;</i>设备详情
                                 </button>
-                                <button class="layui-btn layui-btn layui-btn-xs"
-                                        onclick="x_admin_show('设备详情', '{% url 'machine_addpi' machine.nid %}')"
-                                        href="javascript:;">
-                                    <i class="layui-icon">&#xe705;</i>添加节目单
-                                </button>
+
+                                {% if request.user.pk|is_user_manage %}
+                                    <a href="{% url 'machine_addpi' machine.nid %}" target="_blank">
+                                        <button class="layui-btn layui-btn layui-btn-xs">
+                                            <i class="layui-icon">&#xe705;</i>
+                                            添加广告节目
+                                        </button>
+                                    </a>
+                                {% elif request.user.is_manage %}
+                                    <a href="{% url 'machine_addpi' machine.nid %}" target="_blank">
+                                        <button class="layui-btn layui-btn layui-btn-xs">
+                                            <i class="layui-icon">&#xe705;</i>
+                                            广告节目发布
+                                        </button>
+                                    </a>
+                                {% endif %}
+
+                                {% if request.user.is_manage %}
+                                    <!--主屏与副屏-->
+                                    <a href="{% url 'welfare_programme_machine' machine.nid %}" target="_blank">
+                                        <button class="layui-btn layui-btn layui-btn-xs">
+                                            <i class="layui-icon">&#xe705;</i>公益节目发布
+                                        </button>
+                                    </a>
+                                {% endif %}
                             </div>
 
                             {% if request.user.is_superuser %}

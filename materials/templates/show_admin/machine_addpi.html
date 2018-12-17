@@ -1,33 +1,112 @@
 {% extends 'base.html' %}
+{% load mytag static %}
+{% block title %}
+    {% if request.user.pk|is_user_manage %}
+        提交审核
+    {% else %}
+        发布
+    {% endif %}
+{% endblock %}
+{% block extra_css %}
+    <style>
+        .machine-related-body {
+            display: inline-block;
+            float: left;
+            width: 50%;
+            padding: 20px;
+        }
+
+        .machine-related-nav {
+            width: 100px;
+            height: 20px;
+            display: inline-block;
+            padding: 10px;
+        }
+
+        .machine-related-programme {
+            display: inline-block;
+            padding-left: 15%;
+        }
+
+        .adv-machine-related-editor {
+            width: 40%;
+            padding: 20px;
+            float: left;
+        }
+    </style>
+
+{% endblock %}
 {% block content %}
-    <form class="layui-form" action="">
-        {% csrf_token %}
-        <!--取得设备时间  多选-->
-        <div class="layui-form-item" style="margin-top: 20px">
-            <div class="layui-input-block">
-                {% for interval in interval_times %}
-                    <input type="checkbox" name="machine-interval" value="{{ interval.pk }}"
-                           title="{{ interval.title }}">
-                {% endfor %}
-            </div>
-            <!--单选，获取节目单-->
-            <div style="margin-top: 20px; text-align: center">
-                <label class="layui-form-label">联动选择框</label>
-                <div class="layui-input-inline">
-                    <select id="machine-programme">
-                        {% for programme in programmes %}
-                            <option value="{{ programme.pk }}">{{ programme.title }}</option>
+    <div class="machine-related-body">
+        <form class="layui-form">
+            {% csrf_token %}
+            <!--如果不是管理员或者超级管理员-->
+            <div class="adv-machine-related">
+                <div class="layui-form-item">
+                    {% if request.user.pk|is_user_manage %}
+                        <div>选择广告时间</div>
+                    {% else %}
+                        <div>时间选择情况</div>
+                    {% endif %}
+
+                    <div class="layui-input-block">
+                        {% for interval in intervals %}
+                            {% if interval.pk|compare_interval:interval_list %}
+                                <input type="checkbox" name="machine-interval" value="{{ interval.pk }}"
+                                       title="{{ interval.title }}" disabled="disabled">
+                            {% else %}
+                                <input type="checkbox" name="machine-interval" value="{{ interval.pk }}"
+                                       title="{{ interval.title }}">
+                            {% endif %}
                         {% endfor %}
-                    </select>
+                    </div>
+                    <hr>
                 </div>
+                <!--单选，获取节目单-->
+                {% if request.user.pk|is_user_manage %}
+                    <div>选择节目</div>
+                    <div class="layui-input-inline machine-related-programme">
+                        <select id="machine-programme" class="machine-related-select">
+                            {% for programme in programmes %}
+                                <option value="{{ programme.pk }}">{{ programme.title }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div style="text-align: center;padding: 30px; display: inline-block;">
+                        <input type="button" class="layui-btn" onclick="MachineAddPI()"
+                               value="提交审核"/>
+                    </div>
+                    <span id="machine-add-error" style="text-align: center; display: block;"></span>
+                {% endif %}
             </div>
+
+        </form>
+    </div>
+    <div class="adv-machine-related-editor">
+        <div>
+            {% for machine_related in machines_related %}
+                <div>
+                    <button class="layui-btn">
+                        {{ machine_related.programme.title }}<i class="layui-icon"
+                                                                onclick="MachineAddPIDel(this, '{{ machine_related.pk }}')">&nbsp;&nbsp;</i>
+                    </button>
+                    {% if request.user.is_manage %}
+                        <input type="button" value="发布" class="layui-btn"
+                               onclick="MachineProgrammePublish(this, '{{ machine_related.pk }}')">
+                    {% endif %}
+                </div>
+
+                <span id="machine-related-del"></span>
+                {% with intervals=machine_related.pk|machine_to_interval %}
+                    {% for interval in intervals %}
+                        <div class="machine-related-nav">
+                            {{ interval.title }}
+                        </div>
+                    {% endfor %}
+                {% endwith %}
+            {% endfor %}
         </div>
-        <div style="text-align: center">
-            <button class="layui-btn" onclick="MachineAddPI()">
-                提交
-            </button>
-        </div>
-    </form>
+    </div>
 {% endblock %}
 {% block extra_js %}
     <script>
@@ -36,10 +115,17 @@
             var interval_obj = [];
             var interval_id = $("[name='machine-interval']");
             var programme_pk = $("#machine-programme option:selected").attr("value");
-            for (var i=0; i<interval_id.length;i++){
-                if (interval_id[i].checked){
+            for (var i = 0; i < interval_id.length; i++) {
+                if (interval_id[i].checked) {
                     interval_obj.push(interval_id[i].value)
                 }
+            }
+            if (interval_obj.length < 1) {
+                $("#machine-add-error").text("请选择时间！");
+                setTimeout(function () {
+                    $("#machine-add-error").text("");
+                }, 2000);
+                return false;
             }
             form_data.append("intervals", interval_obj);
             form_data.append("programme_pk", programme_pk);
@@ -50,9 +136,52 @@
                 data: form_data,
                 contentType: false,
                 processData: false,
-                sync: false,
+                async: false,
                 success: function (data) {
-                    console.log(data.msg)
+                    if (data.status) {
+                        window.location.reload();
+                    } else {
+                        $("#machine-add-error").text(data.msg);
+                        setTimeout(function () {
+                            $("#machine-add-error").text("");
+                        }, 5000)
+                    }
+                }
+            })
+        }
+
+        function MachineAddPIDel(obj, machine_related_pk) {
+            $.ajax({
+                url: "{% url 'machine_related_del' %}",
+                type: "get",
+                data: {
+                    "machine_related_pk": machine_related_pk,
+                },
+                success: function (data) {
+                    if (data.status) {
+                        layer.msg(data.msg, {icon: 1, time: 1000});
+                        window.location.reload();
+                    } else {
+                        $("#machine-related-del").text(data.msg);
+                        setTimeout(function () {
+                            $("#machine-related-del").text("");
+                        }, 2000)
+                    }
+                }
+            })
+        }
+
+        <!--发布-->
+        function MachineProgrammePublish(obj, machine_related_pk) {
+            $.ajax({
+                url: "{% url 'machine_related_publish' %}",
+                type: "get",
+                data: {
+                    machine_related_pk: machine_related_pk,
+                },
+                dataType: "json",
+                success: function (data) {
+                    layer.msg(data.msg, {icon: 1, time: 2000})
                 }
             })
         }
