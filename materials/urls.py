@@ -1,6 +1,6 @@
 from django.urls import path, re_path
 from materials import views
-from materials import assign, programme, area_machines, xadmin, welfare_programme
+from materials import assign, adv_programme, area_machines, xadmin, welfare_programme, qrcode
 
 urlpatterns = [
     path('welcome/', views.welcome, name='welcome'),
@@ -26,40 +26,53 @@ urlpatterns = [
     path('materials/material_add/', views.materials_add, name='material_file_add'),
     path('materials/material_delete/', views.materials_delete, name='materials_delete'),
 
-    path('programme/', programme.adv_programme, name='programme'),
-    path('programme/adv_programme_del/', programme.adv_programme_del, name='programme_del'),
-    path('programme/adv_programme_add/', programme.adv_programme_add, name='adv_programme_add'),
-    path('programme/programme_material/del/', programme.adv_programme_material_del, name='adv_programme_material_del'),
-    path('programme/programme_change_time/', programme.programme_change_time, name='programme_change_time'),
-    re_path(r'^programme/programme_editor/(\d*)/(\d*)/$', programme.adv_programme_editor, name='adv_programme_editor'),
-    re_path(r'^programme/programme_material/add/(\d*)/$', programme.adv_programme_material_add,
-            name='programme_material_add'),
+    path('adv_programme/', adv_programme.adv_programme, name='adv_programme'),
+    path('adv_programme/adv_programme_del/', adv_programme.adv_programme_del, name='adv_programme_del'),
+    path('adv_programme/adv_programme_add/', adv_programme.adv_programme_add, name='adv_programme_add'),
+    path('programme/programme_material/del/', adv_programme.adv_programme_material_del, name='adv_programme_material_del'),
+    path('programme/programme_change_time/', adv_programme.programme_change_time, name='programme_change_time'),
+    re_path(r'^adv_programme/programme_editor/(\d*)/$', adv_programme.adv_programme_editor, name='adv_programme_editor'),
+    re_path(r'^adv_programme/programme_material_add/(\d*)/$', adv_programme.adv_programme_material_add, name='adv_programme_material_add'),
+    re_path(r'^programme/programme_view/(\d*)/$', adv_programme.programme_view, name='programme_view'),
 
-    re_path(r'^programme/programme_view/(\d*)/$', programme.programme_view, name='programme_view'),
+    # 公益主屏节目与设备   使用   (\d*)  表示数字
+    path('welfare_primary_programme/welfare_primary_programme/', welfare_programme.welfare_primary_programme, name='welfare_primary_programme'),
+    path('welfare_primary_programme/welfare_primary_programme_add/', welfare_programme.welfare_primary_programme_add, name='welfare_primary_programme_add'),
+    path('welfare_primary_programme/welfare_primary_programme_del/', welfare_programme.welfare_primary_programme_del, name='welfare_primary_programme_del'),
+    path('welfare_primary_material/welfare_primary_material_del/', welfare_programme.welfare_primary_material_del, name='welfare_primary_material_del'),
+    path('welfare_primary_material/welfare_primary_material_change_time/', welfare_programme.welfare_primary_material_change_time, name='welfare_primary_material_change_time'),
+    re_path(r'^welfare_primary_material/welfare_primary_material_editor/(\d*)/$', welfare_programme.welfare_primary_programme_editor, name='welfare_primary_programme_editor'),
+    re_path(r'^welfare_primary_material/welfare_primary_material_add/(\d*)/$', welfare_programme.welfare_primary_material_add, name="welfare_primary_material_add"),
+    re_path(r'^welfare_primary_material/welfare_primary_material_view/(\d*)/$', welfare_programme.welfare_primary_material_view, name='welfare_primary_material_view'),
+    # 公益副屏
+    path('welfare_secondary_programme/welfare_secondary_programme/', welfare_programme.welfare_secondary_programme, name='welfare_secondary_programme'),
+    path('welfare_secondary_programme/welfare_secondary_programme_add/', welfare_programme.welfare_secondary_programme_add, name='welfare_secondary_programme_add'),
+    path('welfare_secondary_programme/welfare_secondary_programme_del/', welfare_programme.welfare_secondary_programme_del, name='welfare_secondary_programme_del'),
+    path('welfare_secondary_material/welfare_secondary_material_del/', welfare_programme.welfare_secondary_material_del, name='welfare_secondary_material_del'),
+    re_path(r'welfare_secondary_material/welfare_secondary_material_editor/(\d*)/$', welfare_programme.welfare_secondary_material_editor, name='welfare_secondary_material_editor'),
+    re_path(r'^welfare_secondary_material/welfare_secondary_material_add/(\d*)/$', welfare_programme.welfare_secondary_material_add, name='welfare_secondary_material_add'),
+    re_path(r'^welfare_secondary_material/welfare_secondary_material_view/(\d*)/$', welfare_programme.welfare_secondary_material_view, name='welfare_secondary_material_view'),
+    # 节目单与设备关联
+    re_path(r'^welfare_programme/welfare_programme_machine/(\d*)/$', welfare_programme.welfare_programme_machine, name="welfare_programme_machine"),
+    # 设备与模板
+    path('template/', qrcode.machine_template, name="machine_template"),
+    path('template/machine_template_add/', qrcode.machine_template_add, name="machine_template_add"),
+    path('template/machine_template_del/', qrcode.machine_template_del, name="machine_template_del"),
+    path('template/machine_material_del/', qrcode.machine_material_del, name='machine_material_del'),
+    re_path(r'^template/machine_template_editor/(\d*)/$', qrcode.machine_template_editor, name="machine_template_editor"),
+    re_path(r'^template/machine_material_add/(\d*)/$', qrcode.machine_material_add, name="machine_material_add"),
+    re_path(r'^tempmlate/machine_material_view/(\d*)/$', qrcode.machine_material_view, name="machine_material_view"),
 
-    # 使用   (\d*)  表示数字
-    path('welfare/welfare_programme_primary/', welfare_programme.welfare_programme_primary,
-         name='welfare_programme_primary'),
-    path('welfare/welfare_programme_primary_add/', welfare_programme.welfare_programme_primary_add,
-         name='welfare_programme_primary_add'),
-    path('welfare/welfare_programme_primary_del/', welfare_programme.welfare_programme_primary_del,
-         name='welfare_programme_primary_del'),
-    re_path(r'^welfare_programme/welfare_programme_primary_editor/(\d*)/(\d*)/$',
-            welfare_programme.welfare_programme_primary_editor,
-            name='welfare_programme_primary_editor'),
-    re_path(r'^welfare_programme/welfare_primary_material_add/(\d*)/$', welfare_programme.welfare_primary_material_add,
-            name="welfare_primary_material_add"),
-    # 公益节目与设备
-    re_path(r'^welfare_programme/welfare_programme_machine/(\d*)/$', welfare_programme.welfare_programme_machine,
-            name="welfare_programme_machine"),
-    # 查看公益节目
-    re_path(r'^welfare_programme/welfare_programme_view/(\d*)/$', welfare_programme.welfare_programme_view,
-            name='welfare_programme_view'),
-    path('welfare/welfare_ppm_del/', welfare_programme.welfare_ppm_del, name='welfare_ppm_del'),
-    path('welfare/welfare_programme_secondary/', welfare_programme.welfare_programme_secondary,
-         name='welfare_programme_secondary'),
-    path('welfare/welfare_primary_material_change_time/', welfare_programme.welfare_primary_material_change_time,
-         name='welfare_primary_material_change_time'),
+    # 二维码节目单
+    path('qrcode/qrcode_programme/', qrcode.qrcode_programme, name="qrcode_programme"),
+    path('qrcode/qrcode_programme_add/', qrcode.qrcode_programme_add, name='qrcode_programme_add'),
+    path('qrcode/qrcode_programme_del/', qrcode.qrcode_programme_del, name="qrcode_programme_del"),
+    path('qrcode/qrcode_material_del/', qrcode.qrcode_material_del, name="qrcode_material_del"),
+
+    re_path(r'^qrcode/qrcode_programme_editor/(\d*)/$', qrcode.qrcode_programme_editor, name="qrcode_programme_editor"),
+    re_path(r'^qrcode/qrcode_material_add/(\d*)/$', qrcode.qrcode_material_add, name="qrcode_material_add"),
+    re_path(r'^qrcode/qrcode_material_view/(\d*)/$', qrcode.qrcode_material_view, name="qrcode_material_view"),
+
     re_path(r'^assign/assign_area/(\w*)/$', assign.assign_area, name='assign_area'),
     re_path(r'^assign/db_area/(\w*)/$', assign.db_area, name='db_area'),
 

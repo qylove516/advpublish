@@ -99,18 +99,23 @@
                     </a>
                     <ul class="sub-menu">
                         <li>
-                            <a _href="{% url 'programme' %}">
+                            <a _href="{% url 'adv_programme' %}">
                                 <cite>广告节目</cite>
                             </a>
                         </li>
                         {% if request.user.is_manage or request.user.is_superuser %}
                             <li>
-                                <a _href="{% url 'welfare_programme_primary' %}">
+                                <a _href="{% url 'qrcode_programme' %}">
+                                    <cite>二维码节目单</cite>
+                                </a>
+                            </li>
+                            <li>
+                                <a _href="{% url 'welfare_primary_programme' %}">
                                     <cite>公益主屏节目</cite>
                                 </a>
                             </li>
                             <li>
-                                <a _href="#">
+                                <a _href="{% url 'welfare_secondary_programme' %}">
                                     <cite>公益副屏节目</cite>
                                 </a>
                             </li>
@@ -118,21 +123,21 @@
 
                     </ul>
                 </li>
-                <li>
-                    <a href="javascript:;">
-                        <i class="iconfont">&#xe70c;</i>
-                        <cite>模板管理</cite>
-                        <i class="iconfont nav_right">&#xe697;</i>
-                    </a>
-                    <ul class="sub-menu">
-                        <li>
-                            <a href="#">
-                                <cite>模板一</cite>
-                            </a>
-                        </li>
-                    </ul>
-                </li>
                 {% if request.user.is_manage or request.user.is_superuser %}
+                    <li>
+                        <a href="javascript:;">
+                            <i class="iconfont">&#xe70c;</i>
+                            <cite>模板管理</cite>
+                            <i class="iconfont nav_right">&#xe697;</i>
+                        </a>
+                        <ul class="sub-menu">
+                            <li>
+                                <a _href="{% url 'machine_template' %}">
+                                    <cite>设备背景</cite>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
                     <li>
                         <a href="javascript:;">
                             <i class="iconfont">&#xe726;</i>

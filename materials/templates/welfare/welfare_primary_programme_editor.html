@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+{% load static mytag %}
+{% block title %}
+    {{ programmes.title }}
+{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/bootstrap.css' %}">
+    <link rel="stylesheet" href="{% static 'css/jquery-ui.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/programme_editor.css' %}">
+{% endblock %}
+{% block content %}
+    <div class="programme-material-wrap">
+        <div class="programme-material-left">
+            <div class="programme-material-left-main">
+                <h3>节目单素材列表</h3>
+                <ul id="sortable" class="list-group">
+                    {% include 'include/programme_editor_view.html' with programme_materials=programme_materials is_play_time=is_play_time%}
+                </ul>
+            </div>
+        </div>
+        <div class="programme-material-right">
+            <h3>选择素材添加到节目单</h3>
+            {% include 'include/programme_material_add.html' with files=files current_page=current_page %}
+        </div>
+    </div>
+    {% csrf_token %}
+{% endblock %}
+{% block extra_js %}
+    <script src="//apps.bdimg.com/libs/jqueryui/1.10.4/jquery-ui.min.js"></script>
+    <script>
+        /* 节目单素材排序 */
+        $("#sortable").sortable({
+            stop: function () {
+                var form_data = new FormData();
+                var sort_list = $("#sortable").sortable("toArray");
+                console.log(sort_list);
+                form_data.append('sort_list', sort_list);
+                form_data.append('csrfmiddlewaretoken', $("[name='csrfmiddlewaretoken']").val());
+                $.ajax({
+                    url: "{% url 'welfare_primary_programme_editor' programme_pk %}",
+                    type: "post",
+                    data: form_data,
+                    processData: false,
+                    contentType: false,
+                    success: function (data) {
+                        console.log(data.status)
+                    }
+                })
+            }
+        });
+        $("#sortable").sortable("refresh");
+
+        /* 节目单素材删除 */
+        function material_del(obj, welfare_primary_material_pk) {
+            layer.confirm("确定要删除该临时素材吗？", function (index) {
+                $.ajax({
+                    url: "{% url 'welfare_primary_material_del' %}",
+                    type: "get",
+                    dataType: "json",
+                    data: {
+                        material_pk: welfare_primary_material_pk,
+                        programme_pk: "{{ programme_pk }}",
+                    },
+                    success: function (data) {
+                        if (data.status) {
+                            layer.msg(data.msg, {icon: 1, time: 2000});
+                            window.location.reload();
+                        } else {
+                            layer.msg(data.msg, {icon: 1, time: 2000});
+                        }
+                    }
+                });
+            })
+        }
+
+        /* 节目单素材调整时间 */
+        function ImgMaterialTime(obj, material_pk) {
+            var play_time = $(obj).val();
+            $.ajax({
+                url: "{% url 'welfare_primary_material_change_time' %}",
+                type: "get",
+                data: {
+                    material_pk: material_pk,
+                    play_time: play_time,
+                },
+                success: function (data) {
+                    layer.msg(data.msg, {icon: 1, time: 2000})
+                }
+            })
+        }
+
+        /* 节目单素材添加 */
+        function NewMaterialFile() {
+            var form_data = new FormData();
+            var obj = $("[material_select='material_file_interval']");
+            var materials = [];
+            for (var i = 0; i < obj.length; i++) {
+                if (obj[i].checked) {
+                    materials.push(obj[i].name);
+                }
+            }
+            console.log(materials);
+            form_data.append('materials', materials);
+            form_data.append("csrfmiddlewaretoken", $("[name='csrfmiddlewaretoken']").val());
+            $.ajax({
+                url: "{% url 'welfare_primary_material_add' programme_pk %}",
+                type: "post",
+                data: form_data,
+                processData: false,
+                contentType: false,
+                success: function (data) {
+                    if (data.status) {
+                        parent.location.reload();
+                    } else {
+                        $("#material-file-add-has-error").text(data.msg);
+                        setTimeout(function () {
+                            $("#material-file-add-has-error").text("");
+                        }, 2000);
+                        return false
+                    }
+                }
+            })
+        }
+    </script>
+{% endblock %}
+

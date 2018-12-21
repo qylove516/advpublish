@@ -121,7 +121,6 @@ class IntervalTime(models.Model):
 
 
 class Programme(models.Model):
-    # TODO title 设置为unique
     title = models.CharField('标题', max_length=64)
     create_time = models.DateTimeField(auto_now=True)
     user = models.ForeignKey(
@@ -158,7 +157,6 @@ class ProgrammeMaterial(models.Model):
 
 
 class AdvProgramme(Programme):
-
     class Meta:
         verbose_name = "广告节目"
         verbose_name_plural = "广告节目"
@@ -241,7 +239,7 @@ class PrimaryWelfareProgrammeRelated(models.Model):
     )
 
     def __str__(self):
-        return self.machine.title + self.programme.title
+        return self.programme.title
 
     class Meta:
         verbose_name = "公益节目主屏关联设备"
@@ -277,9 +275,84 @@ class SecondaryWelfareProgrammeRelated(models.Model):
     )
 
     def __str__(self):
-        return self.machine.title + "--" + self.welfare_programme.title
+        return self.welfare_programme.title
 
     class Meta:
         verbose_name = "公益节目副屏关联设备"
         verbose_name_plural = "公益节目副屏关联设备"
         unique_together = ("machine", "welfare_programme")
+
+
+class QrCodeProgramme(Programme):
+    class Meta:
+        verbose_name = "二微码"
+        verbose_name_plural = "二微码"
+
+
+class QrCodeProgrammeMaterial(ProgrammeMaterial):
+    programme = models.ForeignKey(
+        QrCodeProgramme,
+        on_delete=models.CASCADE
+    )
+
+    class Meta:
+        verbose_name = "微信二维码素材"
+        verbose_name_plural = "微信二维码素材"
+
+
+class QrCodeProgrammeRelated(models.Model):
+    machine = models.ForeignKey(
+        Machine,
+        on_delete=models.CASCADE
+    )
+    programme = models.ForeignKey(
+        QrCodeProgramme,
+        on_delete=models.CASCADE
+    )
+
+    def __str__(self):
+        return self.programme.title
+
+    class Meta:
+        verbose_name = "二维码关联设备"
+        verbose_name_plural = "二维码关联设备"
+        unique_together = ("machine", "programme")
+
+
+# 设备模板
+class MachineTemplate(Programme):
+    class Meta:
+        verbose_name = "设备模板"
+        verbose_name_plural = "设备模板"
+
+
+# 模板素材
+class MachineTemplateMaterial(ProgrammeMaterial):
+    programme = models.ForeignKey(
+        MachineTemplate,
+        on_delete=models.CASCADE
+    )
+
+    class Meta:
+        verbose_name = "设备模板素材"
+        verbose_name_plural = "设备模板素材"
+
+
+# 模板关联设备
+class MachineTemplateRelated(models.Model):
+    machine = models.ForeignKey(
+        Machine,
+        on_delete=models.CASCADE
+    )
+    programme = models.ForeignKey(
+        MachineTemplate,
+        on_delete=models.CASCADE
+    )
+
+    def __str__(self):
+        return self.programme.title
+
+    class Meta:
+        verbose_name = "设备模板关联设备"
+        verbose_name_plural = "设备模板关联设备"
+        unique_together = ("machine", "programme")

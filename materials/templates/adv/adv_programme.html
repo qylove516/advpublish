@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+{% load static mytag %}
+{% block title %}
+    节目单管理
+{% endblock %}
+{% block extra_css %}
+    <style>
+        .programme-body-thead tr > th {
+            text-align: center;
+        }
+
+        .programme-body-tbody tr > td {
+            text-align: center;
+        }
+    </style>
+
+{% endblock %}
+{% block content %}
+    <div class="x-nav">
+        <a class="layui-btn layui-btn-small" style="line-height:1.6em;margin-top:3px;float:right"
+           href="javascript:location.replace(location.href);" title="刷新">
+            <i class="layui-icon" style="line-height:30px">ဂ</i>
+        </a>
+    </div>
+    <xblock>
+        {% if not request.user.is_superuser and not request.user.is_manage %}
+            <button class="layui-btn" onclick="x_admin_show('添加节目单','{% url 'adv_programme_add' %}', 600, 300)"><i
+                    class="layui-icon"></i>添加节目单
+            </button>
+        {% endif %}
+        <span class="x-right" style="line-height:40px">共有数据：{{ programmes|length }} 条</span>
+    </xblock>
+    <table class="layui-table layui-form">
+        <thead class="programme-body-thead">
+        <tr>
+            <th width="70">标题</th>
+            {% if request.user.is_superuser or request.user.is_manage %}
+                <th width="70">用户</th>
+            {% endif %}
+            <th width="200">操作</th>
+        </tr>
+        </thead>
+        <tbody class="programme-body-tbody">
+        {% for programme in programmes %}
+            <tr>
+                <td>{{ programme.title }}</td>
+                {% if request.user.is_superuser or request.user.is_manage %}
+                    <td>{{ programme.user.username }}</td>
+                {% endif %}
+                <td>
+                    {% if request.user.pk|is_power:programme.user.pk %}
+                        <a href="{% url 'adv_programme_editor' programme.pk %}"
+                           target="_blank" style="color: white">
+                            <button class="layui-btn layui-btn-xs"><i class="layui-icon">&#xe642;</i>编辑</button>
+                        </a>
+                        <button class="layui-btn-danger layui-btn layui-btn-xs"
+                                onclick="programme_del(this,'{{ programme.pk }}')"
+                                href="javascript:;"><i class="layui-icon">&#xe640;</i>删除节目单
+                        </button>
+                    {% endif %}
+
+                    {% if request.user.is_manage or request.user.is_superuser %}
+                        <a href="{% url 'programme_view' programme.pk %}"
+                           target="_blank" style="color: white">
+                            <button class="layui-btn layui-btn-xs"><i class="layui-icon">&#xe642;</i>查看</button>
+                        </a>
+                    {% endif %}
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
+{% block extra_js %}
+    <script>
+        function programme_del(obj, adv_programme_pk) {
+            layer.confirm('该节目单下的所有素材都会被删除，确认要删除吗？', function (index) {
+                //发异步删除数据
+                $.ajax({
+                    url: "{% url 'adv_programme_del' %}",
+                    type: "get",
+                    data: {
+                        programme_pk: adv_programme_pk
+                    },
+                    success: function (data) {
+                        if (data.status) {
+                            layer.msg('已删除!', {icon: 1, time: 1000});
+                            window.location.reload();
+                        } else {
+                            layer.msg('删除失败啦!', {icon: 1, time: 1000});
+                        }
+                    }
+                });
+            });
+        }
+
+
+    </script>
+{% endblock %}

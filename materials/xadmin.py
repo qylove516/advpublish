@@ -2,7 +2,7 @@ from materials import models
 from django.shortcuts import render
 from django.http import JsonResponse
 from django.db.models import Q
-from materials.get_pgs import get_pg
+from materials.utils.get_pgs import get_pg
 
 
 def admin_role(request):

@@ -1,4 +1,4 @@
-from django.db.models import Count, Q
+from django.db.models import Q
 from django.shortcuts import render, HttpResponse, redirect
 from materials import models
 from django.contrib.auth.models import auth
@@ -7,9 +7,8 @@ import os, datetime
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from materials import forms
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from advpublish import settings
-from materials.get_pgs import get_pg
+from materials.utils.get_pgs import get_pg
 
 
 def register(request):
@@ -94,7 +93,7 @@ def index(request):
         "area_interval": area_interval,
         "group": group,
         "users": users,
-        "areas": areas
+        "areas": areas,
     }
     return render(request, 'index.html', ret)
 

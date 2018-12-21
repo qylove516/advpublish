@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load static mytag %}
 {% block title %}
-    {{ welfare_primary_programme.title }}
+    {{ programmes.title }}
 {% endblock %}
 
 {% block extra_css %}
@@ -15,7 +15,7 @@
             <div class="programme-material-left-main">
                 <h3>节目单素材列表</h3>
                 <ul id="sortable" class="list-group">
-                    {% include 'include/programme_editor_view.html' with programme_materials=welfare_primary_materials is_play_time=is_play_time%}
+                    {% include 'include/programme_editor_view.html' with programme_materials=programme_materials is_play_time=is_play_time%}
                 </ul>
             </div>
         </div>
@@ -38,7 +38,7 @@
                 form_data.append('sort_list', sort_list);
                 form_data.append('csrfmiddlewaretoken', $("[name='csrfmiddlewaretoken']").val());
                 $.ajax({
-                    url: "{% url 'welfare_programme_primary_editor' programme_pk user_pk%}",
+                    url: "{% url 'welfare_secondary_material_editor' programme_pk %}",
                     type: "post",
                     data: form_data,
                     processData: false,
@@ -55,7 +55,7 @@
         function material_del(obj, welfare_primary_material_pk) {
             layer.confirm("确定要删除该临时素材吗？", function (index) {
                 $.ajax({
-                    url: "{% url 'welfare_ppm_del' %}",
+                    url: "{% url 'welfare_secondary_material_del' %}",
                     type: "get",
                     dataType: "json",
                     data: {
@@ -74,22 +74,6 @@
             })
         }
 
-        /* 节目单素材调整时间 */
-        function ImgMaterialTime(obj, material_pk) {
-            var play_time = $(obj).val();
-            $.ajax({
-                url: "{% url 'welfare_primary_material_change_time' %}",
-                type: "get",
-                data: {
-                    material_pk: material_pk,
-                    play_time: play_time,
-                },
-                success: function (data) {
-                    layer.msg(data.msg, {icon: 1, time: 2000})
-                }
-            })
-        }
-
         /* 节目单素材添加 */
         function NewMaterialFile() {
             var form_data = new FormData();
@@ -104,7 +88,7 @@
             form_data.append('materials', materials);
             form_data.append("csrfmiddlewaretoken", $("[name='csrfmiddlewaretoken']").val());
             $.ajax({
-                url: "{% url 'welfare_primary_material_add' programme_pk %}",
+                url: "{% url 'welfare_secondary_material_add' programme_pk %}",
                 type: "post",
                 data: form_data,
                 processData: false,

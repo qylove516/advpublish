@@ -2,9 +2,9 @@
 {% load mytag static %}
 {% block title %}
     {% if request.user.pk|is_user_manage %}
-        提交审核
+        {{ machine_title }}--提交审核
     {% else %}
-        发布
+        {{ machine_title }}--发布
     {% endif %}
 {% endblock %}
 {% block extra_css %}
@@ -32,6 +32,10 @@
             width: 40%;
             padding: 20px;
             float: left;
+        }
+
+        .layui-btn a {
+            color: #000;
         }
     </style>
 
@@ -86,14 +90,18 @@
         <div>
             {% for machine_related in machines_related %}
                 <div>
-                    <button class="layui-btn">
-                        {{ machine_related.programme.title }}<i class="layui-icon"
-                                                                onclick="MachineAddPIDel(this, '{{ machine_related.pk }}')">&nbsp;&nbsp;</i>
+                    <button class="layui-btn" style="width: 200px;">
+                        <a href="{% url 'programme_view' machine_related.programme_id %}">{{ machine_related.programme.title }}</a>
                     </button>
                     {% if request.user.is_manage %}
                         <input type="button" value="发布" class="layui-btn"
                                onclick="MachineProgrammePublish(this, '{{ machine_related.pk }}')">
                     {% endif %}
+                    <div class="layui-btn" >
+                        <i class="layui-icon" onclick="MachineAddPIDel(this, '{{ machine_related.pk }}')" style="font-size: 16px">
+                            删除&nbsp;&nbsp;
+                        </i>
+                    </div>
                 </div>
 
                 <span id="machine-related-del"></span>
@@ -150,25 +158,29 @@
             })
         }
 
+        <!--删除-->
         function MachineAddPIDel(obj, machine_related_pk) {
-            $.ajax({
-                url: "{% url 'machine_related_del' %}",
-                type: "get",
-                data: {
-                    "machine_related_pk": machine_related_pk,
-                },
-                success: function (data) {
-                    if (data.status) {
-                        layer.msg(data.msg, {icon: 1, time: 1000});
-                        window.location.reload();
-                    } else {
-                        $("#machine-related-del").text(data.msg);
-                        setTimeout(function () {
-                            $("#machine-related-del").text("");
-                        }, 2000)
+            layer.confirm("确认要移除此节目单吗？", function (index) {
+                $.ajax({
+                    url: "{% url 'machine_related_del' %}",
+                    type: "get",
+                    data: {
+                        "machine_related_pk": machine_related_pk,
+                    },
+                    success: function (data) {
+                        if (data.status) {
+                            layer.msg(data.msg, {icon: 1, time: 1000});
+                            window.location.reload();
+                        } else {
+                            $("#machine-related-del").text(data.msg);
+                            setTimeout(function () {
+                                $("#machine-related-del").text("");
+                            }, 2000)
+                        }
                     }
-                }
+                })
             })
+
         }
 
         <!--发布-->

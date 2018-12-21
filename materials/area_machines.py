@@ -2,7 +2,7 @@ from django.http import JsonResponse
 from django.shortcuts import render
 from materials import models
 from advpublish.settings import SUPPLIERS
-from materials.get_pgs import get_pg
+from materials.utils.get_pgs import get_pg
 
 
 def areas_get(request):
@@ -163,6 +163,7 @@ def machine_addpi(request, nid):
         interval_list.append(k.pk)
     ret = {
         "machine_nid": nid,
+        "machine_title": machine.title,
         "machines_related": machines_related,
         "intervals": intervals,
         "interval_list": interval_list,

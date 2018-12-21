@@ -1,22 +1,117 @@
 {% extends 'base.html' %}
 {% block title %}
-    发布公益节目
+    {{ machine_title }}--发布公益节目
+{% endblock %}
+{% block extra_css %}
+    <style>
+        .layui-form-item {
+            padding: 30px 10% 5px 10%;
+            width: 30%;
+            text-align: center;
+        }
+
+        .primary-tip, .secondary-tip {
+            padding-top: 10px;
+            color: orange;
+        }
+    </style>
+
 {% endblock %}
 {% block content %}
-    <form class="layui-form" action="">
+    <form class="layui-form">
+        {% csrf_token %}
         <div class="layui-form-item">
-            <label class="layui-form-label">单行选择框</label>
+            <label class="layui-form-label">主屏节目</label>
             <div class="layui-input-block">
-                <select name="interest" lay-filter="aihao">
-                    <option value=""></option>
-                    <option value="0">写作</option>
-                    <option value="1" selected="">阅读</option>
-                    <option value="2">游戏</option>
-                    <option value="3">音乐</option>
-                    <option value="4">旅行</option>
+                <select name="primary" id="primary-selected">
+                    {% for programme in welfare_primary_programmes %}
+                        <option name="{{ programme.pk }}">{{ programme.title }}</option>
+                    {% endfor %}
                 </select>
             </div>
+            <div class="primary-tip">
+                <label>已选主屏节目单：</label>{{ is_primary }}
+            </div>
+        </div>
+
+        <div class="layui-form-item welfare-programme-machine-main">
+            <label class="layui-form-label">副屏节目</label>
+            <div class="layui-input-block">
+                <select id="secondary-selected">
+                    {% for programme in welfare_secondary_programmes %}
+                        <option name="{{ programme.pk }}">{{ programme.title }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="secondary-tip">
+                <label>已选副屏节目单：</label>{{ is_secondary }}
+            </div>
+        </div>
+
+        <div class="layui-form-item qrcode-programme-machine-main">
+            <label class="layui-form-label">二维码节目</label>
+            <div class="layui-input-block">
+                <select id="qrcode-selected">
+                    {% for programme in qrcode_programmes %}
+                        <option name="{{ programme.pk }}">{{ programme.title }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="secondary-tip">
+                <label>已选二维码节目单：</label>{{ is_qrcode }}
+            </div>
+        </div>
+
+        <div class="layui-form-item template-programme-machine-main">
+            <label class="layui-form-label">模板节目</label>
+            <div class="layui-input-block">
+                <select id="template-selected">
+                    {% for programme in machine_template %}
+                        <option name="{{ programme.pk }}">{{ programme.title }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="secondary-tip">
+                <label>已选二维码节目单：</label>{{ is_template }}
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <div class="layui-input-block">
+                <input class="layui-btn" value="发布" onclick="WelfareProgramme()"/>
+            </div>
+            <span id="programme-machine-error"></span>
         </div>
     </form>
+
+{% endblock %}
+{% block extra_js %}
+    <script>
+        function WelfareProgramme() {
+            var primary_programme = $("#primary-selected option:selected").attr("name");
+            var secondary_programme = $("#secondary-selected option:selected").attr("name");
+            var qrcode_programme = $("#qrcode-selected option:selected").attr("name");
+            var machine_template = $("#template-selected option:selected").attr("name");
+            $.ajax({
+                url: "{% url 'welfare_programme_machine' machine_nid %}",
+                type: "post",
+                data: {
+                    primary_programme: primary_programme,
+                    secondary_programme: secondary_programme,
+                    qrcode_programme: qrcode_programme,
+                    machine_template: machine_template,
+                    csrfmiddlewaretoken: $("[name='csrfmiddlewaretoken']").val()
+                },
+                dataType: "json",
+                success: function (data) {
+                    if (data.status) {
+                        window.location.reload()
+                    } else {
+                        $("#programme-machine-error").text(data.msg)
+                    }
+                }
+            })
+        }
+    </script>
 
 {% endblock %}

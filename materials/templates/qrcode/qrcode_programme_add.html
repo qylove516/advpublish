@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block content %}
+    {% csrf_token %}
+    <div class="layui-form-item">
+        <label class="layui-form-label">标题</label>
+        <div class="layui-input-block" style="width: 300px;">
+            <input type="text" class="layui-input" placeholder="请输入标题" id="welfare-programme">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-input-block" style="width: 300px;">
+            <input type="button" class="layui-btn" value="提交" onclick="WelfareProgrammeAdd()">
+        </div><span id="welfare-programme-add-error"></span>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function WelfareProgrammeAdd() {
+        var title = $("#welfare-programme").val();
+        $.ajax({
+            url: "{% url 'qrcode_programme_add' %}",
+            type: "post",
+            data: {
+                title: title,
+                csrfmiddlewaretoken: $("[name='csrfmiddlewaretoken']").val(),
+            },
+            dataType: "json",
+            success: function (data) {
+                if (data.status){
+                    parent.location.reload()
+                }else{
+                    $("#welfare-programme-add-error").text(data.msg);
+                    setTimeout(function () {
+                        $("#welfare-programme-add-error").text("");
+                    }, 1000)
+                }
+            }
+        })
+    }
+</script>
+{% endblock %}

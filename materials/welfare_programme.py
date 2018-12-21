@@ -2,180 +2,165 @@ from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.shortcuts import render
 from materials import models
-from materials.get_pgs import get_pg
-from django.db.models import Q
+from materials.utils.programme import Programme, ProgrammeMaterial
 
 
-def welfare_programme_primary(request):
+def welfare_primary_programme(request):
     # 公益主屏
-    user = request.user
-    welfare_programmes = None
-    if user.is_manage:
-        welfare_programmes = models.PrimaryWelfareProgramme.objects.filter(user=user)
-    elif user.is_superuser:
-        welfare_programmes = models.PrimaryWelfareProgramme.objects.all()
-    ret = {
-        "welfare_programmes": welfare_programmes,
-        "user_pk": user.pk,
-    }
-    return render(request, 'welfare/welfare_programme_primary.html', ret)
+    ret = Programme(request, models.PrimaryWelfareProgramme.objects).detail("welfare_primary")
+    return render(request, 'welfare/welfare_primary_programme.html', ret)
 
 
-def welfare_programme_primary_add(request):
-    user = request.user
+def welfare_primary_programme_add(request):
     if request.method == "POST":
-        title = request.POST.get("title")
-        ret = {"status": True, "msg": "创建成功！"}
-        welfare_programme = models.PrimaryWelfareProgramme.objects.filter(title=title).first()
-        if welfare_programme:
-            ret["status"] = False
-            ret["msg"] = "此标题已存在！"
-        else:
-            try:
-                models.PrimaryWelfareProgramme.objects.create(title=title, user=user)
-            except Exception as e:
-                ret["status"] = False
-                ret["msg"] = "创建失败！"
+        ret = Programme(request, models.PrimaryWelfareProgramme.objects).add()
         return JsonResponse(ret)
-    return render(request, "welfare/welfare_programme_primary_add.html")
+    else:
+        return render(request, "welfare/welfare_primary_programme_add.html")
 
 
-def welfare_programme_primary_del(request):
-    welfare_programme_pk = request.GET.get("welfare_programme_pk")
-    ret = {
-        "status": True,
-        "msg": "删除成功！"
-    }
-    try:
-        models.PrimaryWelfareProgramme.objects.filter(pk=welfare_programme_pk).delete()
-    except Exception as e:
-        ret["status"] = False
-        ret["msg"] = "删除失败！"
+def welfare_primary_programme_del(request):
+    ret = Programme(request, models.PrimaryWelfareProgramme.objects).delete()
     return JsonResponse(ret)
 
 
 # 公益主屏编辑
 @login_required
-def welfare_programme_primary_editor(request, programme_pk, user_pk):
+def welfare_primary_programme_editor(request, programme_pk):
     if request.method == "POST":
-        sort_list = request.POST.getlist("sort_list")[0]
-        sort_list = sort_list.split(",")
-        ret = {"status": True}
-        try:
-            for s in sort_list:
-                models.PrimaryWelfareProgrammeMaterial.objects.filter(id=int(s)).update(nid=sort_list.index(s))
-        except Exception as e:
-            ret["status"] = False
+        ret = ProgrammeMaterial(request, models.PrimaryWelfareProgrammeMaterial.objects).editor(programme_pk, "welfare_primary")
         return JsonResponse(ret)
-    welfare_primary_materials = models.PrimaryWelfareProgrammeMaterial.objects.filter(
-        programme_id=programme_pk).order_by("nid")
-    welfare_primary_programme = models.PrimaryWelfareProgramme.objects.filter(pk=programme_pk).first()
-    files = models.MaterialFiles.objects.filter(user_id=user_pk).order_by("-create_time")
-    files, current_page = get_pg(request, files, 8)
-    ret = {
-        "welfare_primary_programme": welfare_primary_programme,  # 节目单
-        "welfare_primary_materials": welfare_primary_materials,  # 节目单临时素材
-        "is_play_time": True,
-        "programme_pk": programme_pk,
-        "current_page": current_page,
-        "user_pk": user_pk,
-        "files": files,
-    }
-    return render(request, 'welfare/welfare_programme_primary_editor.html', ret)
+    else:
+        ret = ProgrammeMaterial(request, models.PrimaryWelfareProgrammeMaterial.objects).editor(programme_pk, "welfare_primary")
+        return render(request, 'welfare/welfare_primary_programme_editor.html', ret)
 
 
 # 公益主屏添加临时素材
-def welfare_primary_material_add(request, welfare_programme_pk):
+def welfare_primary_material_add(request, programme_pk):
     if request.method == "POST":
-        materials = request.POST.getlist("materials")[0]
-        materials = materials.split(",")
-        m_length = len(materials)
-        welfare_programme = models.PrimaryWelfareProgramme.objects.filter(pk=welfare_programme_pk).first()
-        p_materials = models.PrimaryWelfareProgrammeMaterial.objects.filter(programme_id=welfare_programme_pk)
-        for k in p_materials:
-            nid = k.nid
-            k.nid = nid + m_length
-            k.save()
-        ret = {
-            "status": True,
-            "msg": "添加素材成功！"
-        }
-        if welfare_programme:
-            try:
-                for p, m in enumerate(materials):
-                    material_obj = models.MaterialFiles.objects.filter(pk=m).first()
-                    models.PrimaryWelfareProgrammeMaterial.objects.create(
-                        programme=welfare_programme,
-                        material=material_obj,
-                        nid=p
-                    )
-            except Exception as e:
-                ret["status"] = False
-                ret["msg"] = "添加素材失败"
+        ret = ProgrammeMaterial(request, models.PrimaryWelfareProgrammeMaterial.objects).add(programme_pk, "welfare_primary")
         return JsonResponse(ret)
 
 
-# 删除节目单临时素材
-def welfare_ppm_del(request):
-    material_pk = request.GET.get("material_pk")
-    programme_pk = request.GET.get("programme_pk")
-    material_nid = models.PrimaryWelfareProgrammeMaterial.objects.filter(pk=material_pk).first().nid
-    p_materials = models.PrimaryWelfareProgrammeMaterial.objects.filter(Q(programme_id=programme_pk),
-                                                                        Q(nid__gt=material_nid))
-    ret = {
-        "status": True,
-        "msg": "删除成功！"
-    }
-    for k in p_materials:
-        nid = k.nid
-        k.nid = nid - 1
-        k.save()
-    try:
-        models.PrimaryWelfareProgrammeMaterial.objects.filter(pk=material_pk).delete()
-    except Exception as e:
-        ret["status"] = False
-        ret["msg"] = "删除失败！"
+# 删除公益主屏临时素材
+def welfare_primary_material_del(request):
+    ret = ProgrammeMaterial(request, models.PrimaryWelfareProgrammeMaterial.objects).delete()
     return JsonResponse(ret)
 
 
 def welfare_primary_material_change_time(request):
-    material_pk = request.GET.get("material_pk")
-    play_time = request.GET.get("play_time")
-    ret = {
-        "status": True,
-        "msg": "修改成功"
-    }
-    try:
-        models.PrimaryWelfareProgrammeMaterial.objects.filter(pk=material_pk).update(play_time=play_time)
-    except Exception as e:
-        ret["status"] = False
-        ret["msg"] = "修改失败！"
+    ret = ProgrammeMaterial(request, models.PrimaryWelfareProgrammeMaterial.objects).change_time()
     return JsonResponse(ret)
 
 
 # 查看公益节目
-def welfare_programme_view(request, programme_pk):
-    programme = models.PrimaryWelfareProgramme.objects.filter(pk=programme_pk).first()
-    programme_materials = models.PrimaryWelfareProgrammeMaterial.objects.filter(programme_id=programme_pk)
-    ret = {
-        "is_play_time": True,
-        "programme": programme,
-        "programme_materials": programme_materials
-    }
+def welfare_primary_material_view(request, programme_pk):
+    ret = ProgrammeMaterial(request, models.PrimaryWelfareProgrammeMaterial.objects).programme_view(programme_pk, "welfare_primary")
+    return render(request, "include/programme_view.html", ret)
+
+
+# 公益副屏
+def welfare_secondary_programme(request):
+    ret = Programme(request, models.SecondaryWelfareProgramme.objects).detail("welfare_primary")
+    return render(request, 'welfare/welfare_secondary_programme.html', ret)
+
+
+# 公益副屏添加节目单
+def welfare_secondary_programme_add(request):
+    if request.method == "POST":
+        ret = Programme(request, models.SecondaryWelfareProgramme.objects).add()
+        return JsonResponse(ret)
+    return render(request, "welfare/welfare_secondary_programme_add.html")
+
+
+# 删除副屏节目单
+def welfare_secondary_programme_del(request):
+    ret = Programme(request, models.SecondaryWelfareProgramme.objects).delete()
+    return JsonResponse(ret)
+
+
+# 节目单编辑
+@login_required
+def welfare_secondary_material_editor(request, programme_pk):
+    if request.method == "POST":
+        ret = ProgrammeMaterial(request, models.SecondaryWelfareProgrammeMaterial.objects).editor(programme_pk, "welfare_secondary")
+        return JsonResponse(ret)
+    else:
+        ret = ProgrammeMaterial(request, models.SecondaryWelfareProgrammeMaterial.objects).editor(programme_pk, "welfare_secondary")
+        return render(request, 'welfare/welfare_secondary_programme_editor.html', ret)
+
+
+# 公益副屏节目单素材添加
+def welfare_secondary_material_add(request, programme_pk):
+    if request.method == "POST":
+        ret = ProgrammeMaterial(request, models.SecondaryWelfareProgrammeMaterial.objects).add(programme_pk, "welfare_secondary")
+        return JsonResponse(ret)
+
+
+# 删除公益副屏节目素材
+def welfare_secondary_material_del(request):
+    ret = ProgrammeMaterial(request, models.SecondaryWelfareProgrammeMaterial.objects).delete()
+    return JsonResponse(ret)
+
+
+def welfare_secondary_material_view(request, programme_pk):
+    ret = ProgrammeMaterial(request, models.PrimaryWelfareProgrammeMaterial.objects).programme_view(programme_pk, "welfare_secondary")
     return render(request, "include/programme_view.html", ret)
 
 
 # 公益节目单与设备
 def welfare_programme_machine(request, machine_nid):
+    if request.method == "POST":
+        primary_programme = request.POST.get("primary_programme")
+        secondary_programme = request.POST.get("secondary_programme")
+        qrcode_programme = request.POST.get("qrcode_programme")
+        machine_template = request.POST.get("machine_template")
+        ret = {"status": True, "msg": "创建成功！"}
+        try:
+            primary = models.PrimaryWelfareProgrammeRelated.objects.filter(machine_id=machine_nid)
+            if primary.first():
+                primary.update(programme_id=primary_programme)
+            else:
+                models.PrimaryWelfareProgrammeRelated.objects.create(programme_id=primary_programme, machine_id=machine_nid)
+            secondary = models.SecondaryWelfareProgrammeRelated.objects.filter(machine_id=machine_nid)
+            if secondary.first():
+                secondary.update(welfare_programme_id=secondary_programme)
+            else:
+                models.SecondaryWelfareProgrammeRelated.objects.create(welfare_programme_id=secondary_programme, machine_id=machine_nid)
+            qrcode = models.QrCodeProgrammeRelated.objects.filter(machine_id=machine_nid)
+            if qrcode.first():
+                qrcode.update(programme_id=qrcode_programme)
+            else:
+                models.QrCodeProgrammeRelated.objects.create(programme_id=qrcode_programme, machine_id=machine_nid)
+            template = models.MachineTemplateRelated.objects.filter(machine_id=machine_nid)
+            if template.first():
+                qrcode.update(programme_id=machine_template)
+            else:
+                models.MachineTemplateRelated.objects.create(programme_id=machine_template, machine_id=machine_nid)
+        except Exception as e:
+            ret["status"] = False
+            ret["msg"] = "创建失败！"
+        return JsonResponse(ret)
     ret = {
         "machine_nid": machine_nid,
+        "machine_title": models.Machine.objects.filter(nid=machine_nid).first().title,
     }
+
     if request.user.is_manage:
-        welfare_programmes = models.PrimaryWelfareProgramme.objects.filter(user_id=request.user.pk)
-        ret["welfare_programmes"] = welfare_programmes
-
+        welfare_primary_programmes = models.PrimaryWelfareProgramme.objects.filter(user_id=request.user.pk)
+        welfare_secondary_programmes = models.SecondaryWelfareProgramme.objects.filter(user_id=request.user.pk)
+        qrcode_programmes = models.QrCodeProgramme.objects.filter(user_id=request.user.pk)
+        machine_template = models.MachineTemplate.objects.filter(user_id=request.user.pk)
+        is_primary = models.PrimaryWelfareProgrammeRelated.objects.filter(machine__nid=machine_nid).first()
+        is_secondary = models.SecondaryWelfareProgrammeRelated.objects.filter(machine__nid=machine_nid).first()
+        is_qrcode = models.QrCodeProgrammeRelated.objects.filter(machine__nid=machine_nid).first()
+        is_template = models.MachineTemplateRelated.objects.filter(machine__nid=machine_nid).first()
+        ret["welfare_primary_programmes"] = welfare_primary_programmes
+        ret['welfare_secondary_programmes'] = welfare_secondary_programmes
+        ret["qrcode_programmes"] = qrcode_programmes
+        ret["machine_template"] = machine_template
+        ret["is_primary"] = is_primary
+        ret["is_secondary"] = is_secondary
+        ret["is_qrcode"] = is_qrcode
+        ret["is_template"] = is_template
     return render(request, "welfare/welfare_programme_machine.html", ret)
-
-
-def welfare_programme_secondary(request):
-    pass

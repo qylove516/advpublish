@@ -11,9 +11,9 @@
             <select style="width: auto;height: 30px; margin-top: 5px" id="tag-id">
                 {% for s in tags %}
                     {% if forloop.first %}
-                        <option selected="selected" id="material-add-option" name="{{ s.pk }}">{{ s.user.username }}-{{ s.title }}</option>
+                        <option selected="selected" name="{{ s.pk }}">{{ s.user.username }}-{{ s.title }}</option>
                     {% else %}
-                        <option value="volvo" id="material-add-option" name="{{ s.pk }}">{{ s.user.username }}-{{ s.title }}</option>
+                        <option value="volvo" name="{{ s.pk }}">{{ s.user.username }}-{{ s.title }}</option>
                     {% endif %}
                 {% endfor %}
             </select>
