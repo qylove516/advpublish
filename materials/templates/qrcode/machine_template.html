@@ -22,9 +22,11 @@
         </a>
     </div>
     <xblock>
-        <button class="layui-btn" onclick="x_admin_show('添加节目单','{% url 'machine_template_add' %}', 600, 300)">
-            <i class="layui-icon"></i>添加节目单
-        </button>
+        {% if request.user.is_manage %}
+            <button class="layui-btn" onclick="x_admin_show('添加节目单','{% url 'machine_template_add' %}', 600, 300)">
+                <i class="layui-icon"></i>添加节目单
+            </button>
+        {% endif %}
         <span class="x-right" style="line-height:40px">共有数据：{{ programmes.count }} 条</span>
     </xblock>
     <table class="layui-table layui-form">
@@ -47,7 +49,7 @@
                 <td>
                     <!-- 当前登录用户为节目单的用户时才可以编辑或删除节目单 -->
                     {% if request.user.pk|is_power:programme.user.pk %}
-                        <a href="{% url 'machine_template_editor' programme.pk  %}"
+                        <a href="{% url 'machine_template_editor' programme.pk %}"
                            target="_blank" style="color: white">
                             <button class="layui-btn layui-btn-xs"><i class="layui-icon">&#xe642;</i>编辑</button>
                         </a>
@@ -56,10 +58,10 @@
                                 href="javascript:;"><i class="layui-icon">&#xe640;</i>删除节目单
                         </button>
                     {% elif request.user.is_superuser %}
-                        <a href="{% url 'machine_material_view' programme.pk %}"
-                           target="_blank" style="color: white">
-                            <button class="layui-btn layui-btn-xs"><i class="layui-icon">&#xe642;</i>查看</button>
-                        </a>
+                        <button class="layui-btn layui-btn-xs" onclick="x_admin_show('添加节目单','{% url 'machine_material_view' programme.pk %}')">
+                            <i class="layui-icon">&#xe642;</i>
+                            查看
+                        </button>
                     {% endif %}
                 </td>
             </tr>

@@ -7,7 +7,7 @@ from materials.utils.get_pgs import get_pg
 
 def admin_role(request):
     # 角色分组
-    groups_all = models.Group.objects.all().order_by("name")
+    groups_all = models.Group.objects.all().order_by("-id")
     groups, current_page = get_pg(request, groups_all, 8)
     ret = {
         "groups_all": groups_all,

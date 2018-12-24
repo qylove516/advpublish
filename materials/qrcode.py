@@ -30,10 +30,10 @@ def qrcode_programme_del(request):
 @login_required
 def qrcode_programme_editor(request, programme_pk):
     if request.method == "POST":
-        ret = ProgrammeMaterial(request, models.QrCodeProgrammeMaterial.objects).editor(programme_pk, "qrcode")
+        ret = ProgrammeMaterial(request, models.QrCodeProgrammeMaterial.objects).editor(programme_pk, "qrcode", is_play_time=False)
         return JsonResponse(ret)
     else:
-        ret = ProgrammeMaterial(request, models.QrCodeProgrammeMaterial.objects).editor(programme_pk, "qrcode")
+        ret = ProgrammeMaterial(request, models.QrCodeProgrammeMaterial.objects).editor(programme_pk, "qrcode", is_play_time=False)
         return render(request, "qrcode/qrcode_programme_editor.html", ret)
 
 
@@ -52,7 +52,7 @@ def qrcode_material_del(request):
 
 # 查看
 def qrcode_material_view(request, programme_pk):
-    ret = ProgrammeMaterial(request, models.QrCodeProgrammeMaterial.objects).programme_view(programme_pk, "qrcode")
+    ret = ProgrammeMaterial(request, models.QrCodeProgrammeMaterial.objects).programme_view(programme_pk, "qrcode", is_play_time=False)
     return render(request, "include/programme_view.html", ret)
 
 
@@ -81,10 +81,10 @@ def machine_template_del(request):
 @login_required
 def machine_template_editor(request, programme_pk):
     if request.method == "POST":
-        ret = ProgrammeMaterial(request, models.MachineTemplateMaterial.objects).editor(programme_pk, "template")
+        ret = ProgrammeMaterial(request, models.MachineTemplateMaterial.objects).editor(programme_pk, "template", is_play_time=False)
         return JsonResponse(ret)
     else:
-        ret = ProgrammeMaterial(request, models.MachineTemplateMaterial.objects).editor(programme_pk, "template")
+        ret = ProgrammeMaterial(request, models.MachineTemplateMaterial.objects).editor(programme_pk, "template", is_play_time=False)
         return render(request, "qrcode/machine_template_editor.html", ret)
 
 
@@ -103,5 +103,5 @@ def machine_material_del(request):
 
 # 查看模板
 def machine_material_view(request, programme_pk):
-    ret = ProgrammeMaterial(request, models.MachineTemplateMaterial.objects).programme_view(programme_pk, "template")
+    ret = ProgrammeMaterial(request, models.MachineTemplateMaterial.objects).programme_view(programme_pk, "template", is_play_time=False)
     return render(request, "include/programme_view.html", ret)

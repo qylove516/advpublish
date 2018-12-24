@@ -77,13 +77,13 @@ def index(request):
     if user.is_superuser:
         users = models.UserInfo.objects.all().filter(~Q(is_superuser=True)).order_by("username")
         areas = models.Area.objects.all().order_by("-title")
-        group = models.Group.objects.all().order_by("name")
+        group = models.Group.objects.all().order_by("-id")
     elif user.is_manage:
         group = user.groups.all().order_by("name")[0]
         users = group.user_set.all().order_by("-create_time")
         areas = group.area_set.all().order_by("group_id")
     else:
-        group = user.groups.all().order_by("name")
+        group = user.groups.all().order_by("-id")
         areas = []
         for g in group:
             for u in g.area_set.all().order_by("group_id"):

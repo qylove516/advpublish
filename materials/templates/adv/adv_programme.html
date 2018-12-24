@@ -60,10 +60,10 @@
                     {% endif %}
 
                     {% if request.user.is_manage or request.user.is_superuser %}
-                        <a href="{% url 'programme_view' programme.pk %}"
-                           target="_blank" style="color: white">
-                            <button class="layui-btn layui-btn-xs"><i class="layui-icon">&#xe642;</i>查看</button>
-                        </a>
+                        <button class="layui-btn layui-btn-xs" onclick="x_admin_show('节目单详情','{% url 'programme_view' programme.pk %}')">
+                            <i class="layui-icon">&#xe642;</i>
+                            查看
+                        </button>
                     {% endif %}
                 </td>
             </tr>

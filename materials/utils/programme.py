@@ -79,7 +79,7 @@ class ProgrammeMaterial(object):
         self.model = model
         self.user = self.request.user
 
-    def editor(self, programme_pk, role):
+    def editor(self, programme_pk, role, is_play_time):
         if self.request.method == "POST":
             sort_list = self.request.POST.getlist("sort_list")[0]
             sort_list = sort_list.split(",")
@@ -93,6 +93,7 @@ class ProgrammeMaterial(object):
         ret = {
             "programme_pk": programme_pk,
             "user_pk": self.user.pk,
+            "is_play_time": is_play_time,
         }
         programmes = programme_related(programme_pk, role)
         user = models.UserInfo.objects.filter(pk=self.user.pk).first()
@@ -162,11 +163,12 @@ class ProgrammeMaterial(object):
             ret["msg"] = "修改失败！"
         return ret
 
-    def programme_view(self, programme_pk, role):
+    def programme_view(self, programme_pk, role, is_play_time):
         programme = programme_related(programme_pk, role)
-        programme_materials = self.model.filter(programme_id=programme_pk)
+        programme_materials = self.model.filter(programme_id=programme_pk).order_by("nid")
+        programme_materials, current_page = get_pg(self.request, programme_materials, 12)
         ret = {
-            "is_play_time": True,
+            "is_play_time": is_play_time,
             "programme": programme,
             "programme_materials": programme_materials
         }

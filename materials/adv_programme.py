@@ -30,10 +30,10 @@ def adv_programme_del(request):
 @login_required
 def adv_programme_editor(request, programme_pk):
     if request.method == "POST":
-        ret = ProgrammeMaterial(request, models.AdvProgrammeMaterial.objects).editor(programme_pk, "adv")
+        ret = ProgrammeMaterial(request, models.AdvProgrammeMaterial.objects).editor(programme_pk, "adv", is_play_time=True)
         return JsonResponse(ret)
     else:
-        ret = ProgrammeMaterial(request, models.AdvProgrammeMaterial.objects).editor(programme_pk, "adv")
+        ret = ProgrammeMaterial(request, models.AdvProgrammeMaterial.objects).editor(programme_pk, "adv", is_play_time=True)
         return render(request, 'adv/adv_programme_editor.html', ret)
 
 
@@ -58,5 +58,5 @@ def programme_change_time(request):
 
 # 查看节目单内容
 def programme_view(request, programme_pk):
-    ret = ProgrammeMaterial(request, models.AdvProgrammeMaterial.objects).programme_view(programme_pk, "adv")
+    ret = ProgrammeMaterial(request, models.AdvProgrammeMaterial.objects).programme_view(programme_pk, "adv", is_play_time=True)
     return render(request, "include/programme_view.html", ret)

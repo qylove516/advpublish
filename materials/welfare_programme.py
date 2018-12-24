@@ -28,10 +28,10 @@ def welfare_primary_programme_del(request):
 @login_required
 def welfare_primary_programme_editor(request, programme_pk):
     if request.method == "POST":
-        ret = ProgrammeMaterial(request, models.PrimaryWelfareProgrammeMaterial.objects).editor(programme_pk, "welfare_primary")
+        ret = ProgrammeMaterial(request, models.PrimaryWelfareProgrammeMaterial.objects).editor(programme_pk, "welfare_primary", is_play_time=True)
         return JsonResponse(ret)
     else:
-        ret = ProgrammeMaterial(request, models.PrimaryWelfareProgrammeMaterial.objects).editor(programme_pk, "welfare_primary")
+        ret = ProgrammeMaterial(request, models.PrimaryWelfareProgrammeMaterial.objects).editor(programme_pk, "welfare_primary", is_play_time=True)
         return render(request, 'welfare/welfare_primary_programme_editor.html', ret)
 
 
@@ -55,7 +55,7 @@ def welfare_primary_material_change_time(request):
 
 # 查看公益节目
 def welfare_primary_material_view(request, programme_pk):
-    ret = ProgrammeMaterial(request, models.PrimaryWelfareProgrammeMaterial.objects).programme_view(programme_pk, "welfare_primary")
+    ret = ProgrammeMaterial(request, models.PrimaryWelfareProgrammeMaterial.objects).programme_view(programme_pk, "welfare_primary", is_play_time=True)
     return render(request, "include/programme_view.html", ret)
 
 
@@ -83,10 +83,10 @@ def welfare_secondary_programme_del(request):
 @login_required
 def welfare_secondary_material_editor(request, programme_pk):
     if request.method == "POST":
-        ret = ProgrammeMaterial(request, models.SecondaryWelfareProgrammeMaterial.objects).editor(programme_pk, "welfare_secondary")
+        ret = ProgrammeMaterial(request, models.SecondaryWelfareProgrammeMaterial.objects).editor(programme_pk, "welfare_secondary", is_play_time=False)
         return JsonResponse(ret)
     else:
-        ret = ProgrammeMaterial(request, models.SecondaryWelfareProgrammeMaterial.objects).editor(programme_pk, "welfare_secondary")
+        ret = ProgrammeMaterial(request, models.SecondaryWelfareProgrammeMaterial.objects).editor(programme_pk, "welfare_secondary", is_play_time=False)
         return render(request, 'welfare/welfare_secondary_programme_editor.html', ret)
 
 
@@ -104,7 +104,7 @@ def welfare_secondary_material_del(request):
 
 
 def welfare_secondary_material_view(request, programme_pk):
-    ret = ProgrammeMaterial(request, models.PrimaryWelfareProgrammeMaterial.objects).programme_view(programme_pk, "welfare_secondary")
+    ret = ProgrammeMaterial(request, models.SecondaryWelfareProgrammeMaterial.objects).programme_view(programme_pk, "welfare_secondary", is_play_time=False)
     return render(request, "include/programme_view.html", ret)
 
 
