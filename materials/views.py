@@ -119,28 +119,20 @@ def materials(request):
 def materials_add(request):
     file_types = settings.FILE_TYPES
     if request.method == 'POST':
-        time = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
         file_obj = request.FILES.get('file')
         tag_pk = request.POST.get('tag_pk')
         title = file_obj.name
         ret = {"status": True, "msg": ""}
-        if title.split(".")[-1] in file_types:
-            file_path = os.path.join(settings.MEDIA_ROOT, "uploads", time + file_obj.name)
-            try:
-                f = open(file_path, "wb")
-                for chunk in file_obj.chunks():
-                    f.write(chunk)
-                f.close()
-                tag = models.FileTag.objects.filter(pk=tag_pk).first()
-                tag_user = tag.user
-                models.MaterialFiles.objects.create(title=title, tag=tag, files=file_path, user=tag_user)
-                ret["msg"] = "上传成功！"
-            except Exception as e:
+        try:
+            file_type = title.split('.')[-1]
+            if file_type in file_types:
+                models.MaterialFiles.objects.create(title=title, tag_id=tag_pk, files=file_obj, user_id=request.user.pk)
+            else:
                 ret["status"] = False
-                ret["msg"] = "上传失败"
-        else:
+                ret["msg"] = "格式不支持！"
+        except Exception as e:
             ret["status"] = False
-            ret["msg"] = "不支持此文件格式！"
+            ret["msg"] = "未知错误！"
         return JsonResponse(ret)
     if request.user.is_superuser:
         tags = models.FileTag.objects.all()
