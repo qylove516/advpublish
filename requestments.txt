@@ -1,6 +1,8 @@
 acollections==0.1
 decorator==4.3.0
 Django==2.1.3
+django-cors-headers==2.4.0
+djangorestframework==3.9.0
 imageio==2.4.1
 moviepy==0.2.3.5
 numpy==1.15.4
