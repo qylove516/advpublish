@@ -1,3 +1,0 @@
-1、级联删除，节目单删除，节目单关联的素材临时表也应该删除；地域删除，关联的地域时间表也应该删除；（后改为使用数据库关联删除）
-2、时间分配这个模块现在没有使用，url 中  db_time  assign_time, html 中 db_time.html assign_time.html 暂不使用
-3、时间与 advprogrammerelated 级联， 若删除时间，则相应的设备找不到节目单
