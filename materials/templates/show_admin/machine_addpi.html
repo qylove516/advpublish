@@ -10,27 +10,24 @@
 {% block extra_css %}
     <style>
         .machine-related-body {
+            width: 30%;
             display: inline-block;
             float: left;
-            width: 50%;
             padding: 20px;
         }
 
-        .machine-related-nav {
-            width: 100px;
-            height: 20px;
-            display: inline-block;
-            padding: 10px;
+        .machine-related-time {
+            margin-left: 10px;
+            text-align: center;
         }
 
         .machine-related-programme {
             display: inline-block;
-            padding-left: 15%;
         }
 
         .adv-machine-related-editor {
-            width: 40%;
-            padding: 20px;
+            width: 100%;
+            padding-top: 20px;
             float: left;
         }
 
@@ -41,34 +38,29 @@
 
 {% endblock %}
 {% block content %}
-    <div class="machine-related-body">
-        <form class="layui-form">
-            {% csrf_token %}
-            <!--如果不是管理员或者超级管理员-->
-            <div class="adv-machine-related">
-                <div class="layui-form-item">
-                    {% if request.user.pk|is_user_manage %}
-                        <div>选择广告时间</div>
-                    {% else %}
-                        <div>时间选择情况</div>
-                    {% endif %}
-
-                    <div class="layui-input-block">
-                        {% for interval in intervals %}
-                            {% if interval.pk|compare_interval:interval_list %}
-                                <input type="checkbox" name="machine-interval" value="{{ interval.pk }}"
-                                       title="{{ interval.title }}" disabled="disabled">
-                            {% else %}
-                                <input type="checkbox" name="machine-interval" value="{{ interval.pk }}"
-                                       title="{{ interval.title }}">
-                            {% endif %}
-                        {% endfor %}
+    {% if request.user.pk|is_user_manage %}
+        <div class="machine-related-body">
+            <form class="layui-form">
+                {% csrf_token %}
+                <!--如果不是管理员或者超级管理员-->
+                <div class="adv-machine-related">
+                    <div class="layui-form-item">
+                        <h3 style="text-align: center; padding-bottom: 10px">选择节目单与广告时间</h3>
+                        <div class="layui-input-block machine-related-time">
+                            {% for interval in intervals %}
+                                {% if interval.pk|compare_interval:interval_list %}
+                                    <input type="checkbox" name="machine-interval" value="{{ interval.pk }}"
+                                           title="{{ interval.title }}" disabled="disabled">
+                                {% else %}
+                                    <input type="checkbox" name="machine-interval" value="{{ interval.pk }}"
+                                           title="{{ interval.title }}">
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                        <hr>
                     </div>
-                    <hr>
-                </div>
-                <!--单选，获取节目单-->
-                {% if request.user.pk|is_user_manage %}
-                    <div>选择节目</div>
+                    <!--单选，获取节目单-->
+                    <h3 style="text-align: center; padding-bottom: 10px">选择节目</h3>
                     <div class="layui-input-inline machine-related-programme">
                         <select id="machine-programme" class="machine-related-select">
                             {% for programme in programmes %}
@@ -81,38 +73,59 @@
                                value="提交审核"/>
                     </div>
                     <span id="machine-add-error" style="text-align: center; display: block;"></span>
-                {% endif %}
-            </div>
 
-        </form>
-    </div>
-    <div class="adv-machine-related-editor">
-        <div>
-            {% for machine_related in machines_related %}
-                <div>
-                    <button class="layui-btn" style="width: 200px;">
-                        <a href="{% url 'programme_view' machine_related.programme_id %}">{{ machine_related.programme.title }}</a>
-                    </button>
-                    {% if request.user.is_manage %}
-                        <input type="button" value="发布" class="layui-btn"
-                               onclick="MachineProgrammePublish(this, '{{ machine_related.pk }}')">
-                    {% endif %}
-                    <div class="layui-btn" >
-                        <i class="layui-icon" onclick="MachineAddPIDel(this, '{{ machine_related.pk }}')" style="font-size: 16px">
-                            删除&nbsp;&nbsp;
-                        </i>
-                    </div>
                 </div>
 
-                <span id="machine-related-del"></span>
-                {% with intervals=machine_related.pk|machine_to_interval %}
-                    {% for interval in intervals %}
-                        <div class="machine-related-nav">
-                            {{ interval.title }}
-                        </div>
-                    {% endfor %}
-                {% endwith %}
-            {% endfor %}
+            </form>
+        </div>
+    {% endif %}
+    <div class="adv-machine-related-editor" {% if request.user.pk|is_user_manage %} style="width: 65%" {% endif %}>
+        <div>
+            <h3 style="text-align: center; padding-bottom: 10px">节目单与时刻列表</h3>
+            <table class="layui-table layui-form">
+                <thead>
+                <tr>
+                    <th width="10" style="text-align: center;">节目单</th>
+                    <th width="80" style="text-align: center;">时间段</th>
+                    <th width="10" style="text-align: center;">操作</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for machine_related in machines_related %}
+                    <tr>
+                        <td style="text-align: center">{{ machine_related.programme.title }}</td>
+                        {% with intervals=machine_related.pk|machine_to_interval %}
+                            <td style="height: 80px;">
+                                <div style="display: inline;text-align: center">
+                                    {% for interval in intervals %}
+                                        <button class="layui-btn layui-btn-sm" style="margin: 5px;">
+                                            {{ interval.title }}
+                                        </button>
+                                    {% endfor %}
+                                </div>
+                            </td>
+                        {% endwith %}
+                        <td style="text-align: center">
+                            <div>
+                                <button class="layui-btn layui-btn-sm" onclick="x_admin_show('查看节目单','{% url 'programme_view' machine_related.programme_id %}')">
+                                    查看
+                                </button>
+                                {% if request.user.is_manage %}
+                                    <button class="layui-btn layui-btn-sm" onclick="MachineProgrammePublish(this, '{{ machine_related.pk }}')">
+                                        发布
+                                    </button>
+                                {% endif %}
+                                <button class="layui-btn layui-btn-sm" onclick="MachineAddPIDel(this, '{{ machine_related.pk }}')">
+                                    删除
+                                </button>
+                            </div>
+
+                            <span id="machine-related-del"></span>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
         </div>
     </div>
 {% endblock %}

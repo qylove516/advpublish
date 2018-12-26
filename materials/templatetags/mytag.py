@@ -49,7 +49,7 @@ def area_list(area_pk):
 
 @register.filter
 def machine_to_interval(pk):
-    intervals = models.AdvProgrammeRelated.objects.filter(pk=pk).first().interval.all()
+    intervals = models.AdvProgrammeRelated.objects.filter(pk=pk).first().interval.all().order_by('-id')
     return intervals
 
 

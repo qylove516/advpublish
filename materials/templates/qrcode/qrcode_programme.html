@@ -58,7 +58,7 @@
                                 href="javascript:;"><i class="layui-icon">&#xe640;</i>删除节目单
                         </button>
                     {% elif request.user.is_superuser %}
-                        <button class="layui-btn layui-btn-xs" onclick="x_admin_show('添加节目单','{% url 'qrcode_material_view' programme.pk %}')">
+                        <button class="layui-btn layui-btn-xs" onclick="x_admin_show('查看节目单','{% url 'qrcode_material_view' programme.pk %}')">
                             <i class="layui-icon">&#xe642;</i>
                             查看
                         </button>

@@ -16,7 +16,8 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include, re_path
 from materials import urls as materials_urls
-from materials import views
+from materials.remote import urls as remote_urls
+from materials.views import views
 from django.views.static import serve
 from advpublish import settings
 
@@ -30,4 +31,5 @@ urlpatterns = [
     path('logout/', views.logout, name='logout'),
     path('user/', views.user, name='user'),
     path('backend/', include(materials_urls)),
+    path('home/', include(remote_urls))
 ]

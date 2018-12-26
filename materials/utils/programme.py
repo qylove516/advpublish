@@ -104,7 +104,7 @@ class ProgrammeMaterial(object):
             ret["programmes"] = programmes
             ret["files"] = files
             ret["current_page"] = current_page
-            ret["is_play_time"] = True
+            ret["is_play_time"] = is_play_time
         return ret
 
     def add(self, programme_pk, role):

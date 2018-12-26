@@ -1,6 +1,6 @@
 from django.urls import path, re_path
-from materials import views
-from materials import assign, adv_programme, area_machines, xadmin, welfare_programme, qrcode
+from materials.views import views
+from materials.views import assign, adv_programme, area_machines, xadmin, welfare_programme, qrcode
 
 urlpatterns = [
     path('welcome/', views.welcome, name='welcome'),

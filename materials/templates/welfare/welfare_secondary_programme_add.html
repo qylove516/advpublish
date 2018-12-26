@@ -19,7 +19,7 @@
     function WelfareProgrammeAdd() {
         var title = $("#welfare-programme").val();
         $.ajax({
-            url: "{% url 'welfare_programme_secondary_add' %}",
+            url: "{% url 'welfare_secondary_programme_add' %}",
             type: "post",
             data: {
                 title: title,
